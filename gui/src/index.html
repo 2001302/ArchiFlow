@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Engine</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- 메뉴바 추가 -->
+    <div class="menubar">
+        <div class="menubar-left">
+            <div class="window-controls">
+                <div class="control minimize"></div>
+                <div class="control maximize"></div>
+                <div class="control close"></div>
+            </div>
+        </div>
+        <div class="menubar-title">AI Engine</div>
+        <div class="menubar-right"></div>
+    </div>
+
+    <div class="container">
+        <!-- 사이드바 -->
+        <div class="sidebar">
+            <div class="chat-list">
+                <button class="new-chat">+ New Chat</button>
+                <div class="history">
+                    <!-- 채팅 기록이 여기에 추가됩니다 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 메인 채팅 영역 -->
+        <div class="main-content">
+            <div class="chat-container">
+                <div class="messages" id="messages">
+                    <!-- 메시지들이 여기에 추가됩니다 -->
+                </div>
+                <div class="input-container">
+                    <textarea 
+                        id="userInput" 
+                        placeholder="무엇을 도와드릴까요?"
+                        rows="1"
+                    ></textarea>
+                    <button class="send-button">
+                        <svg viewBox="0 0 24 24" class="send-icon">
+                            <path d="M2,21L23,12L2,3V10L17,12L2,14V21Z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="renderer.js"></script>
+</body>
+</html> 
