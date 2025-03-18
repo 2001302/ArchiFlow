@@ -25,3 +25,15 @@ Makefile
 *.out
 # Debug files
 *.dSYM/
+
+x64/
+.vs/
+model/
+
+*.tlog
+*.obj
+*.dds
+*.dll
+*.gguf
+*.llamafile
+*.safetensors
