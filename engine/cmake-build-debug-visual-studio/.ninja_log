@@ -1,7 +1,0 @@
-# ninja log v6
-17	173	7647827682318237	InferenceEngine/CMakeFiles/InferenceEngine.dir/library.cpp.obj.ddi	85f03b50a56cf583
-173	234	7647827684433391	InferenceEngine/CMakeFiles/InferenceEngine.dir/CXX.dd	b790a7b15f3dc265
-173	234	7647827684433391	C:/Users/source/ai engine/engine/cmake-build-debug-visual-studio/InferenceEngine/CMakeFiles/InferenceEngine.dir/CXXModules.json	b790a7b15f3dc265
-173	234	7647827684433391	InferenceEngine/CMakeFiles/InferenceEngine.dir/library.cpp.obj.modmap	b790a7b15f3dc265
-238	648	7647827684515208	InferenceEngine/CMakeFiles/InferenceEngine.dir/library.cpp.obj	d5b4f03b5c107d1a
-651	732	7647827688656876	InferenceEngine/InferenceEngine.lib	e6ca30c2b9c03f8b

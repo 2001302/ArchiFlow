@@ -22,11 +22,8 @@ Makefile
 *.llamafile
 *.safetensors
 
-# Visual Studio
-x64/
-.vs/
-*.sln
-*.vcxproj
-*.vcxproj.filters
-
+#model file
 model/
+
+#third party
+vcpkg/
