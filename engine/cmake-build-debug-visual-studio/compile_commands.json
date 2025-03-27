@@ -1,0 +1,122 @@
+[
+{
+  "directory": "C:/Users/source/ai engine/engine/cmake-build-debug-visual-studio",
+  "command": "C:\\PROGRA~1\\MICROS~1\\2022\\COMMUN~1\\VC\\Tools\\Llvm\\x64\\bin\\clang.exe -DGGML_BUILD -DGGML_SCHED_MAX_COPIES=4 -DGGML_SHARED -DGGML_USE_LLAMAFILE -DGGML_USE_OPENMP -D_CRT_SECURE_NO_WARNINGS -D_XOPEN_SOURCE=600 -Dggml_EXPORTS -I\"C:/Users/source/ai engine/engine/InferenceEngine/llama.cpp/ggml/src/../include\" -I\"C:/Users/source/ai engine/engine/InferenceEngine/llama.cpp/ggml/src/.\" -O0 -std=gnu11 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -g -Xclang -gcodeview -Wshadow -Wstrict-prototypes -Wpointer-arith -Wmissing-prototypes -Werror=implicit-int -Werror=implicit-function-declaration -Wall -Wextra -Wpedantic -Wcast-qual -Wno-unused-function -Wunreachable-code-break -Wunreachable-code-return -Wdouble-promotion -march=native -fopenmp=libomp -o InferenceEngine\\llama.cpp\\ggml\\src\\CMakeFiles\\ggml.dir\\ggml.c.obj -c \"C:\\Users\\source\\ai engine\\engine\\InferenceEngine\\llama.cpp\\ggml\\src\\ggml.c\"",
+  "file": "C:\\Users\\source\\ai engine\\engine\\InferenceEngine\\llama.cpp\\ggml\\src\\ggml.c",
+  "output": "InferenceEngine\\llama.cpp\\ggml\\src\\CMakeFiles\\ggml.dir\\ggml.c.obj"
+},
+{
+  "directory": "C:/Users/source/ai engine/engine/cmake-build-debug-visual-studio",
+  "command": "C:\\PROGRA~1\\MICROS~1\\2022\\COMMUN~1\\VC\\Tools\\Llvm\\x64\\bin\\clang.exe -DGGML_BUILD -DGGML_SCHED_MAX_COPIES=4 -DGGML_SHARED -DGGML_USE_LLAMAFILE -DGGML_USE_OPENMP -D_CRT_SECURE_NO_WARNINGS -D_XOPEN_SOURCE=600 -Dggml_EXPORTS -I\"C:/Users/source/ai engine/engine/InferenceEngine/llama.cpp/ggml/src/../include\" -I\"C:/Users/source/ai engine/engine/InferenceEngine/llama.cpp/ggml/src/.\" -O0 -std=gnu11 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -g -Xclang -gcodeview -Wshadow -Wstrict-prototypes -Wpointer-arith -Wmissing-prototypes -Werror=implicit-int -Werror=implicit-function-declaration -Wall -Wextra -Wpedantic -Wcast-qual -Wno-unused-function -Wunreachable-code-break -Wunreachable-code-return -Wdouble-promotion -march=native -fopenmp=libomp -o InferenceEngine\\llama.cpp\\ggml\\src\\CMakeFiles\\ggml.dir\\ggml-alloc.c.obj -c \"C:\\Users\\source\\ai engine\\engine\\InferenceEngine\\llama.cpp\\ggml\\src\\ggml-alloc.c\"",
+  "file": "C:\\Users\\source\\ai engine\\engine\\InferenceEngine\\llama.cpp\\ggml\\src\\ggml-alloc.c",
+  "output": "InferenceEngine\\llama.cpp\\ggml\\src\\CMakeFiles\\ggml.dir\\ggml-alloc.c.obj"
+},
+{
+  "directory": "C:/Users/source/ai engine/engine/cmake-build-debug-visual-studio",
+  "command": "C:\\PROGRA~1\\MICROS~1\\2022\\COMMUN~1\\VC\\Tools\\Llvm\\x64\\bin\\clang.exe -DGGML_BUILD -DGGML_SCHED_MAX_COPIES=4 -DGGML_SHARED -DGGML_USE_LLAMAFILE -DGGML_USE_OPENMP -D_CRT_SECURE_NO_WARNINGS -D_XOPEN_SOURCE=600 -Dggml_EXPORTS -I\"C:/Users/source/ai engine/engine/InferenceEngine/llama.cpp/ggml/src/../include\" -I\"C:/Users/source/ai engine/engine/InferenceEngine/llama.cpp/ggml/src/.\" -O0 -std=gnu11 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -g -Xclang -gcodeview -Wshadow -Wstrict-prototypes -Wpointer-arith -Wmissing-prototypes -Werror=implicit-int -Werror=implicit-function-declaration -Wall -Wextra -Wpedantic -Wcast-qual -Wno-unused-function -Wunreachable-code-break -Wunreachable-code-return -Wdouble-promotion -march=native -fopenmp=libomp -o InferenceEngine\\llama.cpp\\ggml\\src\\CMakeFiles\\ggml.dir\\ggml-backend.c.obj -c \"C:\\Users\\source\\ai engine\\engine\\InferenceEngine\\llama.cpp\\ggml\\src\\ggml-backend.c\"",
+  "file": "C:\\Users\\source\\ai engine\\engine\\InferenceEngine\\llama.cpp\\ggml\\src\\ggml-backend.c",
+  "output": "InferenceEngine\\llama.cpp\\ggml\\src\\CMakeFiles\\ggml.dir\\ggml-backend.c.obj"
+},
+{
+  "directory": "C:/Users/source/ai engine/engine/cmake-build-debug-visual-studio",
+  "command": "C:\\PROGRA~1\\MICROS~1\\2022\\COMMUN~1\\VC\\Tools\\Llvm\\x64\\bin\\clang.exe -DGGML_BUILD -DGGML_SCHED_MAX_COPIES=4 -DGGML_SHARED -DGGML_USE_LLAMAFILE -DGGML_USE_OPENMP -D_CRT_SECURE_NO_WARNINGS -D_XOPEN_SOURCE=600 -Dggml_EXPORTS -I\"C:/Users/source/ai engine/engine/InferenceEngine/llama.cpp/ggml/src/../include\" -I\"C:/Users/source/ai engine/engine/InferenceEngine/llama.cpp/ggml/src/.\" -O0 -std=gnu11 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -g -Xclang -gcodeview -Wshadow -Wstrict-prototypes -Wpointer-arith -Wmissing-prototypes -Werror=implicit-int -Werror=implicit-function-declaration -Wall -Wextra -Wpedantic -Wcast-qual -Wno-unused-function -Wunreachable-code-break -Wunreachable-code-return -Wdouble-promotion -march=native -fopenmp=libomp -o InferenceEngine\\llama.cpp\\ggml\\src\\CMakeFiles\\ggml.dir\\ggml-quants.c.obj -c \"C:\\Users\\source\\ai engine\\engine\\InferenceEngine\\llama.cpp\\ggml\\src\\ggml-quants.c\"",
+  "file": "C:\\Users\\source\\ai engine\\engine\\InferenceEngine\\llama.cpp\\ggml\\src\\ggml-quants.c",
+  "output": "InferenceEngine\\llama.cpp\\ggml\\src\\CMakeFiles\\ggml.dir\\ggml-quants.c.obj"
+},
+{
+  "directory": "C:/Users/source/ai engine/engine/cmake-build-debug-visual-studio",
+  "command": "C:\\PROGRA~1\\MICROS~1\\2022\\COMMUN~1\\VC\\Tools\\Llvm\\x64\\bin\\CLANG_~1.EXE -DGGML_BUILD -DGGML_SCHED_MAX_COPIES=4 -DGGML_SHARED -DGGML_USE_LLAMAFILE -DGGML_USE_OPENMP -D_CRT_SECURE_NO_WARNINGS -D_XOPEN_SOURCE=600 -Dggml_EXPORTS -I\"C:/Users/source/ai engine/engine/InferenceEngine/llama.cpp/ggml/src/../include\" -I\"C:/Users/source/ai engine/engine/InferenceEngine/llama.cpp/ggml/src/.\" -O0 -std=gnu++14 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -g -Xclang -gcodeview -Wmissing-declarations -Wmissing-noreturn -Wall -Wextra -Wpedantic -Wcast-qual -Wno-unused-function -Wunreachable-code-break -Wunreachable-code-return -Wmissing-prototypes -Wextra-semi -march=native -fopenmp=libomp -o InferenceEngine\\llama.cpp\\ggml\\src\\CMakeFiles\\ggml.dir\\llamafile\\sgemm.cpp.obj -c \"C:\\Users\\source\\ai engine\\engine\\InferenceEngine\\llama.cpp\\ggml\\src\\llamafile\\sgemm.cpp\"",
+  "file": "C:\\Users\\source\\ai engine\\engine\\InferenceEngine\\llama.cpp\\ggml\\src\\llamafile\\sgemm.cpp",
+  "output": "InferenceEngine\\llama.cpp\\ggml\\src\\CMakeFiles\\ggml.dir\\llamafile\\sgemm.cpp.obj"
+},
+{
+  "directory": "C:/Users/source/ai engine/engine/cmake-build-debug-visual-studio",
+  "command": "C:\\PROGRA~1\\MICROS~1\\2022\\COMMUN~1\\VC\\Tools\\Llvm\\x64\\bin\\clang.exe -DGGML_BUILD -DGGML_SCHED_MAX_COPIES=4 -DGGML_SHARED -DGGML_USE_LLAMAFILE -DGGML_USE_OPENMP -D_CRT_SECURE_NO_WARNINGS -D_XOPEN_SOURCE=600 -Dggml_EXPORTS -I\"C:/Users/source/ai engine/engine/InferenceEngine/llama.cpp/ggml/src/../include\" -I\"C:/Users/source/ai engine/engine/InferenceEngine/llama.cpp/ggml/src/.\" -O0 -std=gnu11 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -g -Xclang -gcodeview -Wshadow -Wstrict-prototypes -Wpointer-arith -Wmissing-prototypes -Werror=implicit-int -Werror=implicit-function-declaration -Wall -Wextra -Wpedantic -Wcast-qual -Wno-unused-function -Wunreachable-code-break -Wunreachable-code-return -Wdouble-promotion -march=native -fopenmp=libomp -o InferenceEngine\\llama.cpp\\ggml\\src\\CMakeFiles\\ggml.dir\\ggml-aarch64.c.obj -c \"C:\\Users\\source\\ai engine\\engine\\InferenceEngine\\llama.cpp\\ggml\\src\\ggml-aarch64.c\"",
+  "file": "C:\\Users\\source\\ai engine\\engine\\InferenceEngine\\llama.cpp\\ggml\\src\\ggml-aarch64.c",
+  "output": "InferenceEngine\\llama.cpp\\ggml\\src\\CMakeFiles\\ggml.dir\\ggml-aarch64.c.obj"
+},
+{
+  "directory": "C:/Users/source/ai engine/engine/cmake-build-debug-visual-studio",
+  "command": "C:\\PROGRA~1\\MICROS~1\\2022\\COMMUN~1\\VC\\Tools\\Llvm\\x64\\bin\\CLANG_~1.EXE -DLLAMA_BUILD -DLLAMA_SHARED -D_CRT_SECURE_NO_WARNINGS -Dllama_EXPORTS -I\"C:/Users/source/ai engine/engine/InferenceEngine/llama.cpp/src/.\" -I\"C:/Users/source/ai engine/engine/InferenceEngine/llama.cpp/src/../include\" -I\"C:/Users/source/ai engine/engine/InferenceEngine/llama.cpp/ggml/src/../include\" -O0 -std=gnu++20 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -g -Xclang -gcodeview -o InferenceEngine\\llama.cpp\\src\\CMakeFiles\\llama.dir\\llama.cpp.obj -c \"C:\\Users\\source\\ai engine\\engine\\InferenceEngine\\llama.cpp\\src\\llama.cpp\"",
+  "file": "C:\\Users\\source\\ai engine\\engine\\InferenceEngine\\llama.cpp\\src\\llama.cpp",
+  "output": "InferenceEngine\\llama.cpp\\src\\CMakeFiles\\llama.dir\\llama.cpp.obj"
+},
+{
+  "directory": "C:/Users/source/ai engine/engine/cmake-build-debug-visual-studio",
+  "command": "C:\\PROGRA~1\\MICROS~1\\2022\\COMMUN~1\\VC\\Tools\\Llvm\\x64\\bin\\CLANG_~1.EXE -DLLAMA_BUILD -DLLAMA_SHARED -D_CRT_SECURE_NO_WARNINGS -Dllama_EXPORTS -I\"C:/Users/source/ai engine/engine/InferenceEngine/llama.cpp/src/.\" -I\"C:/Users/source/ai engine/engine/InferenceEngine/llama.cpp/src/../include\" -I\"C:/Users/source/ai engine/engine/InferenceEngine/llama.cpp/ggml/src/../include\" -O0 -std=gnu++20 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -g -Xclang -gcodeview -o InferenceEngine\\llama.cpp\\src\\CMakeFiles\\llama.dir\\llama-vocab.cpp.obj -c \"C:\\Users\\source\\ai engine\\engine\\InferenceEngine\\llama.cpp\\src\\llama-vocab.cpp\"",
+  "file": "C:\\Users\\source\\ai engine\\engine\\InferenceEngine\\llama.cpp\\src\\llama-vocab.cpp",
+  "output": "InferenceEngine\\llama.cpp\\src\\CMakeFiles\\llama.dir\\llama-vocab.cpp.obj"
+},
+{
+  "directory": "C:/Users/source/ai engine/engine/cmake-build-debug-visual-studio",
+  "command": "C:\\PROGRA~1\\MICROS~1\\2022\\COMMUN~1\\VC\\Tools\\Llvm\\x64\\bin\\CLANG_~1.EXE -DLLAMA_BUILD -DLLAMA_SHARED -D_CRT_SECURE_NO_WARNINGS -Dllama_EXPORTS -I\"C:/Users/source/ai engine/engine/InferenceEngine/llama.cpp/src/.\" -I\"C:/Users/source/ai engine/engine/InferenceEngine/llama.cpp/src/../include\" -I\"C:/Users/source/ai engine/engine/InferenceEngine/llama.cpp/ggml/src/../include\" -O0 -std=gnu++20 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -g -Xclang -gcodeview -o InferenceEngine\\llama.cpp\\src\\CMakeFiles\\llama.dir\\llama-grammar.cpp.obj -c \"C:\\Users\\source\\ai engine\\engine\\InferenceEngine\\llama.cpp\\src\\llama-grammar.cpp\"",
+  "file": "C:\\Users\\source\\ai engine\\engine\\InferenceEngine\\llama.cpp\\src\\llama-grammar.cpp",
+  "output": "InferenceEngine\\llama.cpp\\src\\CMakeFiles\\llama.dir\\llama-grammar.cpp.obj"
+},
+{
+  "directory": "C:/Users/source/ai engine/engine/cmake-build-debug-visual-studio",
+  "command": "C:\\PROGRA~1\\MICROS~1\\2022\\COMMUN~1\\VC\\Tools\\Llvm\\x64\\bin\\CLANG_~1.EXE -DLLAMA_BUILD -DLLAMA_SHARED -D_CRT_SECURE_NO_WARNINGS -Dllama_EXPORTS -I\"C:/Users/source/ai engine/engine/InferenceEngine/llama.cpp/src/.\" -I\"C:/Users/source/ai engine/engine/InferenceEngine/llama.cpp/src/../include\" -I\"C:/Users/source/ai engine/engine/InferenceEngine/llama.cpp/ggml/src/../include\" -O0 -std=gnu++20 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -g -Xclang -gcodeview -o InferenceEngine\\llama.cpp\\src\\CMakeFiles\\llama.dir\\llama-sampling.cpp.obj -c \"C:\\Users\\source\\ai engine\\engine\\InferenceEngine\\llama.cpp\\src\\llama-sampling.cpp\"",
+  "file": "C:\\Users\\source\\ai engine\\engine\\InferenceEngine\\llama.cpp\\src\\llama-sampling.cpp",
+  "output": "InferenceEngine\\llama.cpp\\src\\CMakeFiles\\llama.dir\\llama-sampling.cpp.obj"
+},
+{
+  "directory": "C:/Users/source/ai engine/engine/cmake-build-debug-visual-studio",
+  "command": "C:\\PROGRA~1\\MICROS~1\\2022\\COMMUN~1\\VC\\Tools\\Llvm\\x64\\bin\\CLANG_~1.EXE -DLLAMA_BUILD -DLLAMA_SHARED -D_CRT_SECURE_NO_WARNINGS -Dllama_EXPORTS -I\"C:/Users/source/ai engine/engine/InferenceEngine/llama.cpp/src/.\" -I\"C:/Users/source/ai engine/engine/InferenceEngine/llama.cpp/src/../include\" -I\"C:/Users/source/ai engine/engine/InferenceEngine/llama.cpp/ggml/src/../include\" -O0 -std=gnu++20 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -g -Xclang -gcodeview -o InferenceEngine\\llama.cpp\\src\\CMakeFiles\\llama.dir\\unicode.cpp.obj -c \"C:\\Users\\source\\ai engine\\engine\\InferenceEngine\\llama.cpp\\src\\unicode.cpp\"",
+  "file": "C:\\Users\\source\\ai engine\\engine\\InferenceEngine\\llama.cpp\\src\\unicode.cpp",
+  "output": "InferenceEngine\\llama.cpp\\src\\CMakeFiles\\llama.dir\\unicode.cpp.obj"
+},
+{
+  "directory": "C:/Users/source/ai engine/engine/cmake-build-debug-visual-studio",
+  "command": "C:\\PROGRA~1\\MICROS~1\\2022\\COMMUN~1\\VC\\Tools\\Llvm\\x64\\bin\\CLANG_~1.EXE -DLLAMA_BUILD -DLLAMA_SHARED -D_CRT_SECURE_NO_WARNINGS -Dllama_EXPORTS -I\"C:/Users/source/ai engine/engine/InferenceEngine/llama.cpp/src/.\" -I\"C:/Users/source/ai engine/engine/InferenceEngine/llama.cpp/src/../include\" -I\"C:/Users/source/ai engine/engine/InferenceEngine/llama.cpp/ggml/src/../include\" -O0 -std=gnu++20 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -g -Xclang -gcodeview -o InferenceEngine\\llama.cpp\\src\\CMakeFiles\\llama.dir\\unicode-data.cpp.obj -c \"C:\\Users\\source\\ai engine\\engine\\InferenceEngine\\llama.cpp\\src\\unicode-data.cpp\"",
+  "file": "C:\\Users\\source\\ai engine\\engine\\InferenceEngine\\llama.cpp\\src\\unicode-data.cpp",
+  "output": "InferenceEngine\\llama.cpp\\src\\CMakeFiles\\llama.dir\\unicode-data.cpp.obj"
+},
+{
+  "directory": "C:/Users/source/ai engine/engine/cmake-build-debug-visual-studio",
+  "command": "C:\\PROGRA~1\\MICROS~1\\2022\\COMMUN~1\\VC\\Tools\\Llvm\\x64\\bin\\CLANG_~1.EXE -D_CRT_SECURE_NO_WARNINGS -O0 -std=gnu++20 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -g -Xclang -gcodeview -o InferenceEngine\\llama.cpp\\common\\CMakeFiles\\build_info.dir\\build-info.cpp.obj -c \"C:\\Users\\source\\ai engine\\engine\\InferenceEngine\\llama.cpp\\common\\build-info.cpp\"",
+  "file": "C:\\Users\\source\\ai engine\\engine\\InferenceEngine\\llama.cpp\\common\\build-info.cpp",
+  "output": "InferenceEngine\\llama.cpp\\common\\CMakeFiles\\build_info.dir\\build-info.cpp.obj"
+},
+{
+  "directory": "C:/Users/source/ai engine/engine/cmake-build-debug-visual-studio",
+  "command": "C:\\PROGRA~1\\MICROS~1\\2022\\COMMUN~1\\VC\\Tools\\Llvm\\x64\\bin\\CLANG_~1.EXE -D_CRT_SECURE_NO_WARNINGS -I\"C:/Users/source/ai engine/engine/InferenceEngine/llama.cpp/common/.\" -I\"C:/Users/source/ai engine/engine/InferenceEngine/llama.cpp/src/.\" -I\"C:/Users/source/ai engine/engine/InferenceEngine/llama.cpp/src/../include\" -I\"C:/Users/source/ai engine/engine/InferenceEngine/llama.cpp/ggml/src/../include\" -O0 -std=gnu++20 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -g -Xclang -gcodeview -o InferenceEngine\\llama.cpp\\common\\CMakeFiles\\common.dir\\common.cpp.obj -c \"C:\\Users\\source\\ai engine\\engine\\InferenceEngine\\llama.cpp\\common\\common.cpp\"",
+  "file": "C:\\Users\\source\\ai engine\\engine\\InferenceEngine\\llama.cpp\\common\\common.cpp",
+  "output": "InferenceEngine\\llama.cpp\\common\\CMakeFiles\\common.dir\\common.cpp.obj"
+},
+{
+  "directory": "C:/Users/source/ai engine/engine/cmake-build-debug-visual-studio",
+  "command": "C:\\PROGRA~1\\MICROS~1\\2022\\COMMUN~1\\VC\\Tools\\Llvm\\x64\\bin\\CLANG_~1.EXE -D_CRT_SECURE_NO_WARNINGS -I\"C:/Users/source/ai engine/engine/InferenceEngine/llama.cpp/common/.\" -I\"C:/Users/source/ai engine/engine/InferenceEngine/llama.cpp/src/.\" -I\"C:/Users/source/ai engine/engine/InferenceEngine/llama.cpp/src/../include\" -I\"C:/Users/source/ai engine/engine/InferenceEngine/llama.cpp/ggml/src/../include\" -O0 -std=gnu++20 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -g -Xclang -gcodeview -o InferenceEngine\\llama.cpp\\common\\CMakeFiles\\common.dir\\sampling.cpp.obj -c \"C:\\Users\\source\\ai engine\\engine\\InferenceEngine\\llama.cpp\\common\\sampling.cpp\"",
+  "file": "C:\\Users\\source\\ai engine\\engine\\InferenceEngine\\llama.cpp\\common\\sampling.cpp",
+  "output": "InferenceEngine\\llama.cpp\\common\\CMakeFiles\\common.dir\\sampling.cpp.obj"
+},
+{
+  "directory": "C:/Users/source/ai engine/engine/cmake-build-debug-visual-studio",
+  "command": "C:\\PROGRA~1\\MICROS~1\\2022\\COMMUN~1\\VC\\Tools\\Llvm\\x64\\bin\\CLANG_~1.EXE -D_CRT_SECURE_NO_WARNINGS -I\"C:/Users/source/ai engine/engine/InferenceEngine/llama.cpp/common/.\" -I\"C:/Users/source/ai engine/engine/InferenceEngine/llama.cpp/src/.\" -I\"C:/Users/source/ai engine/engine/InferenceEngine/llama.cpp/src/../include\" -I\"C:/Users/source/ai engine/engine/InferenceEngine/llama.cpp/ggml/src/../include\" -O0 -std=gnu++20 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -g -Xclang -gcodeview -o InferenceEngine\\llama.cpp\\common\\CMakeFiles\\common.dir\\console.cpp.obj -c \"C:\\Users\\source\\ai engine\\engine\\InferenceEngine\\llama.cpp\\common\\console.cpp\"",
+  "file": "C:\\Users\\source\\ai engine\\engine\\InferenceEngine\\llama.cpp\\common\\console.cpp",
+  "output": "InferenceEngine\\llama.cpp\\common\\CMakeFiles\\common.dir\\console.cpp.obj"
+},
+{
+  "directory": "C:/Users/source/ai engine/engine/cmake-build-debug-visual-studio",
+  "command": "C:\\PROGRA~1\\MICROS~1\\2022\\COMMUN~1\\VC\\Tools\\Llvm\\x64\\bin\\CLANG_~1.EXE -D_CRT_SECURE_NO_WARNINGS -I\"C:/Users/source/ai engine/engine/InferenceEngine/llama.cpp/common/.\" -I\"C:/Users/source/ai engine/engine/InferenceEngine/llama.cpp/src/.\" -I\"C:/Users/source/ai engine/engine/InferenceEngine/llama.cpp/src/../include\" -I\"C:/Users/source/ai engine/engine/InferenceEngine/llama.cpp/ggml/src/../include\" -O0 -std=gnu++20 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -g -Xclang -gcodeview -o InferenceEngine\\llama.cpp\\common\\CMakeFiles\\common.dir\\grammar-parser.cpp.obj -c \"C:\\Users\\source\\ai engine\\engine\\InferenceEngine\\llama.cpp\\common\\grammar-parser.cpp\"",
+  "file": "C:\\Users\\source\\ai engine\\engine\\InferenceEngine\\llama.cpp\\common\\grammar-parser.cpp",
+  "output": "InferenceEngine\\llama.cpp\\common\\CMakeFiles\\common.dir\\grammar-parser.cpp.obj"
+},
+{
+  "directory": "C:/Users/source/ai engine/engine/cmake-build-debug-visual-studio",
+  "command": "C:\\PROGRA~1\\MICROS~1\\2022\\COMMUN~1\\VC\\Tools\\Llvm\\x64\\bin\\CLANG_~1.EXE -D_CRT_SECURE_NO_WARNINGS -I\"C:/Users/source/ai engine/engine/InferenceEngine/llama.cpp/common/.\" -I\"C:/Users/source/ai engine/engine/InferenceEngine/llama.cpp/src/.\" -I\"C:/Users/source/ai engine/engine/InferenceEngine/llama.cpp/src/../include\" -I\"C:/Users/source/ai engine/engine/InferenceEngine/llama.cpp/ggml/src/../include\" -O0 -std=gnu++20 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -g -Xclang -gcodeview -o InferenceEngine\\llama.cpp\\common\\CMakeFiles\\common.dir\\json-schema-to-grammar.cpp.obj -c \"C:\\Users\\source\\ai engine\\engine\\InferenceEngine\\llama.cpp\\common\\json-schema-to-grammar.cpp\"",
+  "file": "C:\\Users\\source\\ai engine\\engine\\InferenceEngine\\llama.cpp\\common\\json-schema-to-grammar.cpp",
+  "output": "InferenceEngine\\llama.cpp\\common\\CMakeFiles\\common.dir\\json-schema-to-grammar.cpp.obj"
+},
+{
+  "directory": "C:/Users/source/ai engine/engine/cmake-build-debug-visual-studio",
+  "command": "C:\\PROGRA~1\\MICROS~1\\2022\\COMMUN~1\\VC\\Tools\\Llvm\\x64\\bin\\CLANG_~1.EXE -D_CRT_SECURE_NO_WARNINGS -I\"C:/Users/source/ai engine/engine/InferenceEngine/llama.cpp/common/.\" -I\"C:/Users/source/ai engine/engine/InferenceEngine/llama.cpp/src/.\" -I\"C:/Users/source/ai engine/engine/InferenceEngine/llama.cpp/src/../include\" -I\"C:/Users/source/ai engine/engine/InferenceEngine/llama.cpp/ggml/src/../include\" -O0 -std=gnu++20 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -g -Xclang -gcodeview -o InferenceEngine\\llama.cpp\\common\\CMakeFiles\\common.dir\\train.cpp.obj -c \"C:\\Users\\source\\ai engine\\engine\\InferenceEngine\\llama.cpp\\common\\train.cpp\"",
+  "file": "C:\\Users\\source\\ai engine\\engine\\InferenceEngine\\llama.cpp\\common\\train.cpp",
+  "output": "InferenceEngine\\llama.cpp\\common\\CMakeFiles\\common.dir\\train.cpp.obj"
+},
+{
+  "directory": "C:/Users/source/ai engine/engine/cmake-build-debug-visual-studio",
+  "command": "C:\\PROGRA~1\\MICROS~1\\2022\\COMMUN~1\\VC\\Tools\\Llvm\\x64\\bin\\CLANG_~1.EXE -D_CRT_SECURE_NO_WARNINGS -I\"C:/Users/source/ai engine/engine/InferenceEngine/llama.cpp/common/.\" -I\"C:/Users/source/ai engine/engine/InferenceEngine/llama.cpp/src/.\" -I\"C:/Users/source/ai engine/engine/InferenceEngine/llama.cpp/src/../include\" -I\"C:/Users/source/ai engine/engine/InferenceEngine/llama.cpp/ggml/src/../include\" -O0 -std=gnu++20 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -g -Xclang -gcodeview -o InferenceEngine\\llama.cpp\\common\\CMakeFiles\\common.dir\\ngram-cache.cpp.obj -c \"C:\\Users\\source\\ai engine\\engine\\InferenceEngine\\llama.cpp\\common\\ngram-cache.cpp\"",
+  "file": "C:\\Users\\source\\ai engine\\engine\\InferenceEngine\\llama.cpp\\common\\ngram-cache.cpp",
+  "output": "InferenceEngine\\llama.cpp\\common\\CMakeFiles\\common.dir\\ngram-cache.cpp.obj"
+}
+]

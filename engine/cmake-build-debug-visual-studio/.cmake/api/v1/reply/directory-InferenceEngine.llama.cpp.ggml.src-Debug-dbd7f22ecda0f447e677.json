@@ -1,0 +1,14 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : [],
+		"files" : [],
+		"nodes" : []
+	},
+	"installers" : [],
+	"paths" : 
+	{
+		"build" : "InferenceEngine/llama.cpp/ggml/src",
+		"source" : "InferenceEngine/llama.cpp/ggml/src"
+	}
+}
