@@ -5,6 +5,8 @@ out/
 .DS_Store 
 
 /build/
+cmake-build-debug-visual-studio/
+cmake-build-release-visual-studio/
 CMakeCache.txt
 CMakeFiles/
 Makefile
