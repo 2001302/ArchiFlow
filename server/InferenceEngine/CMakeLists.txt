@@ -1,7 +1,7 @@
 add_library(InferenceEngine STATIC
-        AlgorithmicObject.h
-        AlgorithmicObject.cpp)
+        Include/AlgorithmicObject.h
+        Src/AlgorithmicObject.cpp)
 
-target_include_directories(InferenceEngine PUBLIC ${CMAKE_SOURCE_DIR})
+target_include_directories(InferenceEngine PUBLIC Include)
 
 target_compile_options(InferenceEngine PRIVATE -Wall -Werror)
