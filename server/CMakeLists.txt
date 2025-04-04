@@ -3,3 +3,4 @@ project(Server)
 
 add_subdirectory(Backend)
 add_subdirectory(InferenceEngine)
+add_subdirectory(UnitTest)
