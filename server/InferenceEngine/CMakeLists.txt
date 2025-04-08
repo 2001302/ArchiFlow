@@ -3,8 +3,23 @@ project(InferenceEngine)
 
 add_library(InferenceEngine STATIC
         Include/AlgorithmicObject.h
-        Src/AlgorithmicObject.cpp)
+        Src/AlgorithmicObject.cpp
+)
 
 target_include_directories(InferenceEngine PUBLIC Include)
 
-target_compile_options(InferenceEngine PRIVATE -Wall -Werror)
+# include directory
+target_include_directories(InferenceEngine PUBLIC
+        ${CMAKE_SOURCE_DIR}/vcpkg/vcpkg_installed/x64-windows/include
+)
+# library link
+target_link_directories(InferenceEngine PRIVATE
+        ${CMAKE_SOURCE_DIR}/vcpkg/vcpkg_installed/x64-windows/lib
+)
+# library name
+target_link_libraries(InferenceEngine PRIVATE onnxruntime)
+target_link_libraries(InferenceEngine PRIVATE sentencepiece)
+
+#logging
+get_target_property(INCLUDE_DIRS InferenceEngine INCLUDE_DIRECTORIES)
+message(STATUS "Final include dirs for InferenceEngine: ${INCLUDE_DIRS}")
