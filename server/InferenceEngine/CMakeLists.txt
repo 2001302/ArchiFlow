@@ -4,6 +4,12 @@ project(InferenceEngine)
 add_library(InferenceEngine STATIC
         Include/AlgorithmicObject.h
         Src/AlgorithmicObject.cpp
+        Src/Tokenizer.cpp
+        Include/Tokenizer.h
+        Src/InferenceProcessingBase.cpp
+        Include/InferenceProcessingBase.h
+        Src/AiModelHandler.cpp
+        Include/AiModelHandler.h
 )
 
 target_include_directories(InferenceEngine PUBLIC Include)

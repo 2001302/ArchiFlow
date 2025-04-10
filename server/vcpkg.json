@@ -1,0 +1,10 @@
+{
+    "name": "server",
+    "version": "1.0.0",
+    "dependencies": [
+        "gtest",
+        "onnxruntime-gpu",
+        "sentencepiece"
+    ],
+    "builtin-baseline": "856505bb767458c99d8e3c3ed441f59a058d3687"
+}
