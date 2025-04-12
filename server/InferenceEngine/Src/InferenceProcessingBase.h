@@ -1,7 +1,7 @@
 #ifndef INFERENCEPROCESSINGBASE_H
 #define INFERENCEPROCESSINGBASE_H
 
-#include<AlgorithmicObject.h>
+#include "AlgorithmicObject.h"
 
 namespace inference {
 class InferenceProcessingBase : public AlgorithmicObject {
