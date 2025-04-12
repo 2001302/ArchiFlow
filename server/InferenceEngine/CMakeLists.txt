@@ -23,8 +23,7 @@ target_link_directories(InferenceEngine PRIVATE
         ${CMAKE_SOURCE_DIR}/vcpkg/vcpkg_installed/x64-windows/lib
 )
 # library name
-target_link_libraries(InferenceEngine PRIVATE onnxruntime)
-target_link_libraries(InferenceEngine PRIVATE sentencepiece)
+# target_link_libraries(InferenceEngine PRIVATE onnxruntime)
 
 #logging
 get_target_property(INCLUDE_DIRS InferenceEngine INCLUDE_DIRECTORIES)
