@@ -28,8 +28,8 @@ public:
         }
     }
 
-    bool IntializeModel() { return true; }
-    bool IsInitializeModel() { return true; }
+    bool IntializeModel() const { return true; }
+    bool IsInitializeModel() const { return true; }
 };
 
 AiModelHandler* AiModelHandler::instance = nullptr;

@@ -4,7 +4,7 @@
 #include "AlgorithmicObject.h"
 
 namespace inference {
-class InferenceProcessingBase : public AlgorithmicObject {
+class ProcessingBase : public AlgorithmicObject {
 public:
     void InitializeThis() override;
     void ExcuteThis() override;
