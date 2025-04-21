@@ -10,24 +10,18 @@ add_library(InferenceEngine STATIC
         Src/AiModelHandler.h
         Src/ProcessingTextGeneraor.cpp
         Src/ProcessingTextGeneraor.h
-        Src/ProcessingImageGeneraor.cpp
-        Src/ProcessingImageGeneraor.h
+        Src/ProcessingImageGenerator.cpp
+        Src/ProcessingImageGenerator.h
 )
 
 target_include_directories(InferenceEngine PUBLIC Include)
 
 # include directory
 target_include_directories(InferenceEngine PUBLIC
-        ${CMAKE_SOURCE_DIR}/vcpkg/vcpkg_installed/x64-windows/include
-)
-target_include_directories(InferenceEngine PUBLIC
         ${CMAKE_SOURCE_DIR}/Llama.cpp/include
 )
 
 # library link
-target_link_directories(InferenceEngine PRIVATE
-        ${CMAKE_SOURCE_DIR}/vcpkg/vcpkg_installed/x64-windows/lib
-)
 target_link_directories(InferenceEngine PRIVATE
         ${CMAKE_BINARY_DIR}/Llama.cpp/src
 )

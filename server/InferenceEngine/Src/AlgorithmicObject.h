@@ -7,8 +7,8 @@ namespace inference
 {
 class AlgorithmicObject {
 public:
-    AlgorithmicObject()= default;
-    ~AlgorithmicObject() = default;
+    AlgorithmicObject() = default;
+  virtual ~AlgorithmicObject() = default;
     void Initialize() const;
     void Excute() const;
     void virtual InitializeThis();

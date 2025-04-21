@@ -1,10 +1,10 @@
 #ifndef INFERENCEPROCESSINGIMAGEGENERAOR_H
-#define INFERENCEPROCESSINGIMAGEGENERAOR_H
+#define INFERENCEPROCESSINGIMAGEGENERATOR_H
 #include "ProcessingBase.h"
 
 namespace inference {
 
-class ProcessingImageGeneraor : public ProcessingBase {
+class ProcessingImageGenerator : public ProcessingBase {
 
 };
 
