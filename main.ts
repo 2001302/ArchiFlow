@@ -1,16 +1,9 @@
-import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting, ItemView, WorkspaceLeaf } from 'obsidian';
-
-const VIEW_TYPE_ARCHIFLOW = 'archiflow-right-panel';
-
-// Remember to rename these classes and interfaces!
-
-interface MyPluginSettings {
-	mySetting: string;
-}
-
-const DEFAULT_SETTINGS: MyPluginSettings = {
-	mySetting: 'default'
-}
+import { Editor, MarkdownView, Notice, Plugin } from 'obsidian';
+import { VIEW_TYPE_ARCHIFLOW } from './src/Constants';
+import { MyPluginSettings, DEFAULT_SETTINGS } from './src/Settings';
+import ArchiFlowView from './src/ArchiFlowView';
+import SampleModal from './src/SampleModal';
+import SampleSettingTab from './src/SampleSettingTab';
 
 export default class MyPlugin extends Plugin {
 	settings: MyPluginSettings;
@@ -116,80 +109,5 @@ export default class MyPlugin extends Plugin {
 
 	async saveSettings() {
 		await this.saveData(this.settings);
-	}
-}
-
-class ArchiFlowView extends ItemView {
-	private plugin: MyPlugin;
-
-	constructor(leaf: WorkspaceLeaf, plugin: MyPlugin) {
-		super(leaf);
-		this.plugin = plugin;
-	}
-
-	getViewType(): string {
-		return VIEW_TYPE_ARCHIFLOW;
-	}
-
-	getDisplayText(): string {
-		return 'ArchiFlow';
-	}
-
-	getIcon(): string {
-		return 'layout-right';
-	}
-
-	async onOpen(): Promise<void> {
-		const { contentEl } = this;
-		contentEl.empty();
-		const header = contentEl.createEl('h3', { text: 'ArchiFlow Panel' });
-		const desc = contentEl.createEl('div', { text: '우측 패널에서 다이어그램/채팅 모드를 전환할 수 있도록 구성 예정입니다.' });
-	}
-
-	async onClose(): Promise<void> {
-		const { contentEl } = this;
-		contentEl.empty();
-	}
-}
-
-class SampleModal extends Modal {
-	constructor(app: App) {
-		super(app);
-	}
-
-	onOpen() {
-		const {contentEl} = this;
-		contentEl.setText('Woah!');
-	}
-
-	onClose() {
-		const {contentEl} = this;
-		contentEl.empty();
-	}
-}
-
-class SampleSettingTab extends PluginSettingTab {
-	plugin: MyPlugin;
-
-	constructor(app: App, plugin: MyPlugin) {
-		super(app, plugin);
-		this.plugin = plugin;
-	}
-
-	display(): void {
-		const {containerEl} = this;
-
-		containerEl.empty();
-
-		new Setting(containerEl)
-			.setName('Setting #1')
-			.setDesc('It\'s a secret')
-			.addText(text => text
-				.setPlaceholder('Enter your secret')
-				.setValue(this.plugin.settings.mySetting)
-				.onChange(async (value) => {
-					this.plugin.settings.mySetting = value;
-					await this.plugin.saveSettings();
-				}));
 	}
 }
