@@ -1,4 +1,6 @@
-import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting, ItemView, WorkspaceLeaf } from 'obsidian';
+
+const VIEW_TYPE_ARCHIFLOW = 'archiflow-right-panel';
 
 // Remember to rename these classes and interfaces!
 
@@ -16,10 +18,21 @@ export default class MyPlugin extends Plugin {
 	async onload() {
 		await this.loadSettings();
 
-		// This creates an icon in the left ribbon.
-		const ribbonIconEl = this.addRibbonIcon('dice', 'Sample Plugin', (evt: MouseEvent) => {
-			// Called when the user clicks the icon.
-			new Notice('This is a notice!');
+		// Register right panel view
+		this.registerView(VIEW_TYPE_ARCHIFLOW, (leaf) => new ArchiFlowView(leaf, this));
+
+		// Command to open the right panel
+		this.addCommand({
+			id: 'open-archiflow-panel',
+			name: 'Open ArchiFlow panel',
+			callback: async () => {
+				await this.activateRightPanel();
+			}
+		});
+
+		// Left ribbon icon to open the right panel directly
+		const ribbonIconEl = this.addRibbonIcon('dice', 'ArchiFlow 패널 열기', async (evt: MouseEvent) => {
+			await this.activateRightPanel();
 		});
 		// Perform additional things with the ribbon
 		ribbonIconEl.addClass('my-plugin-ribbon-class');
@@ -78,8 +91,23 @@ export default class MyPlugin extends Plugin {
 		this.registerInterval(window.setInterval(() => console.log('setInterval'), 5 * 60 * 1000));
 	}
 
-	onunload() {
+	async activateRightPanel() {
+		const rightLeaf = this.app.workspace.getRightLeaf(true);
+		if (!rightLeaf) {
+			new Notice('우측 패널을 열 수 없습니다.');
+			return;
+		}
+		await rightLeaf.setViewState({
+			type: VIEW_TYPE_ARCHIFLOW,
+			active: true,
+		});
+		this.app.workspace.revealLeaf(rightLeaf);
+	}
 
+	onunload() {
+		this.app.workspace.getLeavesOfType(VIEW_TYPE_ARCHIFLOW).forEach((leaf) => {
+			leaf.detach();
+		});
 	}
 
 	async loadSettings() {
@@ -88,6 +116,39 @@ export default class MyPlugin extends Plugin {
 
 	async saveSettings() {
 		await this.saveData(this.settings);
+	}
+}
+
+class ArchiFlowView extends ItemView {
+	private plugin: MyPlugin;
+
+	constructor(leaf: WorkspaceLeaf, plugin: MyPlugin) {
+		super(leaf);
+		this.plugin = plugin;
+	}
+
+	getViewType(): string {
+		return VIEW_TYPE_ARCHIFLOW;
+	}
+
+	getDisplayText(): string {
+		return 'ArchiFlow';
+	}
+
+	getIcon(): string {
+		return 'layout-right';
+	}
+
+	async onOpen(): Promise<void> {
+		const { contentEl } = this;
+		contentEl.empty();
+		const header = contentEl.createEl('h3', { text: 'ArchiFlow Panel' });
+		const desc = contentEl.createEl('div', { text: '우측 패널에서 다이어그램/채팅 모드를 전환할 수 있도록 구성 예정입니다.' });
+	}
+
+	async onClose(): Promise<void> {
+		const { contentEl } = this;
+		contentEl.empty();
 	}
 }
 
