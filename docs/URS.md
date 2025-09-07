@@ -16,16 +16,14 @@ SW프로젝트의 효율적인 문서화와 시각화를 위한 프로그램입�
 ## 유저 플로우
 ### 네비게이션 구성
 - 우측 편집 화면
-    - 상단 버튼(다이어그램 선택,Tool Box,Setting)
+    - 상단 버튼(모드 선택,Tool Box,Setting)
     - 하단 모드 선택
-        - Edit Mode
-            - clear 버튼
+        - Diagram Mode
             - 다이어그램 결과 창
                 - 직접 편집 가능
                 - 우클릭으로 prompt에 추가가능
             - prompt 입력 창
         - Chat Mode
-            - clear 버튼
             - text 답변 창
             - prompt 입력 창
 - 매인 화면

@@ -24,7 +24,7 @@ export default class MyPlugin extends Plugin {
 		});
 
 		// Left ribbon icon to open the right panel directly
-		const ribbonIconEl = this.addRibbonIcon('dice', 'ArchiFlow 패널 열기', async (evt: MouseEvent) => {
+		const ribbonIconEl = this.addRibbonIcon('dice', 'open ArchiFlow panel', async (evt: MouseEvent) => {
 			await this.activateRightPanel();
 		});
 		// Perform additional things with the ribbon
@@ -85,16 +85,23 @@ export default class MyPlugin extends Plugin {
 	}
 
 	async activateRightPanel() {
-		const rightLeaf = this.app.workspace.getRightLeaf(true);
-		if (!rightLeaf) {
-			new Notice('우측 패널을 열 수 없습니다.');
-			return;
+		// 이미 ArchiFlow가 열려 있으면 재생성하지 않고 해당 리프를 활성화
+		const existing = this.app.workspace.getLeavesOfType(VIEW_TYPE_ARCHIFLOW)
+		if (existing.length > 0) {
+			this.app.workspace.revealLeaf(existing[0])
+			return
 		}
-		await rightLeaf.setViewState({
-			type: VIEW_TYPE_ARCHIFLOW,
-			active: true,
-		});
-		this.app.workspace.revealLeaf(rightLeaf);
+
+		// 기존 우측 패널 리프를 가져와 그 자리를 대체. 없으면 새로 생성
+		let rightLeaf = this.app.workspace.getRightLeaf(false)
+		if (!rightLeaf) rightLeaf = this.app.workspace.getRightLeaf(true)
+		if (!rightLeaf) {
+			new Notice('fail to open right panel.')
+			return
+		}
+
+		await rightLeaf.setViewState({ type: VIEW_TYPE_ARCHIFLOW, active: true })
+		this.app.workspace.revealLeaf(rightLeaf)
 	}
 
 	onunload() {
