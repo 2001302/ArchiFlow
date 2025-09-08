@@ -6,3 +6,26 @@ available in the app when your plugin is enabled.
 If your plugin does not need CSS, delete this file.
 
 */
+.archiflow-result-block {
+  box-shadow: var(--shadow-l);
+  background: var(--background-primary);
+}
+
+.archiflow-result-header .archiflow-btn {
+  background: transparent;
+  border: none;
+  padding: 4px;
+  border-radius: 6px;
+}
+
+.archiflow-result-header .archiflow-btn:hover {
+  background: var(--background-modifier-hover);
+}
+
+.archiflow-collapsed .archiflow-result {
+  display: none;
+}
+
+.archiflow-toggle-group .archiflow-toggle-item {
+  transition: background 0.15s ease, color 0.15s ease;
+}

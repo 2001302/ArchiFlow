@@ -28,10 +28,11 @@ SW프로젝트의 효율적인 문서화와 시각화를 위한 프로그램입�
             - text 답변 창
             - prompt 입력 창
         - Source Mode
-            - 소스코드 창
+            - 소스코드 답변 창
             - prompt 입력 창
                 - 메인화면 다이어그램 태그
 - 매인 화면
+    - ArchFlow 전용 
 ### 상세 플로우
 1.Setting 창에서 사용할 AI API Key 설정
 2.Diagram Mode

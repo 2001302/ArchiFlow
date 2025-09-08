@@ -105,6 +105,10 @@ export default class ArchiFlowView extends ItemView {
 			header.style.padding = '4px 4px'
 
 			// 액션 버튼들
+			const collapseBtn = header.createEl('button', { cls: 'archiflow-btn clickable-icon' })
+			collapseBtn.setAttr('title', 'Collapse / Expand')
+			setIcon(collapseBtn, 'chevron-up')
+
 			const editBtn = header.createEl('button', { cls: 'archiflow-btn clickable-icon' })
 			editBtn.setAttr('title', 'Edit')
 			setIcon(editBtn, 'pencil')
@@ -118,6 +122,10 @@ export default class ArchiFlowView extends ItemView {
 			applyBtn.setAttr('title', 'Apply')
 			setIcon(applyBtn, 'corner-down-right')
 			applyBtn.style.display = ''
+
+			const copyBtn = header.createEl('button', { cls: 'archiflow-btn clickable-icon' })
+			copyBtn.setAttr('title', 'Copy markdown')
+			setIcon(copyBtn, 'copy')
 
 			const bodyEl = block.createDiv({ cls: 'archiflow-result' })
 			// 프롬프트와 동일한 여백/가로 폭 느낌
@@ -144,6 +152,17 @@ export default class ArchiFlowView extends ItemView {
 			}
 			applyEditingState()
 
+			// Collapse / Expand
+			collapseBtn.addEventListener('click', () => {
+				if (block.hasClass('archiflow-collapsed')) {
+					block.removeClass('archiflow-collapsed')
+					setIcon(collapseBtn, 'chevron-up')
+				} else {
+					block.addClass('archiflow-collapsed')
+					setIcon(collapseBtn, 'chevron-down')
+				}
+			})
+
 			// Edit: 본문을 textarea로 교체
 			editBtn.addEventListener('click', () => {
 				if (isEditing) return
@@ -168,6 +187,16 @@ export default class ArchiFlowView extends ItemView {
 				bodyEl.empty()
 				await MarkdownRenderer.renderMarkdown(currentMarkdown, bodyEl, '', this.plugin)
 				applyEditingState()
+			})
+
+			// Copy: 현재 마크다운을 클립보드로 복사
+			copyBtn.addEventListener('click', async () => {
+				try {
+					await navigator.clipboard.writeText(currentMarkdown)
+					new Notice('copied to clipboard.')
+				} catch (err) {
+					new Notice('failed to copy.')
+				}
 			})
 
 			// Apply: 현재 마크다운을 활성 에디터에 삽입
