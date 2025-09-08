@@ -32,18 +32,47 @@ export default class ArchiFlowView extends ItemView {
 		container.style.flexDirection = 'column'
 		container.style.height = '100%'
 
-		// 상단 바: 다이어그램 선택, Tool Box, Setting
+		// 상단 바: 다이어그램 선택(토글), Tool Box, Setting
 		const topBar = container.createDiv({ cls: 'archiflow-topbar' })
 		topBar.style.display = 'flex'
 		topBar.style.gap = '8px'
 		topBar.style.alignItems = 'center'
 		topBar.style.marginBottom = '8px'
-		const diagramSelect = topBar.createEl('select', { cls: 'archiflow-diagram-select' })
-		;['Diagram', 'Chat'].forEach(name => {
-			const opt = diagramSelect.createEl('option')
-			opt.value = name
-			opt.text = name
-		})
+		// 깔끔한 토글 버튼 그룹으로 교체
+		const toggleGroup = topBar.createDiv({ cls: 'archiflow-toggle-group' })
+		toggleGroup.style.display = 'inline-flex'
+		toggleGroup.style.border = '1px solid var(--background-modifier-border)'
+		toggleGroup.style.borderRadius = '8px'
+		toggleGroup.style.overflow = 'hidden'
+		const toggleBtn = (label: string) => {
+			const btn = toggleGroup.createEl('button', { cls: 'archiflow-btn' })
+			btn.textContent = label
+			btn.style.padding = '6px 10px'
+			btn.style.border = 'none'
+			btn.style.background = 'transparent'
+			btn.style.cursor = 'pointer'
+			btn.style.color = 'var(--text-normal)'
+			btn.addClass('archiflow-toggle-item')
+			return btn
+		}
+		const diagramBtn = toggleBtn('Diagram')
+		const sourceBtn = toggleBtn('Source')
+		const textBtn = toggleBtn('Text')
+		const setActive = (active: HTMLButtonElement) => {
+			[diagramBtn, sourceBtn, textBtn].forEach(b => {
+				if (b === active) {
+					b.style.background = 'var(--interactive-accent)'
+					b.style.color = 'var(--text-on-accent)'
+				} else {
+					b.style.background = 'transparent'
+					b.style.color = 'var(--text-normal)'
+				}
+			})
+		}
+		setActive(diagramBtn)
+		diagramBtn.addEventListener('click', () => setActive(diagramBtn))
+		sourceBtn.addEventListener('click', () => setActive(sourceBtn))
+		textBtn.addEventListener('click', () => setActive(textBtn))
 		const toolBoxBtn = topBar.createEl('button', { cls: 'archiflow-btn clickable-icon' })
 		toolBoxBtn.setAttr('title', 'Tool Box')
 		setIcon(toolBoxBtn, 'wrench')
