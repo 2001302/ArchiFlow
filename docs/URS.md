@@ -33,10 +33,22 @@ SW프로젝트의 효율적인 문서화와 시각화를 위한 프로그램입�
                 - 메인화면 다이어그램 태그
 - 매인 화면
     - ArchFlow 전용 
+
 ### 상세 플로우
-1.Setting 창에서 사용할 AI API Key 설정
-2.Diagram Mode
-    - prompt 입력으로 다이어그램 생성
-    - source 추가해서 다이어그램 생성
-3.Chat Mode
+1.Diagram Mode(결과물을 Diagram으로 받음)
+    Create Diagram
+        - prompt 입력,source 태그해서 답변을 받음
+        - insert 하면서 arch-flow 코드블럭으로 변환
+    Edit Diagram
+        - arch-flow 코드블럭 태그
+        - source 태그
+        - 프롬프트 입력
+        위 동작으로 답변을 받음
+2.Source Mode(결과물을 Source으로 받음)
+    Create Source
+        - arch-flow 코드블럭 태그
+        - source 태그
+        - 프롬프트 입력
+        위 동작으로 답변을 받음
+2.Chat Mode
     - 일반적인 채팅 기능

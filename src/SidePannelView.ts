@@ -2,7 +2,7 @@ import { ItemView, WorkspaceLeaf, setIcon, MarkdownRenderer, MarkdownView, Notic
 import MyPlugin from '../main';
 import { VIEW_TYPE_ARCHIFLOW } from './Constants';
 
-export default class ArchiFlowView extends ItemView {
+export default class SidePannelView extends ItemView {
 	private plugin: MyPlugin;
 
 	constructor(leaf: WorkspaceLeaf, plugin: MyPlugin) {

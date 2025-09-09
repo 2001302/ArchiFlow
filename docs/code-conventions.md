@@ -4,7 +4,7 @@
 - **src 분리**: 런타임 클래스/유틸은 `src/` 폴더에 위치합니다.
 - **파일명 대소문자**:
   - 공개 상수/타입 파일은 PascalCase 사용: `Constants.ts`, `Settings.ts` (리눅스 CI에서 케이스 민감 문제 방지).
-  - 클래스 파일도 PascalCase: `ArchiFlowView.ts`, `SampleModal.ts`, `SampleSettingTab.ts`.
+  - 클래스 파일도 PascalCase: `SidePannelView.ts`, `SampleModal.ts`, `SampleSettingTab.ts`.
   - 루트 엔트리: `main.ts` (Obsidian 빌드/번들 타겟).
 
 ### 임포트 규칙
@@ -14,7 +14,7 @@
 - **엔트리 분리**: `main.ts`는 플러그인 수명주기만 담당하고, 뷰/모달/설정 탭은 `src/`에서 임포트합니다.
 
 ### 명명 규칙
-- **클래스/타입**: PascalCase (예: `MyPlugin`, `ArchiFlowView`, `MyPluginSettings`).
+- **클래스/타입**: PascalCase (예: `MyPlugin`, `SidePannelView`, `MyPluginSettings`).
 - **상수**: UPPER_SNAKE_CASE (예: `VIEW_TYPE_ARCHIFLOW`).
 - **변수/함수**: camelCase (예: `activateRightPanel`).
 - **파일명**: 클래스/상수/설정 등 공개 개념은 PascalCase 파일명 사용.
@@ -33,7 +33,7 @@
 ### Obsidian 플러그인 구조
 - `Plugin`과 `ItemView`는 **역할 분리**:
   - `main.ts` → `Plugin` 수명주기, 명령/리본/세팅 탭/뷰 등록.
-  - `src/ArchiFlowView.ts` → `ItemView` UI/상태.
+  - `src/SidePannelView.ts` → `ItemView` UI/상태.
   - `src/SampleModal.ts`, `src/SampleSettingTab.ts` → 각자 책임 분리.
 - 뷰 타입 상수는 `src/Constants.ts`에 정의하고 재사용.
 

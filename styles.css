@@ -6,6 +6,45 @@ available in the app when your plugin is enabled.
 If your plugin does not need CSS, delete this file.
 
 */
+
+/* Arch-Flow 컨테이너 스타일 */
+.arch-flow-container {
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+	transition: box-shadow 0.2s ease;
+}
+
+.arch-flow-container:hover {
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* 제목 입력 섹션 */
+.arch-flow-title-section {
+	transition: background-color 0.2s ease;
+}
+
+.arch-flow-title-input {
+	transition: all 0.2s ease;
+	font-family: var(--font-text);
+}
+
+.arch-flow-title-input:focus {
+	transform: translateY(-1px);
+}
+
+.arch-flow-title-input::placeholder {
+	color: var(--text-muted);
+	font-style: italic;
+}
+
+/* Mermaid 다이어그램 섹션 */
+.arch-flow-mermaid-section {
+	background: var(--background-primary);
+}
+
+.arch-flow-mermaid-section .mermaid {
+	max-width: 100%;
+	overflow: auto;
+}
 .archiflow-result-block {
   box-shadow: var(--shadow-l);
   background: var(--background-primary);

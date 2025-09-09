@@ -1,18 +1,23 @@
-import { Editor, MarkdownView, Notice, Plugin } from 'obsidian';
+import { Editor, MarkdownView, Notice, Plugin, MarkdownPostProcessorContext, setIcon } from 'obsidian';
 import { VIEW_TYPE_ARCHIFLOW } from './src/Constants';
 import { MyPluginSettings, DEFAULT_SETTINGS } from './src/Settings';
-import ArchiFlowView from './src/ArchiFlowView';
+import SidePannelView from './src/SidePannelView';
 import SampleModal from './src/SampleModal';
 import SampleSettingTab from './src/SampleSettingTab';
+import { CodeBlockProcessor } from './src/CodeBlock';
 
 export default class MyPlugin extends Plugin {
 	settings: MyPluginSettings;
+	private codeBlockProcessor: CodeBlockProcessor;
 
 	async onload() {
 		await this.loadSettings();
 
+		// Initialize code block processor
+		this.codeBlockProcessor = new CodeBlockProcessor(this.app);
+
 		// Register right panel view
-		this.registerView(VIEW_TYPE_ARCHIFLOW, (leaf) => new ArchiFlowView(leaf, this));
+		this.registerView(VIEW_TYPE_ARCHIFLOW, (leaf) => new SidePannelView(leaf, this));
 
 		// Command to open the right panel
 		this.addCommand({
@@ -71,6 +76,9 @@ export default class MyPlugin extends Plugin {
 			}
 		});
 
+		// Register markdown code block processor for arch-flow code blocks
+		this.registerMarkdownCodeBlockProcessor('arch-flow', this.codeBlockProcessor.processArchFlowCodeBlock.bind(this.codeBlockProcessor));
+
 		// This adds a settings tab so the user can configure various aspects of the plugin
 		this.addSettingTab(new SampleSettingTab(this.app, this));
 
@@ -117,4 +125,5 @@ export default class MyPlugin extends Plugin {
 	async saveSettings() {
 		await this.saveData(this.settings);
 	}
+
 }
