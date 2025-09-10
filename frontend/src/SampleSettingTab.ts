@@ -76,17 +76,5 @@ export default class SampleSettingTab extends PluginSettingTab {
 					text.inputEl.setAttribute('type', 'password');
 				});
 		}
-
-		// 기존 설정
-		new Setting(containerEl)
-			.setName('Setting #1')
-			.setDesc('It\'s a secret')
-			.addText(text => text
-				.setPlaceholder('Enter your secret')
-				.setValue(this.plugin.settings.mySetting)
-				.onChange(async (value) => {
-					this.plugin.settings.mySetting = value;
-					await this.plugin.saveSettings();
-				}));
 	}
 }

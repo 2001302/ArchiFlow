@@ -29,7 +29,7 @@ export default class MyPlugin extends Plugin {
 		});
 
 		// Left ribbon icon to open the right panel directly
-		const ribbonIconEl = this.addRibbonIcon('dice', 'open ArchiFlow panel', async (evt: MouseEvent) => {
+		const ribbonIconEl = this.addRibbonIcon('dice', 'Open ArchiFlow Panel', async (evt: MouseEvent) => {
 			await this.activateRightPanel();
 		});
 		// Perform additional things with the ribbon

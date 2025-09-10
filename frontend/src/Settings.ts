@@ -1,5 +1,4 @@
 export interface MyPluginSettings {
-	mySetting: string;
 	perplexityApiKey: string;
 	openaiApiKey: string;
 	anthropicApiKey: string;
@@ -7,7 +6,6 @@ export interface MyPluginSettings {
 }
 
 export const DEFAULT_SETTINGS: MyPluginSettings = {
-	mySetting: 'default',
 	perplexityApiKey: '',
 	openaiApiKey: '',
 	anthropicApiKey: '',
