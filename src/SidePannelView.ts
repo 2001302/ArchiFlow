@@ -245,10 +245,40 @@ export default class SidePannelView extends ItemView {
 			}
 		})
 		sendBtn.addEventListener('click', async () => {
-			const text = (prompt as HTMLTextAreaElement).value
-			const block = await addResultBlock(text)
-			// 마지막 결과로 자동 스크롤/포커스 이동
-			block.scrollIntoView({ behavior: 'smooth', block: 'end' })
+			const text = (prompt as HTMLTextAreaElement).value.trim()
+			if (!text) return
+
+			// API Key 확인
+			const apiKey = this.getCurrentApiKey()
+			if (!apiKey) {
+				new Notice('API Key가 설정되지 않았습니다. 설정에서 API Key를 입력해주세요.')
+				return
+			}
+
+			// 로딩 상태 표시
+			const loadingBlock = await addResultBlock('AI 응답을 생성하고 있습니다...')
+			loadingBlock.style.opacity = '0.7'
+
+			try {
+				// AI 요청
+				const aiResponse = await this.sendAIRequest(text, apiKey)
+				
+				// 로딩 블록 제거
+				loadingBlock.remove()
+				
+				// AI 응답 표시
+				const resultBlock = await addResultBlock(aiResponse)
+				resultBlock.scrollIntoView({ behavior: 'smooth', block: 'end' })
+			} catch (error) {
+				// 로딩 블록 제거
+				loadingBlock.remove()
+				
+				// 에러 표시
+				const errorBlock = await addResultBlock(`오류가 발생했습니다: ${error.message}`)
+				errorBlock.style.borderColor = 'var(--text-error)'
+				errorBlock.scrollIntoView({ behavior: 'smooth', block: 'end' })
+			}
+
 			// 전송 후 프롬프트 비우기
 			;(prompt as HTMLTextAreaElement).value = ''
 		})
@@ -257,5 +287,64 @@ export default class SidePannelView extends ItemView {
 	async onClose(): Promise<void> {
 		const { contentEl } = this;
 		contentEl.empty();
+	}
+
+	/**
+	 * 현재 선택된 AI 제공자의 API Key를 반환
+	 */
+	private getCurrentApiKey(): string | null {
+		const provider = this.plugin.settings.selectedProvider
+		switch (provider) {
+			case 'perplexity':
+				return this.plugin.settings.perplexityApiKey || null
+			case 'openai':
+				return this.plugin.settings.openaiApiKey || null
+			case 'anthropic':
+				return this.plugin.settings.anthropicApiKey || null
+			default:
+				return null
+		}
+	}
+
+	/**
+	 * 백그라운드 서버에 AI 요청을 전송
+	 */
+	private async sendAIRequest(prompt: string, apiKey: string): Promise<string> {
+		const serverUrl = 'http://localhost:8000' // 백그라운드 서버 URL
+		
+		const requestBody = {
+			prompt: prompt,
+			output_format: 'text', // 기본적으로 텍스트 형식으로 요청
+			provider: this.plugin.settings.selectedProvider,
+			api_key: apiKey // API Key를 요청에 포함
+		}
+
+		try {
+			const response = await fetch(`${serverUrl}/generate`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(requestBody)
+			})
+
+			if (!response.ok) {
+				const errorData = await response.json().catch(() => ({}))
+				throw new Error(errorData.detail || `HTTP ${response.status}: ${response.statusText}`)
+			}
+
+			const data = await response.json()
+			
+			if (!data.success) {
+				throw new Error(data.error || 'AI 응답 생성에 실패했습니다.')
+			}
+
+			return data.content || '응답이 비어있습니다.'
+		} catch (error) {
+			if (error instanceof TypeError && error.message.includes('fetch')) {
+				throw new Error('백그라운드 서버에 연결할 수 없습니다. 서버가 실행 중인지 확인해주세요.')
+			}
+			throw error
+		}
 	}
 }
