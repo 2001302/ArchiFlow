@@ -41,6 +41,11 @@ class AIRequest(BaseModel):
     source_code: Optional[str] = None
     diagram_context: Optional[str] = None
 
+class ConnectionTestRequest(BaseModel):
+    """연결 테스트 요청 모델"""
+    provider: str  # "perplexity", "openai", "anthropic"
+    api_key: str
+
 class AIResponse(BaseModel):
     """AI 응답 모델"""
     success: bool
@@ -117,6 +122,44 @@ async def get_supported_formats():
         "formats": [format.value for format in OutputFormat],
         "providers": [provider.value for provider in AIProvider]
     }
+
+@app.post("/test-connection")
+async def test_connection(request: ConnectionTestRequest):
+    """API 연결 테스트 엔드포인트"""
+    try:
+        # AI 제공자 검증
+        try:
+            provider = AIProvider(request.provider)
+        except ValueError:
+            raise HTTPException(
+                status_code=400,
+                detail=f"지원하지 않는 AI 제공자입니다: {request.provider}"
+            )
+        
+        # API Key가 제공되었는지 확인
+        if not request.api_key:
+            raise HTTPException(
+                status_code=400,
+                detail="API Key가 제공되지 않았습니다."
+            )
+        
+        # 간단한 테스트 요청으로 연결 확인
+        test_result = await ai_engine.test_connection(
+            provider=provider,
+            api_key=request.api_key
+        )
+        
+        return {
+            "success": test_result["success"],
+            "message": test_result["message"],
+            "provider": request.provider
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"연결 테스트 중 오류 발생: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 def run_server():

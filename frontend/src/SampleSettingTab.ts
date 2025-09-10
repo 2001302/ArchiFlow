@@ -1,4 +1,4 @@
-import { App, PluginSettingTab, Setting } from 'obsidian';
+import { App, PluginSettingTab, Setting, Notice } from 'obsidian';
 import MyPlugin from '../main';
 
 export default class SampleSettingTab extends PluginSettingTab {
@@ -42,6 +42,13 @@ export default class SampleSettingTab extends PluginSettingTab {
 							await this.plugin.saveSettings();
 						});
 					text.inputEl.setAttribute('type', 'password');
+				})
+				.addButton(button => {
+					button.setButtonText('연결 확인')
+						.setCta()
+						.onClick(async () => {
+							await this.testConnection('perplexity', this.plugin.settings.perplexityApiKey);
+						});
 				});
 		}
 
@@ -58,6 +65,13 @@ export default class SampleSettingTab extends PluginSettingTab {
 							await this.plugin.saveSettings();
 						});
 					text.inputEl.setAttribute('type', 'password');
+				})
+				.addButton(button => {
+					button.setButtonText('연결 확인')
+						.setCta()
+						.onClick(async () => {
+							await this.testConnection('openai', this.plugin.settings.openaiApiKey);
+						});
 				});
 		}
 
@@ -74,7 +88,58 @@ export default class SampleSettingTab extends PluginSettingTab {
 							await this.plugin.saveSettings();
 						});
 					text.inputEl.setAttribute('type', 'password');
+				})
+				.addButton(button => {
+					button.setButtonText('연결 확인')
+						.setCta()
+						.onClick(async () => {
+							await this.testConnection('anthropic', this.plugin.settings.anthropicApiKey);
+						});
 				});
+		}
+	}
+
+	/**
+	 * API 연결 테스트
+	 */
+	private async testConnection(provider: string, apiKey: string): Promise<void> {
+		if (!apiKey) {
+			new Notice('API Key를 먼저 입력해주세요.');
+			return;
+		}
+
+		new Notice('연결을 확인하고 있습니다...');
+
+		try {
+			const serverUrl = 'http://localhost:8000';
+			const response = await fetch(`${serverUrl}/test-connection`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					provider: provider,
+					api_key: apiKey
+				})
+			});
+
+			if (!response.ok) {
+				throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+			}
+
+			const data = await response.json();
+			
+			if (data.success) {
+				new Notice(`✅ ${data.message}`);
+			} else {
+				new Notice(`❌ ${data.message}`);
+			}
+		} catch (error) {
+			if (error instanceof TypeError && error.message.includes('fetch')) {
+				new Notice('❌ 백그라운드 서버에 연결할 수 없습니다. 서버가 실행 중인지 확인해주세요.');
+			} else {
+				new Notice(`❌ 연결 테스트 실패: ${error.message}`);
+			}
 		}
 	}
 }

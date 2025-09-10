@@ -32,53 +32,7 @@ export default class SidePannelView extends ItemView {
 		container.style.flexDirection = 'column'
 		container.style.height = '100%'
 
-		// 상단 바: 다이어그램 선택(토글), Tool Box, Setting
-		const topBar = container.createDiv({ cls: 'archiflow-topbar' })
-		topBar.style.display = 'flex'
-		topBar.style.gap = '8px'
-		topBar.style.alignItems = 'center'
-		topBar.style.marginBottom = '8px'
-		// 깔끔한 토글 버튼 그룹으로 교체
-		const toggleGroup = topBar.createDiv({ cls: 'archiflow-toggle-group' })
-		toggleGroup.style.display = 'inline-flex'
-		toggleGroup.style.border = '1px solid var(--background-modifier-border)'
-		toggleGroup.style.borderRadius = '8px'
-		toggleGroup.style.overflow = 'hidden'
-		const toggleBtn = (label: string) => {
-			const btn = toggleGroup.createEl('button', { cls: 'archiflow-btn' })
-			btn.textContent = label
-			btn.style.padding = '6px 10px'
-			btn.style.border = 'none'
-			btn.style.background = 'transparent'
-			btn.style.cursor = 'pointer'
-			btn.style.color = 'var(--text-normal)'
-			btn.addClass('archiflow-toggle-item')
-			return btn
-		}
-		const diagramBtn = toggleBtn('Diagram')
-		const sourceBtn = toggleBtn('Source')
-		const textBtn = toggleBtn('Text')
-		const setActive = (active: HTMLButtonElement) => {
-			[diagramBtn, sourceBtn, textBtn].forEach(b => {
-				if (b === active) {
-					b.style.background = 'var(--interactive-accent)'
-					b.style.color = 'var(--text-on-accent)'
-				} else {
-					b.style.background = 'transparent'
-					b.style.color = 'var(--text-normal)'
-				}
-			})
-		}
-		setActive(diagramBtn)
-		diagramBtn.addEventListener('click', () => setActive(diagramBtn))
-		sourceBtn.addEventListener('click', () => setActive(sourceBtn))
-		textBtn.addEventListener('click', () => setActive(textBtn))
-		const toolBoxBtn = topBar.createEl('button', { cls: 'archiflow-btn clickable-icon' })
-		toolBoxBtn.setAttr('title', 'Tool Box')
-		setIcon(toolBoxBtn, 'wrench')
-		const settingBtn = topBar.createEl('button', { cls: 'archiflow-btn clickable-icon' })
-		settingBtn.setAttr('title', 'Setting')
-		setIcon(settingBtn, 'settings')
+		// 상단 바 제거 (도구, 설정 버튼 제거)
 
 		// 본문: 결과 리스트 (가득 채움)
 		const body = container.createDiv({ cls: 'archiflow-body' })
@@ -226,6 +180,30 @@ export default class SidePannelView extends ItemView {
 		const footer = container.createDiv({ cls: 'archiflow-footer' })
 		footer.style.position = 'relative'
 		footer.style.padding = '8px 40px 8px 8px'
+		
+		// 출력 형식 드랍다운 (좌하단)
+		const formatContainer = footer.createDiv()
+		formatContainer.style.position = 'absolute'
+		formatContainer.style.left = '8px'
+		formatContainer.style.bottom = '8px'
+		formatContainer.style.zIndex = '10'
+		
+		const formatSelect = formatContainer.createEl('select', { cls: 'archiflow-format-select' })
+		formatSelect.style.padding = '4px 8px'
+		formatSelect.style.borderRadius = '4px'
+		formatSelect.style.border = '1px solid var(--background-modifier-border)'
+		formatSelect.style.background = 'var(--background-primary)'
+		formatSelect.style.color = 'var(--text-normal)'
+		formatSelect.style.fontSize = '12px'
+		
+		const diagramOption = formatSelect.createEl('option', { value: 'mermaid' })
+		diagramOption.textContent = 'Diagram'
+		const sourceOption = formatSelect.createEl('option', { value: 'source_code' })
+		sourceOption.textContent = 'Source'
+		const textOption = formatSelect.createEl('option', { value: 'text' })
+		textOption.textContent = 'Text'
+		textOption.selected = true // 기본값
+		
 		const prompt = footer.createEl('textarea', { cls: 'prompt-input', placeholder: 'Enter prompt...' })
 		prompt.style.width = '100%'
 		prompt.style.boxSizing = 'border-box'
@@ -255,13 +233,16 @@ export default class SidePannelView extends ItemView {
 				return
 			}
 
+			// 선택된 출력 형식 가져오기
+			const selectedFormat = (formatSelect as HTMLSelectElement).value
+
 			// 로딩 상태 표시
 			const loadingBlock = await addResultBlock('AI 응답을 생성하고 있습니다...')
 			loadingBlock.style.opacity = '0.7'
 
 			try {
 				// AI 요청
-				const aiResponse = await this.sendAIRequest(text, apiKey)
+				const aiResponse = await this.sendAIRequest(text, apiKey, selectedFormat)
 				
 				// 로딩 블록 제거
 				loadingBlock.remove()
@@ -309,12 +290,12 @@ export default class SidePannelView extends ItemView {
 	/**
 	 * 백그라운드 서버에 AI 요청을 전송
 	 */
-	private async sendAIRequest(prompt: string, apiKey: string): Promise<string> {
+	private async sendAIRequest(prompt: string, apiKey: string, outputFormat: string = 'text'): Promise<string> {
 		const serverUrl = 'http://localhost:8000' // 백그라운드 서버 URL
 		
 		const requestBody = {
 			prompt: prompt,
-			output_format: 'text', // 기본적으로 텍스트 형식으로 요청
+			output_format: outputFormat,
 			provider: this.plugin.settings.selectedProvider,
 			api_key: apiKey // API Key를 요청에 포함
 		}

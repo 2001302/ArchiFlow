@@ -6,6 +6,7 @@ import asyncio
 from typing import Dict, Any, Optional, List
 from enum import Enum
 import httpx
+from openai import AsyncOpenAI
 from loguru import logger
 
 from .config import settings
@@ -159,34 +160,34 @@ class AIEngine:
         return response
     
     async def _call_perplexity(self, prompt: str, api_key: Optional[str] = None) -> str:
-        """Perplexity API 호출"""
+        """Perplexity API 호출 (OpenAI SDK 방식)"""
         # 클라이언트에서 전달받은 API Key 우선 사용, 없으면 설정에서 가져오기
         key = api_key or settings.perplexity_api_key
         if not key:
             raise ValueError("Perplexity API 키가 설정되지 않았습니다.")
         
-        headers = {
-            "Authorization": f"Bearer {key}",
-            "Content-Type": "application/json"
-        }
+        # OpenAI SDK를 사용하여 Perplexity API 호출
+        client = AsyncOpenAI(
+            api_key=key,
+            base_url="https://api.perplexity.ai"
+        )
         
-        data = {
-            "model": "llama-3.1-sonar-small-128k-online",
-            "messages": [
-                {"role": "user", "content": prompt}
-            ]
-        }
-        
-        async with httpx.AsyncClient() as client:
-            response = await client.post(
-                "https://api.perplexity.ai/chat/completions",
-                headers=headers,
-                json=data,
+        try:
+            # 연결 테스트인지 확인 (매우 짧은 프롬프트)
+            is_test = len(prompt.strip()) <= 10 and prompt.strip().lower() in ['hi', 'hello', 'test']
+            
+            response = await client.chat.completions.create(
+                model="sonar-pro",
+                messages=[
+                    {"role": "user", "content": prompt}
+                ],
+                max_tokens=50 if is_test else 2000,  # 연결 테스트는 50, 일반 요청은 2000
                 timeout=30.0
             )
-            response.raise_for_status()
-            result = response.json()
-            return result["choices"][0]["message"]["content"]
+            return response.choices[0].message.content
+        except Exception as e:
+            logger.error(f"Perplexity API 호출 실패: {str(e)}")
+            raise
     
     async def _call_openai(self, prompt: str, api_key: Optional[str] = None) -> str:
         """OpenAI API 호출"""
@@ -250,3 +251,44 @@ class AIEngine:
             response.raise_for_status()
             result = response.json()
             return result["content"][0]["text"]
+    
+    async def test_connection(
+        self,
+        provider: AIProvider,
+        api_key: str
+    ) -> Dict[str, Any]:
+        """
+        API 연결 테스트
+        
+        Args:
+            provider: AI 제공자
+            api_key: API 키
+        
+        Returns:
+            테스트 결과 딕셔너리
+        """
+        try:
+            # 매우 간단한 테스트 프롬프트
+            test_prompt = "Hi"
+            
+            # AI API 호출
+            response = await self.providers[provider](test_prompt, api_key)
+            
+            # 응답이 비어있지 않은지 확인
+            if response and len(response.strip()) > 0:
+                return {
+                    "success": True,
+                    "message": f"{provider.value} API 연결이 성공적으로 확인되었습니다."
+                }
+            else:
+                return {
+                    "success": False,
+                    "message": f"{provider.value} API에서 빈 응답을 받았습니다."
+                }
+            
+        except Exception as e:
+            logger.error(f"API 연결 테스트 실패 ({provider.value}): {str(e)}")
+            return {
+                "success": False,
+                "message": f"{provider.value} API 연결에 실패했습니다: {str(e)}"
+            }
