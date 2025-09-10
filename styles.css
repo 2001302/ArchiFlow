@@ -68,3 +68,121 @@ If your plugin does not need CSS, delete this file.
 .archiflow-toggle-group .archiflow-toggle-item {
   transition: background 0.15s ease, color 0.15s ease;
 }
+
+/* 드랍다운 스타일 개선 */
+.archiflow-format-select {
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.archiflow-format-select:hover {
+  background: rgba(var(--background-primary-rgb), 0.9) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+.archiflow-format-select:focus {
+  outline: none;
+  border-color: var(--interactive-accent);
+  box-shadow: 0 0 0 2px rgba(var(--interactive-accent-rgb), 0.2) !important;
+}
+
+.archiflow-format-select option {
+  background: var(--background-primary);
+  color: var(--text-normal);
+  padding: 8px;
+}
+
+/* 프롬프트 컨테이너 스타일 */
+.archiflow-prompt-container {
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.archiflow-prompt-container:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.archiflow-prompt-container:focus-within {
+  border-color: var(--interactive-accent);
+  box-shadow: 0 0 0 2px rgba(var(--interactive-accent-rgb), 0.2);
+}
+
+/* 프롬프트 입력창 스타일 */
+.prompt-input {
+  transition: all 0.2s ease;
+}
+
+.prompt-input:focus {
+  outline: none;
+}
+
+.prompt-input::placeholder {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* 모드 아이콘 스타일 */
+.archiflow-mode-icon {
+  transition: color 0.2s ease;
+}
+
+.archiflow-format-container:hover .archiflow-mode-icon {
+  color: var(--text-normal);
+}
+
+/* 드랍다운 스타일 개선 */
+.archiflow-format-select {
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.archiflow-format-select:hover {
+  background: var(--background-modifier-hover) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.archiflow-format-select:focus {
+  outline: none;
+  border-color: var(--interactive-accent);
+  box-shadow: 0 0 0 2px rgba(var(--interactive-accent-rgb), 0.2);
+}
+
+.archiflow-format-select option {
+  background: var(--background-primary);
+  color: var(--text-normal);
+  padding: 8px;
+}
+
+/* Test 버튼 스타일 */
+.archiflow-test-btn {
+  transition: all 0.2s ease;
+}
+
+.archiflow-test-btn:hover {
+  background: var(--background-modifier-hover) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.archiflow-test-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Send 버튼 스타일 */
+.archiflow-send-btn {
+  transition: all 0.2s ease;
+}
+
+.archiflow-send-btn:hover {
+  background: var(--interactive-accent-hover) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.archiflow-send-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}

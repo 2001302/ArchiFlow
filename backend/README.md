@@ -18,21 +18,7 @@ cd backend
 pip install -r requirements.txt
 ```
 
-### 2. 환경 변수 설정
-
-```bash
-cp env.example .env
-```
-
-`.env` 파일을 편집하여 API 키를 설정하세요:
-
-```env
-PERPLEXITY_API_KEY=your_perplexity_api_key_here
-OPENAI_API_KEY=your_openai_api_key_here
-ANTHROPIC_API_KEY=your_anthropic_api_key_here
-```
-
-### 3. 서버 실행
+### 2. 서버 실행
 
 ```bash
 python main.py
@@ -42,6 +28,49 @@ python main.py
 
 ```bash
 python -m src.api_server
+```
+
+## 테스트 도구
+
+### 터미널 채팅 테스트
+
+백엔드 서버 없이 터미널에서 직접 AI와 대화할 수 있는 테스트 도구를 제공합니다:
+
+```bash
+python test_chat.py
+```
+
+**특징:**
+- `data.json`에서 API 키 자동 로드
+- 실시간 채팅 인터페이스
+- 다양한 출력 형식 지원 (text, mermaid, source_code)
+- 명령어 지원
+
+**사용 가능한 명령어:**
+- `/help` - 도움말 표시
+- `/format` - 출력 형식 변경
+- `/status` - 현재 설정 확인
+- `/clear` - 화면 지우기
+- `/quit` - 종료
+
+**사용 예시:**
+```
+👤 You: 사용자 관리 시스템의 클래스 다이어그램을 만들어주세요
+🤖 AI가 응답을 생성하고 있습니다...
+
+🤖 AI (mermaid):
+----------------------------------------
+```mermaid
+classDiagram
+    class User {
+        +String id
+        +String name
+        +String email
+        +login()
+        +logout()
+    }
+```
+----------------------------------------
 ```
 
 ## API 엔드포인트
