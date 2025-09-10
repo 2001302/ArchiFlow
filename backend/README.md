@@ -129,11 +129,11 @@ backend/
 │   ├── ai_engine.py       # AI 엔진 핵심 로직
 │   ├── api_server.py      # FastAPI 서버
 │   └── prompt_templates.py # 프롬프트 템플릿
-├── config/                # 설정 파일
-├── templates/             # 템플릿 파일
 ├── logs/                  # 로그 파일
 ├── main.py               # 메인 실행 파일
+├── start.sh              # 시작 스크립트
 ├── requirements.txt      # Python 의존성
+├── env.example           # 환경 변수 예시
 └── README.md            # 이 파일
 ```
 

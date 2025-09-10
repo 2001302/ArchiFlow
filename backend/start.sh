@@ -35,6 +35,6 @@ mkdir -p logs
 echo "🌐 서버 시작 중..."
 echo "📍 서버 주소: http://localhost:8000"
 echo "📚 API 문서: http://localhost:8000/docs"
-echo "=" * 50
+echo "=================================================="
 
 python main.py

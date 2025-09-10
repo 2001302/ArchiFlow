@@ -118,19 +118,6 @@ async def get_supported_formats():
         "providers": [provider.value for provider in AIProvider]
     }
 
-@app.post("/test")
-async def test_connection():
-    """연결 테스트"""
-    try:
-        # 간단한 테스트 요청
-        result = await ai_engine.generate_response(
-            prompt="안녕하세요",
-            output_format=OutputFormat.TEXT,
-            provider=AIProvider.PERPLEXITY
-        )
-        return {"success": True, "message": "연결 테스트 성공", "result": result}
-    except Exception as e:
-        return {"success": False, "message": f"연결 테스트 실패: {str(e)}"}
 
 def run_server():
     """서버 실행"""
