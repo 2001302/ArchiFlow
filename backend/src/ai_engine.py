@@ -40,7 +40,8 @@ class AIEngine:
         provider: AIProvider = AIProvider.PERPLEXITY,
         api_key: Optional[str] = None,
         source_code: Optional[str] = None,
-        diagram_context: Optional[str] = None
+        diagram_context: Optional[str] = None,
+        language: Optional[str] = None
     ) -> Dict[str, Any]:
         """
         AI 응답 생성
@@ -51,6 +52,7 @@ class AIEngine:
             provider: AI 제공자
             source_code: 소스코드 컨텍스트
             diagram_context: 다이어그램 컨텍스트
+            language: 프로그래밍 언어 (source_code 모드용)
         
         Returns:
             AI 응답 딕셔너리
@@ -58,7 +60,7 @@ class AIEngine:
         try:
             # 프롬프트 템플릿 적용
             formatted_prompt = self._format_prompt(
-                prompt, output_format, source_code, diagram_context
+                prompt, output_format, source_code, diagram_context, language
             )
             
             # AI API 호출
@@ -89,39 +91,68 @@ class AIEngine:
         prompt: str,
         output_format: OutputFormat,
         source_code: Optional[str] = None,
-        diagram_context: Optional[str] = None
+        diagram_context: Optional[str] = None,
+        language: Optional[str] = None
     ) -> str:
         """프롬프트 포맷팅"""
         
         # 기본 프롬프트 템플릿
         templates = {
             OutputFormat.MERMAID: """
-다음 요청에 대해 Mermaid 다이어그램 문법으로 답변해주세요.
+다음 요청에 대해 Mermaid 다이어그램을 생성해주세요.
+
 요청: {prompt}
 
-다이어그램 컨텍스트: {diagram_context}
+기존 다이어그램 컨텍스트:
+{diagram_context}
 
-소스코드 컨텍스트: {source_code}
+관련 소스코드:
+{source_code}
 
-답변은 반드시 ```mermaid로 시작하고 ```로 끝나는 코드 블록 형태로 제공해주세요.
+지침:
+1. Mermaid 문법을 정확히 사용해주세요
+2. 다이어그램은 명확하고 이해하기 쉽게 구성해주세요
+3. 관계와 흐름을 명확히 표현해주세요
+4. 답변은 반드시 ```mermaid로 시작하고 ```로 끝나는 코드 블록 형태로 제공해주세요
+
+답변:
 """,
             OutputFormat.SOURCE_CODE: """
-다음 요청에 대해 소스코드로 답변해주세요.
+다음 요청에 대해 {language} 소스코드로 답변해주세요.
+
 요청: {prompt}
 
-다이어그램 컨텍스트: {diagram_context}
+기존 다이어그램 컨텍스트:
+{diagram_context}
 
-소스코드 컨텍스트: {source_code}
+관련 소스코드:
+{source_code}
 
-답변은 반드시 ```{language}로 시작하고 ```로 끝나는 코드 블록 형태로 제공해주세요.
+지침:
+1. {language} 문법을 정확히 사용해주세요
+2. 코드는 실행 가능하고 효율적이어야 합니다
+3. 주석을 적절히 포함해주세요
+4. 답변은 반드시 ```{language}로 시작하고 ```로 끝나는 코드 블록 형태로 제공해주세요
+
+답변:
 """,
             OutputFormat.TEXT: """
-다음 요청에 대해 텍스트로 답변해주세요.
+다음 요청에 대해 도움을 드리겠습니다.
+
 요청: {prompt}
 
-다이어그램 컨텍스트: {diagram_context}
+기존 다이어그램 컨텍스트:
+{diagram_context}
 
-소스코드 컨텍스트: {source_code}
+관련 소스코드:
+{source_code}
+
+지침:
+1. 정확하고 유용한 정보를 제공해주세요
+2. 필요시 예시나 설명을 포함해주세요
+3. 한국어로 답변해주세요
+
+답변:
 """
         }
         
@@ -130,7 +161,7 @@ class AIEngine:
             prompt=prompt,
             diagram_context=diagram_context or "없음",
             source_code=source_code or "없음",
-            language="python"  # 기본 언어
+            language=language or "python"  # 전달받은 언어 또는 기본값
         )
     
     def _post_process_response(
@@ -145,8 +176,13 @@ class AIEngine:
                 start = response.find("```mermaid") + 10
                 end = response.find("```", start)
                 if end != -1:
-                    return response[start:end].strip()
-            return response
+                    mermaid_code = response[start:end].strip()
+                    # Mermaid 문법 검증 및 정리
+                    cleaned_code = self._clean_mermaid_code(mermaid_code)
+                    # ```mermaid와 ```로 감싸서 반환
+                    return f"```mermaid\n{cleaned_code}\n```"
+            # Mermaid 코드 블록이 없으면 전체 응답을 mermaid 블록으로 감싸기
+            return f"```mermaid\n{self._clean_mermaid_code(response)}\n```"
         
         elif output_format == OutputFormat.SOURCE_CODE:
             # 소스코드 블록 추출
@@ -154,10 +190,81 @@ class AIEngine:
                 start = response.find("```") + 3
                 end = response.find("```", start)
                 if end != -1:
-                    return response[start:end].strip()
-            return response
+                    code = response[start:end].strip()
+                    # 코드 정리
+                    cleaned_code = self._clean_source_code(code)
+                    # 언어 감지 (기본값: python)
+                    language = self._detect_code_language(cleaned_code) or "python"
+                    return f"```{language}\n{cleaned_code}\n```"
+            # 코드 블록이 없으면 전체 응답을 코드 블록으로 감싸기
+            return f"```python\n{self._clean_source_code(response)}\n```"
         
         return response
+    
+    def _clean_mermaid_code(self, code: str) -> str:
+        """Mermaid 코드 정리"""
+        lines = code.split('\n')
+        cleaned_lines = []
+        
+        for line in lines:
+            line = line.strip()
+            if line and not line.startswith('#'):  # 주석 제거
+                cleaned_lines.append(line)
+        
+        return '\n'.join(cleaned_lines)
+    
+    def _clean_source_code(self, code: str) -> str:
+        """소스코드 정리"""
+        lines = code.split('\n')
+        cleaned_lines = []
+        
+        for line in lines:
+            # 불필요한 공백 제거하되 들여쓰기는 유지
+            if line.strip():  # 빈 줄이 아닌 경우만
+                cleaned_lines.append(line)
+            elif cleaned_lines and cleaned_lines[-1].strip():  # 이전 줄이 비어있지 않으면
+                cleaned_lines.append('')  # 빈 줄 유지
+        
+        return '\n'.join(cleaned_lines)
+    
+    def _detect_code_language(self, code: str) -> str:
+        """코드에서 프로그래밍 언어 감지"""
+        code_lower = code.lower().strip()
+        
+        # Python 키워드
+        if any(keyword in code_lower for keyword in ['def ', 'import ', 'from ', 'class ', 'if __name__']):
+            return 'python'
+        
+        # JavaScript/TypeScript 키워드
+        if any(keyword in code_lower for keyword in ['function', 'const ', 'let ', 'var ', '=>', 'interface ']):
+            if 'interface ' in code_lower or ': ' in code_lower:
+                return 'typescript'
+            return 'javascript'
+        
+        # Java 키워드
+        if any(keyword in code_lower for keyword in ['public class', 'private ', 'public ', 'System.out.println']):
+            return 'java'
+        
+        # C/C++ 키워드
+        if any(keyword in code_lower for keyword in ['#include', 'int main', 'std::', 'cout <<']):
+            if 'std::' in code_lower or 'cout <<' in code_lower:
+                return 'cpp'
+            return 'c'
+        
+        # HTML 키워드
+        if any(keyword in code_lower for keyword in ['<html>', '<div>', '<span>', '<!DOCTYPE']):
+            return 'html'
+        
+        # CSS 키워드
+        if any(keyword in code_lower for keyword in ['{', '}', 'margin:', 'padding:', 'color:']):
+            return 'css'
+        
+        # SQL 키워드
+        if any(keyword in code_lower for keyword in ['SELECT', 'FROM', 'WHERE', 'INSERT', 'UPDATE', 'DELETE']):
+            return 'sql'
+        
+        # 기본값
+        return 'python'
     
     async def _call_perplexity(self, prompt: str, api_key: Optional[str] = None) -> str:
         """Perplexity API 호출 (OpenAI SDK 방식)"""
@@ -250,7 +357,7 @@ class AIEngine:
             )
             response.raise_for_status()
             result = response.json()
-            return result["content"][0]["text"]
+            return result["content"][0]["text"] or ""
     
     async def test_connection(
         self,

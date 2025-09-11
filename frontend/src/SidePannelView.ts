@@ -256,7 +256,7 @@ export default class SidePannelView extends ItemView {
 		middleSection.style.display = 'flex'
 		middleSection.style.flexDirection = 'column'
 		
-		const prompt = middleSection.createEl('textarea', { cls: 'prompt-input', placeholder: 'Enter prompt...' })
+		const prompt = middleSection.createEl('textarea', { cls: 'prompt-input', placeholder: '질문이나 요청을 입력해주세요. 예: "React와 Vue의 차이점을 설명해줘"' })
 		prompt.style.width = '100%'
 		prompt.style.flex = '1'
 		prompt.style.border = 'none'
@@ -326,6 +326,9 @@ export default class SidePannelView extends ItemView {
 		formatSelect.addEventListener('change', () => {
 			const selectedValue = formatSelect.value as keyof typeof modeIcons;
 			setIcon(modeIcon, modeIcons[selectedValue]);
+			
+			// 선택된 모드에 따른 프롬프트 플레이스홀더 변경
+			this.updatePromptPlaceholder(selectedValue, prompt as HTMLTextAreaElement);
 		})
 		
 		formatSelect.addEventListener('mousedown', () => {
@@ -353,8 +356,8 @@ export default class SidePannelView extends ItemView {
 		sendBtn.style.background = 'var(--interactive-accent)'
 		sendBtn.style.color = 'var(--text-on-accent)'
 		sendBtn.style.cursor = 'pointer'
-		sendBtn.style.width = '28px'
-		sendBtn.style.height = '28px'
+		sendBtn.style.width = '30px'
+		sendBtn.style.height = '30px'
 		sendBtn.style.display = 'flex'
 		sendBtn.style.alignItems = 'center'
 		sendBtn.style.justifyContent = 'center'
@@ -373,7 +376,7 @@ export default class SidePannelView extends ItemView {
 
 			try {
 				// Test 모드: 프롬프트 내용을 그대로 결과창에 표시
-				const testResponse = `**Test 모드 결과**\n\n**입력된 프롬프트:**\n${text}\n\n**선택된 출력 형식:** ${selectedFormat}\n\n*이것은 Test 모드입니다. 실제 AI 응답이 아닙니다.*`
+				const testResponse = `\n${text}\n`
 				
 				// 로딩 블록 제거
 				loadingBlock.remove()
@@ -465,17 +468,143 @@ export default class SidePannelView extends ItemView {
 	}
 
 	/**
+	 * 출력 형식에 따른 요청 바디 구성
+	 */
+	private buildRequestByFormat(prompt: string, outputFormat: string, apiKey: string): any {
+		const baseRequest = {
+			prompt: prompt,
+			output_format: outputFormat,
+			provider: this.plugin.settings.selectedProvider,
+			api_key: apiKey
+		}
+
+		switch (outputFormat) {
+			case 'mermaid':
+				// Diagram 모드: 다이어그램 생성용 명령 포함
+				return {
+					...baseRequest,
+					diagram_context: this.getDiagramContext(),
+					source_code: this.getSourceCodeContext()
+				}
+			
+			case 'source_code':
+				// Source 모드: 코딩 결과물 생성용 명령 포함
+				return {
+					...baseRequest,
+					diagram_context: this.getDiagramContext(),
+					source_code: this.getSourceCodeContext(),
+					language: this.detectLanguage(prompt) || 'python'
+				}
+			
+			case 'text':
+			default:
+				// Text 모드: 기본 자연어 응답
+				return {
+					...baseRequest,
+					diagram_context: this.getDiagramContext(),
+					source_code: this.getSourceCodeContext()
+				}
+		}
+	}
+
+	/**
+	 * 다이어그램 컨텍스트 가져오기
+	 */
+	private getDiagramContext(): string {
+		// 현재 활성 에디터에서 다이어그램 관련 내용 추출
+		const activeView = this.app.workspace.getActiveViewOfType(MarkdownView)
+		if (!activeView) return ''
+
+		const content = activeView.editor.getValue()
+		const mermaidBlocks = content.match(/```mermaid\n([\s\S]*?)\n```/g)
+		
+		if (mermaidBlocks && mermaidBlocks.length > 0) {
+			return mermaidBlocks.map(block => 
+				block.replace(/```mermaid\n/, '').replace(/\n```$/, '')
+			).join('\n\n')
+		}
+		
+		return ''
+	}
+
+	/**
+	 * 소스코드 컨텍스트 가져오기
+	 */
+	private getSourceCodeContext(): string {
+		// 현재 활성 에디터에서 코드 블록 추출
+		const activeView = this.app.workspace.getActiveViewOfType(MarkdownView)
+		if (!activeView) return ''
+
+		const content = activeView.editor.getValue()
+		const codeBlocks = content.match(/```[\w]*\n([\s\S]*?)\n```/g)
+		
+		if (codeBlocks && codeBlocks.length > 0) {
+			return codeBlocks.map(block => {
+				const lines = block.split('\n')
+				const language = lines[0].replace('```', '') || 'text'
+				const code = lines.slice(1, -1).join('\n')
+				return `[${language}]\n${code}`
+			}).join('\n\n')
+		}
+		
+		return ''
+	}
+
+	/**
+	 * 프롬프트에서 프로그래밍 언어 감지
+	 */
+	private detectLanguage(prompt: string): string | null {
+		const languageKeywords = {
+			'python': ['python', 'py', 'pandas', 'numpy', 'django', 'flask'],
+			'javascript': ['javascript', 'js', 'node', 'react', 'vue', 'angular'],
+			'typescript': ['typescript', 'ts', 'interface', 'type'],
+			'java': ['java', 'spring', 'maven', 'gradle'],
+			'cpp': ['cpp', 'c++', 'stl', 'vector', 'map'],
+			'c': ['c언어', 'c language', 'stdio', 'stdlib'],
+			'go': ['go', 'golang', 'goroutine', 'channel'],
+			'rust': ['rust', 'cargo', 'ownership', 'borrow'],
+			'php': ['php', 'laravel', 'symfony', 'composer'],
+			'ruby': ['ruby', 'rails', 'gem', 'bundle'],
+			'swift': ['swift', 'ios', 'xcode', 'cocoa'],
+			'kotlin': ['kotlin', 'android', 'gradle'],
+			'sql': ['sql', 'database', 'select', 'insert', 'update', 'delete'],
+			'html': ['html', 'div', 'span', 'class', 'id'],
+			'css': ['css', 'style', 'margin', 'padding', 'color'],
+			'bash': ['bash', 'shell', 'script', 'terminal', 'command'],
+			'powershell': ['powershell', 'ps1', 'cmdlet']
+		}
+
+		const lowerPrompt = prompt.toLowerCase()
+		for (const [language, keywords] of Object.entries(languageKeywords)) {
+			if (keywords.some(keyword => lowerPrompt.includes(keyword))) {
+				return language
+			}
+		}
+		
+		return null
+	}
+
+	/**
+	 * 선택된 모드에 따른 프롬프트 플레이스홀더 업데이트
+	 */
+	private updatePromptPlaceholder(format: string, promptElement: HTMLTextAreaElement): void {
+		const placeholders: Record<string, string> = {
+			'mermaid': '다이어그램을 생성해주세요. 예: "사용자 로그인 플로우를 그려줘"',
+			'source_code': '소스코드를 작성해주세요. 예: "Python으로 간단한 계산기 만들기"',
+			'text': '질문이나 요청을 입력해주세요. 예: "React와 Vue의 차이점을 설명해줘"'
+		}
+		
+		promptElement.placeholder = placeholders[format] || placeholders['text']
+	}
+
+	/**
 	 * 백그라운드 서버에 AI 요청을 전송
 	 */
 	private async sendAIRequest(prompt: string, apiKey: string, outputFormat: string = 'text'): Promise<string> {
 		const serverUrl = 'http://localhost:8000' // 백그라운드 서버 URL
 		
-		const requestBody = {
-			prompt: prompt,
-			output_format: outputFormat,
-			provider: this.plugin.settings.selectedProvider,
-			api_key: apiKey // API Key를 요청에 포함
-		}
+		// 출력 형식에 따른 추가 파라미터 설정
+		const requestBody = this.buildRequestByFormat(prompt, outputFormat, apiKey)
 
 		try {
 			const response = await fetch(`${serverUrl}/generate`, {

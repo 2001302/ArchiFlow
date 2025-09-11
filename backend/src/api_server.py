@@ -40,6 +40,7 @@ class AIRequest(BaseModel):
     api_key: Optional[str] = None  # 클라이언트에서 전달받은 API Key
     source_code: Optional[str] = None
     diagram_context: Optional[str] = None
+    language: Optional[str] = None  # 프로그래밍 언어 (source_code 모드용)
 
 class ConnectionTestRequest(BaseModel):
     """연결 테스트 요청 모델"""
@@ -104,7 +105,8 @@ async def generate_ai_response(request: AIRequest):
             provider=provider,
             api_key=request.api_key,
             source_code=request.source_code,
-            diagram_context=request.diagram_context
+            diagram_context=request.diagram_context,
+            language=request.language
         )
         
         return AIResponse(**result)
