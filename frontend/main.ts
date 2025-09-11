@@ -5,16 +5,24 @@ import SidePannelView from './src/SidePannelView';
 import SampleModal from './src/SampleModal';
 import SampleSettingTab from './src/SampleSettingTab';
 import { CodeBlockProcessor } from './src/CodeBlock';
+import { BackendManager } from './src/BackendManager';
 
 export default class MyPlugin extends Plugin {
 	settings: MyPluginSettings;
 	private codeBlockProcessor: CodeBlockProcessor;
+	private backendManager: BackendManager;
 
 	async onload() {
 		await this.loadSettings();
 
+		// Initialize backend manager
+		this.backendManager = new BackendManager((this.app.vault.adapter as any).basePath + '/.obsidian/plugins/arch-flow');
+
 		// Initialize code block processor
 		this.codeBlockProcessor = new CodeBlockProcessor(this.app);
+
+		// Start backend server
+		await this.startBackendServer();
 
 		// Register right panel view
 		this.registerView(VIEW_TYPE_ARCHIFLOW, (leaf) => new SidePannelView(leaf, this));
@@ -113,6 +121,9 @@ export default class MyPlugin extends Plugin {
 	}
 
 	onunload() {
+		// Stop backend server
+		this.stopBackendServer();
+
 		this.app.workspace.getLeavesOfType(VIEW_TYPE_ARCHIFLOW).forEach((leaf) => {
 			leaf.detach();
 		});
@@ -124,6 +135,45 @@ export default class MyPlugin extends Plugin {
 
 	async saveSettings() {
 		await this.saveData(this.settings);
+	}
+
+	/**
+	 * Backend 서버 시작
+	 */
+	private async startBackendServer(): Promise<void> {
+		try {
+			// 이미 서버가 실행 중인지 확인
+			if (await this.backendManager.isServerRunning()) {
+				console.log('Backend 서버가 이미 실행 중입니다.');
+				return;
+			}
+
+			// Backend 서버 시작
+			const success = await this.backendManager.startBackend();
+			if (!success) {
+				console.warn('Backend 서버 시작에 실패했습니다.');
+			}
+		} catch (error) {
+			console.error('Backend 서버 시작 중 오류:', error);
+		}
+	}
+
+	/**
+	 * Backend 서버 중지
+	 */
+	private async stopBackendServer(): Promise<void> {
+		try {
+			await this.backendManager.stopBackend();
+		} catch (error) {
+			console.error('Backend 서버 중지 중 오류:', error);
+		}
+	}
+
+	/**
+	 * BackendManager 인스턴스 반환
+	 */
+	getBackendManager(): BackendManager {
+		return this.backendManager;
 	}
 
 }

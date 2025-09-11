@@ -47,9 +47,36 @@ python main.py
 
 ## 빌드
 
-플러그인을 빌드하려면:
+### 프론트엔드 빌드
 ```bash
 npm run build
 ```
-
 이 명령어는 frontend 폴더에서 TypeScript를 컴파일하고 루트에 main.js를 생성합니다.
+
+### 백엔드 실행파일 빌드
+```bash
+# Windows
+build_backend.bat
+
+# macOS/Linux
+./build_backend.sh
+
+# 또는 직접 Python 스크립트 실행
+python build_backend.py
+```
+
+이 명령어는 PyInstaller를 사용하여 backend를 단일 실행파일로 빌드합니다.
+빌드된 실행파일은 `dist/arch-flow-backend` (또는 Windows에서는 `dist/arch-flow-backend.exe`)에 생성됩니다.
+
+## 실행
+
+플러그인이 로드되면 자동으로 backend 실행파일이 시작됩니다. 
+- Backend 서버는 `http://localhost:8000`에서 실행됩니다.
+- Frontend는 자동으로 backend 서버에 연결됩니다.
+- 플러그인이 비활성화되면 backend 서버도 자동으로 종료됩니다.
+
+## 요구사항
+
+- Node.js (프론트엔드 빌드용)
+- Python 3.8+ (백엔드용)
+- PyInstaller (백엔드 실행파일 빌드용)

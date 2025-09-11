@@ -589,9 +589,9 @@ export default class SidePannelView extends ItemView {
 	 */
 	private updatePromptPlaceholder(format: string, promptElement: HTMLTextAreaElement): void {
 		const placeholders: Record<string, string> = {
-			'mermaid': '다이어그램을 생성해주세요. 예: "사용자 로그인 플로우를 그려줘"',
-			'source_code': '소스코드를 작성해주세요. 예: "Python으로 간단한 계산기 만들기"',
-			'text': '질문이나 요청을 입력해주세요. 예: "React와 Vue의 차이점을 설명해줘"'
+			'mermaid': 'create a mermaid diagram',
+			'source_code': 'create a source code',
+			'text': 'ask a question or request'
 		}
 		
 		promptElement.placeholder = placeholders[format] || placeholders['text']
@@ -601,7 +601,8 @@ export default class SidePannelView extends ItemView {
 	 * 백그라운드 서버에 AI 요청을 전송
 	 */
 	private async sendAIRequest(prompt: string, apiKey: string, outputFormat: string = 'text'): Promise<string> {
-		const serverUrl = 'http://localhost:8000' // 백그라운드 서버 URL
+		const backendManager = this.plugin.getBackendManager();
+		const serverUrl = backendManager.getServerUrl();
 		
 		// 출력 형식에 따른 추가 파라미터 설정
 		const requestBody = this.buildRequestByFormat(prompt, outputFormat, apiKey)
