@@ -45,6 +45,21 @@ export class BackendManager {
     }
 
     /**
+     * Logs 폴더 정리
+     */
+    private cleanupLogs(): void {
+        const logsPath = path.join(this.pluginPath, 'logs');
+        if (fs.existsSync(logsPath)) {
+            try {
+                fs.rmSync(logsPath, { recursive: true, force: true });
+                console.log('Logs 폴더가 정리되었습니다.');
+            } catch (error) {
+                console.warn('Logs 폴더 정리 중 오류:', error);
+            }
+        }
+    }
+
+    /**
      * Backend 서버 시작
      */
     async startBackend(): Promise<boolean> {
@@ -63,6 +78,9 @@ export class BackendManager {
             console.error(`Backend 실행파일이 없습니다: ${this.executablePath}`);
             return false;
         }
+
+        // Logs 폴더 정리
+        this.cleanupLogs();
 
         this.isStarting = true;
 

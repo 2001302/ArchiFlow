@@ -15,6 +15,7 @@ def main():
     backend_dir = project_root / "backend"
     dist_dir = project_root / "dist"
     build_dir = project_root / "build"
+    logs_dir = project_root / "logs"
     
     print("🚀 Backend 실행파일 빌드 시작...")
     print(f"📁 프로젝트 루트: {project_root}")
@@ -28,6 +29,10 @@ def main():
     if build_dir.exists():
         print("🧹 기존 build 디렉토리 정리 중...")
         shutil.rmtree(build_dir)
+    
+    if logs_dir.exists():
+        print("🧹 기존 logs 디렉토리 정리 중...")
+        shutil.rmtree(logs_dir)
     
     # PyInstaller 명령어 구성
     main_script = backend_dir / "main.py"

@@ -22,5 +22,8 @@ data.json
 build/
 dist/
 
+# Log files
+logs/
+
 # Exclude macOS Finder (System Explorer) View States
 .DS_Store
