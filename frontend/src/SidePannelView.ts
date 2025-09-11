@@ -198,14 +198,14 @@ export default class SidePannelView extends ItemView {
 		topSection.style.display = 'flex'
 		topSection.style.justifyContent = 'space-between'
 		topSection.style.alignItems = 'center'
-		topSection.style.padding = '8px 12px'
+		topSection.style.padding = '8px 8px'
 		topSection.style.borderBottom = 'none'
-		topSection.style.minHeight = '40px'
+		topSection.style.minHeight = '20px'
 		
 		// 왼쪽 버튼들
 		const leftButtons = topSection.createDiv({ cls: 'archiflow-left-buttons' })
 		leftButtons.style.display = 'flex'
-		leftButtons.style.gap = '8px'
+		leftButtons.style.gap = '4px'
 		leftButtons.style.alignItems = 'center'
 		
 		// @아이콘 버튼
@@ -219,8 +219,8 @@ export default class SidePannelView extends ItemView {
 		mentionBtn.style.display = 'flex'
 		mentionBtn.style.alignItems = 'center'
 		mentionBtn.style.justifyContent = 'center'
-		mentionBtn.style.width = '28px'
-		mentionBtn.style.height = '28px'
+		mentionBtn.style.width = '24px'
+		mentionBtn.style.height = '24px'
 		setIcon(mentionBtn, 'at-sign')
 		
 		// 파일 첨부 버튼
@@ -234,25 +234,14 @@ export default class SidePannelView extends ItemView {
 		attachBtn.style.display = 'flex'
 		attachBtn.style.alignItems = 'center'
 		attachBtn.style.justifyContent = 'center'
-		attachBtn.style.width = '28px'
-		attachBtn.style.height = '28px'
+		attachBtn.style.width = '24px'
+		attachBtn.style.height = '24px'
 		setIcon(attachBtn, 'paperclip')
-		
-		// 오른쪽 테스트 버튼
-		const testBtn = topSection.createEl('button', { cls: 'archiflow-test-btn' })
-		testBtn.style.padding = '6px 12px'
-		testBtn.style.borderRadius = '6px'
-		testBtn.style.border = '1px solid var(--background-modifier-border)'
-		testBtn.style.background = 'var(--background-secondary)'
-		testBtn.style.color = 'var(--text-normal)'
-		testBtn.style.fontSize = '12px'
-		testBtn.style.cursor = 'pointer'
-		testBtn.textContent = 'Test'
 		
 		// 2. 중간 구역: 프롬프트 입력창
 		const middleSection = promptContainer.createDiv({ cls: 'archiflow-prompt-middle' })
 		middleSection.style.flex = '1'
-		middleSection.style.padding = '8px 12px'
+		middleSection.style.padding = '8px 8px'
 		middleSection.style.display = 'flex'
 		middleSection.style.flexDirection = 'column'
 		
@@ -276,9 +265,9 @@ export default class SidePannelView extends ItemView {
 		bottomSection.style.display = 'flex'
 		bottomSection.style.justifyContent = 'space-between'
 		bottomSection.style.alignItems = 'center'
-		bottomSection.style.padding = '8px 12px'
+		bottomSection.style.padding = '8px 4px'
 		bottomSection.style.borderTop = 'none'
-		bottomSection.style.minHeight = '20px'
+		bottomSection.style.minHeight = '30px'
 		
 		// 모드선택 드롭다운
 		const formatContainer = bottomSection.createDiv({ cls: 'archiflow-format-container' })
@@ -362,38 +351,6 @@ export default class SidePannelView extends ItemView {
 		sendBtn.style.alignItems = 'center'
 		sendBtn.style.justifyContent = 'center'
 		setIcon(sendBtn, 'send')
-		// Test 버튼 클릭 이벤트
-		testBtn.addEventListener('click', async () => {
-			const text = (prompt as HTMLTextAreaElement).value.trim()
-			if (!text) return
-
-			// 선택된 출력 형식 가져오기
-			const selectedFormat = (formatSelect as HTMLSelectElement).value
-
-			// 로딩 상태 표시
-			const loadingBlock = await addResultBlock('Test 모드: 프롬프트를 처리하고 있습니다...')
-			loadingBlock.style.opacity = '0.7'
-
-			try {
-				// Test 모드: 프롬프트 내용을 그대로 결과창에 표시
-				const testResponse = `\n${text}\n`
-				
-				// 로딩 블록 제거
-				loadingBlock.remove()
-				
-				// Test 결과 표시
-				const resultBlock = await addResultBlock(testResponse)
-				resultBlock.scrollIntoView({ behavior: 'smooth', block: 'end' })
-			} catch (error) {
-				// 로딩 블록 제거
-				loadingBlock.remove()
-				
-				// 에러 표시
-				const errorBlock = await addResultBlock(`Test 모드 오류: ${error.message}`)
-				errorBlock.style.borderColor = 'var(--text-error)'
-				errorBlock.scrollIntoView({ behavior: 'smooth', block: 'end' })
-			}
-		})
 
 		// Enter로 전송(Shift+Enter는 줄바꿈)
 		prompt.addEventListener('keydown', (ev: KeyboardEvent) => {
