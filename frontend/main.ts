@@ -11,6 +11,7 @@ export default class MyPlugin extends Plugin {
 	settings: MyPluginSettings;
 	private codeBlockProcessor: CodeBlockProcessor;
 	private backendManager: BackendManager;
+	private healthCheckInterval: NodeJS.Timeout | null = null;
 
 	async onload() {
 		await this.loadSettings();
@@ -21,8 +22,13 @@ export default class MyPlugin extends Plugin {
 		// Initialize code block processor
 		this.codeBlockProcessor = new CodeBlockProcessor(this.app);
 
-		// Start backend server
-		await this.startBackendServer();
+		// Start backend server only if auto-start is enabled
+		if (this.settings.autoStartBackend) {
+			await this.startBackendServer();
+		}
+
+		// Start backend health check
+		this.startBackendHealthCheck();
 
 		// Register right panel view
 		this.registerView(VIEW_TYPE_ARCHIFLOW, (leaf) => new SidePannelView(leaf, this));
@@ -121,6 +127,9 @@ export default class MyPlugin extends Plugin {
 	}
 
 	onunload() {
+		// Stop backend health check
+		this.stopBackendHealthCheck();
+
 		// Stop backend server
 		this.stopBackendServer();
 
@@ -159,6 +168,57 @@ export default class MyPlugin extends Plugin {
 	}
 
 	/**
+	 * Backend가 실행 중인지 확인하고 필요시 시작
+	 */
+	private async ensureBackendRunning(): Promise<boolean> {
+		try {
+			// 먼저 서버가 실제로 응답하는지 확인
+			const isServerHealthy = await this.backendManager.isServerRunning();
+			if (isServerHealthy) {
+				console.log('Backend 서버가 정상적으로 실행 중입니다.');
+				return true;
+			}
+
+			// 서버가 응답하지 않으면 프로세스 상태 확인
+			if (this.backendManager.isBackendRunning()) {
+				console.log('Backend 프로세스는 실행 중이지만 서버가 응답하지 않습니다. 재시작합니다...');
+				await this.stopBackendServer();
+				// 잠시 대기 후 재시작
+				await new Promise(resolve => setTimeout(resolve, 2000));
+			}
+
+			// 실행 중이 아니라면 시작
+			console.log('Backend 서버를 시작합니다...');
+			await this.startBackendServer();
+			
+			// 시작 후 서버가 정상적으로 응답하는지 확인 (최대 3번 재시도)
+			for (let attempt = 1; attempt <= 3; attempt++) {
+				console.log(`서버 시작 확인 시도 ${attempt}/3...`);
+				await new Promise(resolve => setTimeout(resolve, 2000)); // 2초 대기
+				
+				const isHealthy = await this.backendManager.isServerRunning();
+				if (isHealthy) {
+					console.log('Backend 서버가 성공적으로 시작되었습니다.');
+					return true;
+				}
+				
+				if (attempt < 3) {
+					console.log(`시도 ${attempt} 실패. 재시작을 시도합니다...`);
+					await this.stopBackendServer();
+					await new Promise(resolve => setTimeout(resolve, 1000));
+					await this.startBackendServer();
+				}
+			}
+			
+			console.error('Backend 서버 시작에 3번 모두 실패했습니다.');
+			return false;
+		} catch (error) {
+			console.error('Backend 실행 확인 중 오류:', error);
+			return false;
+		}
+	}
+
+	/**
 	 * Backend 서버 중지
 	 */
 	private async stopBackendServer(): Promise<void> {
@@ -174,6 +234,48 @@ export default class MyPlugin extends Plugin {
 	 */
 	getBackendManager(): BackendManager {
 		return this.backendManager;
+	}
+
+	/**
+	 * Backend 상태 모니터링 시작
+	 */
+	private startBackendHealthCheck(): void {
+		// 30초마다 백엔드 상태 확인
+		this.healthCheckInterval = setInterval(async () => {
+			try {
+				// auto-start가 비활성화된 경우 헬스 체크도 비활성화
+				if (!this.settings.autoStartBackend) {
+					return;
+				}
+
+				const isHealthy = await this.backendManager.isServerRunning();
+				if (!isHealthy) {
+					console.warn('Backend 서버가 응답하지 않습니다. 재시작을 시도합니다...');
+					
+					// 백엔드 프로세스가 실행 중이면 먼저 중지
+					if (this.backendManager.isBackendRunning()) {
+						await this.backendManager.stopBackend();
+						// 중지 후 잠시 대기
+						await new Promise(resolve => setTimeout(resolve, 2000));
+					}
+					
+					// 재시작 시도
+					await this.startBackendServer();
+				}
+			} catch (error) {
+				console.error('헬스 체크 중 오류:', error);
+			}
+		}, 30000); // 30초마다 확인
+	}
+
+	/**
+	 * Backend 상태 모니터링 중지
+	 */
+	private stopBackendHealthCheck(): void {
+		if (this.healthCheckInterval) {
+			clearInterval(this.healthCheckInterval);
+			this.healthCheckInterval = null;
+		}
 	}
 
 }

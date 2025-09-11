@@ -3,7 +3,24 @@
 다양한 출력 형식에 맞는 프롬프트 템플릿을 관리합니다.
 """
 from typing import Optional
-from .enums import OutputFormat
+
+# PyInstaller 환경을 위한 import 처리
+import sys
+import os
+from pathlib import Path
+
+# PyInstaller 환경에서의 모듈 경로 처리
+if getattr(sys, 'frozen', False):
+    # PyInstaller로 빌드된 실행파일인 경우
+    current_dir = Path(sys._MEIPASS) if hasattr(sys, '_MEIPASS') else Path(os.path.dirname(sys.executable))
+    src_path = current_dir / "src"
+    sys.path.insert(0, str(src_path))
+    
+    # 절대 import 사용
+    from enums import OutputFormat
+else:
+    # 개발 환경인 경우 - 상대 import 사용
+    from .enums import OutputFormat
 
 class PromptManager:
     """프롬프트 매니저 클래스"""

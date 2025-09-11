@@ -14,6 +14,20 @@ export default class SampleSettingTab extends PluginSettingTab {
 
 		containerEl.empty();
 
+		// Backend 자동 시작 설정
+		new Setting(containerEl)
+			.setName('Backend 자동 시작')
+			.setDesc('플러그인 로딩 시 백엔드 서버를 자동으로 시작합니다')
+			.addToggle(toggle => toggle
+				.setValue(this.plugin.settings.autoStartBackend)
+				.onChange(async (value: boolean) => {
+					this.plugin.settings.autoStartBackend = value;
+					await this.plugin.saveSettings();
+				}));
+
+		// 구분선
+		containerEl.createEl('hr');
+
 		// AI Provider 선택
 		new Setting(containerEl)
 			.setName('AI Provider')
@@ -111,7 +125,15 @@ export default class SampleSettingTab extends PluginSettingTab {
 		new Notice('연결을 확인하고 있습니다...');
 
 		try {
-			const serverUrl = 'http://localhost:8000';
+			// 백엔드가 실행 중인지 확인하고 필요시 시작
+			const isBackendReady = await (this.plugin as any).ensureBackendRunning();
+			if (!isBackendReady) {
+				new Notice('❌ Backend 서버를 시작할 수 없습니다.');
+				return;
+			}
+
+			const backendManager = this.plugin.getBackendManager();
+			const serverUrl = backendManager.getServerUrl();
 			const response = await fetch(`${serverUrl}/test-connection`, {
 				method: 'POST',
 				headers: {

@@ -601,8 +601,20 @@ export default class SidePannelView extends ItemView {
 	 * 백그라운드 서버에 AI 요청을 전송
 	 */
 	private async sendAIRequest(prompt: string, apiKey: string, outputFormat: string = 'text'): Promise<string> {
+		// 백엔드가 실행 중인지 확인하고 필요시 시작
+		const isBackendReady = await (this.plugin as any).ensureBackendRunning();
+		if (!isBackendReady) {
+			throw new Error('Backend 서버를 시작할 수 없습니다. 설정을 확인해주세요.');
+		}
+
 		const backendManager = this.plugin.getBackendManager();
 		const serverUrl = backendManager.getServerUrl();
+		
+		// 서버가 실제로 응답하는지 한 번 더 확인
+		const isServerHealthy = await backendManager.isServerRunning();
+		if (!isServerHealthy) {
+			throw new Error('Backend 서버가 응답하지 않습니다. 잠시 후 다시 시도해주세요.');
+		}
 		
 		// 출력 형식에 따른 추가 파라미터 설정
 		const requestBody = this.buildRequestByFormat(prompt, outputFormat, apiKey)
@@ -631,6 +643,15 @@ export default class SidePannelView extends ItemView {
 		} catch (error) {
 			if (error instanceof TypeError && error.message.includes('fetch')) {
 				throw new Error('백그라운드 서버에 연결할 수 없습니다. 서버가 실행 중인지 확인해주세요.')
+			}
+			if (error.name === 'AbortError') {
+				throw new Error('요청이 시간 초과되었습니다. 네트워크 연결을 확인해주세요.')
+			}
+			if (error.message.includes('Backend 서버를 시작할 수 없습니다')) {
+				throw error // 이미 적절한 메시지가 있음
+			}
+			if (error.message.includes('Backend 서버가 응답하지 않습니다')) {
+				throw error // 이미 적절한 메시지가 있음
 			}
 			throw error
 		}

@@ -23,16 +23,33 @@ export class BackendManager {
     async isServerRunning(): Promise<boolean> {
         try {
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 2000);
+            const timeoutId = setTimeout(() => controller.abort(), 3000); // 3초로 단축
             
             const response = await fetch(`${this.serverUrl}/health`, {
                 method: 'GET',
-                signal: controller.signal
+                signal: controller.signal,
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
             });
             
             clearTimeout(timeoutId);
-            return response.ok;
+            
+            if (response.ok) {
+                const data = await response.json();
+                console.log('서버 헬스 체크 성공:', data);
+                return true;
+            } else {
+                console.log(`서버 헬스 체크 실패: ${response.status} ${response.statusText}`);
+                return false;
+            }
         } catch (error) {
+            if (error.name === 'AbortError') {
+                console.log('서버 헬스 체크 타임아웃 (3초)');
+            } else {
+                console.log('서버 헬스 체크 오류:', error.message);
+            }
             return false;
         }
     }
@@ -98,12 +115,24 @@ export class BackendManager {
             // 프로세스 이벤트 핸들러
             this.backendProcess.on('error', (error) => {
                 console.error('Backend 프로세스 오류:', error);
+                console.error('오류 상세:', {
+                    name: error.name,
+                    message: error.message,
+                    stack: error.stack,
+                    code: (error as any).code,
+                    errno: (error as any).errno,
+                    syscall: (error as any).syscall
+                });
                 new Notice(`Backend 시작 실패: ${error.message}`);
                 this.isStarting = false;
             });
 
             this.backendProcess.on('exit', (code, signal) => {
                 console.log(`Backend 프로세스 종료: code=${code}, signal=${signal}`);
+                if (code !== 0) {
+                    console.error(`Backend 프로세스가 비정상 종료되었습니다. 종료 코드: ${code}`);
+                    new Notice(`Backend가 비정상 종료되었습니다 (코드: ${code})`);
+                }
                 this.backendProcess = null;
                 this.isStarting = false;
             });
@@ -130,7 +159,17 @@ export class BackendManager {
 
         } catch (error) {
             console.error('Backend 시작 중 오류:', error);
-            new Notice(`Backend 시작 실패: ${error.message}`);
+            
+            // 진단 정보 수집
+            const issues = await this.diagnoseStartupFailure();
+            console.error('시작 실패 진단:', issues);
+            
+            let errorMessage = `Backend 시작 실패: ${error.message}`;
+            if (issues.length > 0) {
+                errorMessage += `\n진단 정보: ${issues.join(', ')}`;
+            }
+            
+            new Notice(errorMessage);
             this.isStarting = false;
             return false;
         }
@@ -186,13 +225,33 @@ export class BackendManager {
      * 서버가 시작될 때까지 대기
      */
     private async waitForServerStart(maxAttempts: number = 30, interval: number = 1000): Promise<void> {
+        console.log(`서버 시작 대기 중... (최대 ${maxAttempts}초)`);
+        
         for (let i = 0; i < maxAttempts; i++) {
-            if (await this.isServerRunning()) {
-                return;
+            try {
+                if (await this.isServerRunning()) {
+                    console.log(`서버가 ${i + 1}초 후에 성공적으로 시작되었습니다.`);
+                    return;
+                }
+            } catch (error) {
+                console.log(`서버 상태 확인 시도 ${i + 1}/${maxAttempts}: ${error.message}`);
             }
+            
+            // 프로세스가 종료되었는지 확인
+            if (this.backendProcess && this.backendProcess.killed) {
+                console.error('Backend 프로세스가 예상보다 일찍 종료되었습니다.');
+                throw new Error('Backend 프로세스가 예상보다 일찍 종료됨');
+            }
+            
+            if (i % 5 === 0 && i > 0) {
+                console.log(`서버 시작 대기 중... (${i}/${maxAttempts}초 경과)`);
+            }
+            
             await new Promise(resolve => setTimeout(resolve, interval));
         }
-        throw new Error('서버 시작 타임아웃');
+        
+        console.error('서버 시작 타임아웃: 서버가 예상 시간 내에 시작되지 않았습니다.');
+        throw new Error(`서버 시작 타임아웃 (${maxAttempts}초)`);
     }
 
     /**
@@ -214,5 +273,70 @@ export class BackendManager {
      */
     getExecutablePath(): string {
         return this.executablePath;
+    }
+
+    /**
+     * 서버 시작 실패 시 진단 정보 수집
+     */
+    async diagnoseStartupFailure(): Promise<string[]> {
+        const issues: string[] = [];
+        
+        // 실행파일 존재 확인
+        if (!this.isExecutableAvailable()) {
+            issues.push(`실행파일이 없습니다: ${this.executablePath}`);
+        } else {
+            // 실행 권한 확인
+            try {
+                const fs = require('fs');
+                const stats = fs.statSync(this.executablePath);
+                if (!stats.isFile()) {
+                    issues.push('실행파일이 파일이 아닙니다.');
+                } else {
+                    // 파일 크기 확인
+                    if (stats.size === 0) {
+                        issues.push('실행파일이 비어있습니다 (크기: 0바이트)');
+                    }
+                }
+            } catch (error) {
+                issues.push(`실행파일 접근 오류: ${error.message}`);
+            }
+        }
+        
+        // 포트 사용 확인
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 1000);
+            
+            const response = await fetch(`${this.serverUrl}/health`, {
+                method: 'GET',
+                signal: controller.signal
+            });
+            
+            clearTimeout(timeoutId);
+            
+            if (response.ok) {
+                issues.push('포트 8000이 이미 사용 중입니다.');
+            }
+        } catch (error) {
+            // 포트가 사용되지 않음 - 정상
+        }
+        
+        // 프로세스 상태 확인
+        if (this.backendProcess && !this.backendProcess.killed) {
+            issues.push('Backend 프로세스가 이미 실행 중입니다.');
+        }
+        
+        // 플러그인 경로 확인
+        if (!fs.existsSync(this.pluginPath)) {
+            issues.push(`플러그인 경로가 존재하지 않습니다: ${this.pluginPath}`);
+        }
+        
+        // dist 폴더 확인
+        const distPath = path.join(this.pluginPath, 'dist');
+        if (!fs.existsSync(distPath)) {
+            issues.push(`dist 폴더가 존재하지 않습니다: ${distPath}`);
+        }
+        
+        return issues;
     }
 }
