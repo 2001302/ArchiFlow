@@ -15,12 +15,9 @@ if getattr(sys, 'frozen', False):
     current_dir = Path(sys._MEIPASS) if hasattr(sys, '_MEIPASS') else Path(os.path.dirname(sys.executable))
     src_path = current_dir / "src"
     sys.path.insert(0, str(src_path))
-    
-    # 절대 import 사용
-    from enums import OutputFormat
-else:
-    # 개발 환경인 경우 - 상대 import 사용
-    from .enums import OutputFormat
+
+# 절대 import 사용 - 모든 환경에서 동일하게 동작
+from enums import OutputFormat
 
 class PromptManager:
     """프롬프트 매니저 클래스"""

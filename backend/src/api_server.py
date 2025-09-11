@@ -21,18 +21,12 @@ if getattr(sys, 'frozen', False):
     current_dir = Path(sys._MEIPASS) if hasattr(sys, '_MEIPASS') else Path(os.path.dirname(sys.executable))
     src_path = current_dir / "src"
     sys.path.insert(0, str(src_path))
-    
-    # 절대 import 사용
-    from ai_engine import AIEngine
-    from enums import OutputFormat
-    from ai_providers import AIProvider
-    from config import settings, validate_api_keys
-else:
-    # 개발 환경인 경우 - 상대 import 사용
-    from .ai_engine import AIEngine
-    from .enums import OutputFormat
-    from .ai_providers import AIProvider
-    from .config import settings, validate_api_keys
+
+# 절대 import 사용 - 모든 환경에서 동일하게 동작
+from ai_engine import AIEngine
+from enums import OutputFormat
+from ai_providers import AIProvider
+from config import settings, validate_api_keys
 
 # FastAPI 앱 생성
 app = FastAPI(
