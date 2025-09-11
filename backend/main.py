@@ -7,7 +7,10 @@ from pathlib import Path
 
 # 프로젝트 루트를 Python 경로에 추가
 project_root = Path(__file__).parent
+src_path = project_root / "src"
 sys.path.insert(0, str(project_root))
+sys.path.insert(0, str(src_path))  # src 디렉토리도 명시적으로 추가
+
 
 from src.api_server import run_server
 

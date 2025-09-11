@@ -3,36 +3,30 @@ AI 엔진 핵심 모듈
 다양한 AI API를 통합하여 사용합니다.
 """
 import asyncio
-from typing import Dict, Any, Optional, List
-from enum import Enum
-import httpx
-from openai import AsyncOpenAI
+from typing import Dict, Any, Optional
 from loguru import logger
 
-from .config import settings
-
-class OutputFormat(Enum):
-    """출력 형식 열거형"""
-    MERMAID = "mermaid"
-    SOURCE_CODE = "source_code"
-    TEXT = "text"
-
-class AIProvider(Enum):
-    """AI 제공자 열거형"""
-    PERPLEXITY = "perplexity"
-    OPENAI = "openai"
-    ANTHROPIC = "anthropic"
+from .ai_providers import AIProvider, AIProviderManager
+from .prompt_manager import PromptManager
+from .response_processor import ResponseProcessor
+from .enums import OutputFormat
+from .utils import (
+    validate_api_key, 
+    format_error_response, 
+    format_success_response,
+    log_api_call,
+    measure_time
+)
 
 class AIEngine:
     """AI 엔진 클래스"""
     
     def __init__(self):
-        self.providers = {
-            AIProvider.PERPLEXITY: self._call_perplexity,
-            AIProvider.OPENAI: self._call_openai,
-            AIProvider.ANTHROPIC: self._call_anthropic
-        }
+        self.provider_manager = AIProviderManager()
+        self.prompt_manager = PromptManager()
+        self.response_processor = ResponseProcessor()
     
+    @measure_time
     async def generate_response(
         self,
         prompt: str,
@@ -57,307 +51,41 @@ class AIEngine:
         Returns:
             AI 응답 딕셔너리
         """
+        start_time = asyncio.get_event_loop().time()
+        
         try:
+            # API 키 유효성 검사
+            if not validate_api_key(api_key):
+                return format_error_response("API 키가 유효하지 않습니다.", provider.value)
+            
             # 프롬프트 템플릿 적용
-            formatted_prompt = self._format_prompt(
+            formatted_prompt = self.prompt_manager.format_prompt(
                 prompt, output_format, source_code, diagram_context, language
             )
             
             # AI API 호출
-            response = await self.providers[provider](formatted_prompt, api_key)
+            response = await self.provider_manager.call_provider(
+                provider, formatted_prompt, api_key
+            )
             
             # 응답 후처리
-            processed_response = self._post_process_response(
+            processed_response = self.response_processor.process_response(
                 response, output_format
             )
             
-            return {
-                "success": True,
-                "content": processed_response,
-                "format": output_format.value,
-                "provider": provider.value
-            }
+            # 로깅
+            duration = asyncio.get_event_loop().time() - start_time
+            log_api_call(provider.value, True, duration, len(prompt))
+            
+            return format_success_response(
+                processed_response, output_format.value, provider.value
+            )
             
         except Exception as e:
+            duration = asyncio.get_event_loop().time() - start_time
+            log_api_call(provider.value, False, duration, len(prompt))
             logger.error(f"AI 응답 생성 실패: {str(e)}")
-            return {
-                "success": False,
-                "error": str(e),
-                "content": None
-            }
-    
-    def _format_prompt(
-        self,
-        prompt: str,
-        output_format: OutputFormat,
-        source_code: Optional[str] = None,
-        diagram_context: Optional[str] = None,
-        language: Optional[str] = None
-    ) -> str:
-        """프롬프트 포맷팅"""
-        
-        # 기본 프롬프트 템플릿
-        templates = {
-            OutputFormat.MERMAID: """
-다음 요청에 대해 Mermaid 다이어그램을 생성해주세요.
-
-요청: {prompt}
-
-기존 다이어그램 컨텍스트:
-{diagram_context}
-
-관련 소스코드:
-{source_code}
-
-지침:
-1. Mermaid 문법을 정확히 사용해주세요
-2. 다이어그램은 명확하고 이해하기 쉽게 구성해주세요
-3. 관계와 흐름을 명확히 표현해주세요
-4. 답변은 반드시 ```mermaid로 시작하고 ```로 끝나는 코드 블록 형태로 제공해주세요
-
-답변:
-""",
-            OutputFormat.SOURCE_CODE: """
-다음 요청에 대해 {language} 소스코드로 답변해주세요.
-
-요청: {prompt}
-
-기존 다이어그램 컨텍스트:
-{diagram_context}
-
-관련 소스코드:
-{source_code}
-
-지침:
-1. {language} 문법을 정확히 사용해주세요
-2. 코드는 실행 가능하고 효율적이어야 합니다
-3. 주석을 적절히 포함해주세요
-4. 답변은 반드시 ```{language}로 시작하고 ```로 끝나는 코드 블록 형태로 제공해주세요
-
-답변:
-""",
-            OutputFormat.TEXT: """
-다음 요청에 대해 도움을 드리겠습니다.
-
-요청: {prompt}
-
-기존 다이어그램 컨텍스트:
-{diagram_context}
-
-관련 소스코드:
-{source_code}
-
-지침:
-1. 정확하고 유용한 정보를 제공해주세요
-2. 필요시 예시나 설명을 포함해주세요
-3. 한국어로 답변해주세요
-
-답변:
-"""
-        }
-        
-        template = templates[output_format]
-        return template.format(
-            prompt=prompt,
-            diagram_context=diagram_context or "없음",
-            source_code=source_code or "없음",
-            language=language or "python"  # 전달받은 언어 또는 기본값
-        )
-    
-    def _post_process_response(
-        self, 
-        response: str, 
-        output_format: OutputFormat
-    ) -> str:
-        """응답 후처리"""
-        if output_format == OutputFormat.MERMAID:
-            # Mermaid 코드 블록 추출
-            if "```mermaid" in response:
-                start = response.find("```mermaid") + 10
-                end = response.find("```", start)
-                if end != -1:
-                    mermaid_code = response[start:end].strip()
-                    # Mermaid 문법 검증 및 정리
-                    cleaned_code = self._clean_mermaid_code(mermaid_code)
-                    # ```mermaid와 ```로 감싸서 반환
-                    return f"```mermaid\n{cleaned_code}\n```"
-            # Mermaid 코드 블록이 없으면 전체 응답을 mermaid 블록으로 감싸기
-            return f"```mermaid\n{self._clean_mermaid_code(response)}\n```"
-        
-        elif output_format == OutputFormat.SOURCE_CODE:
-            # 소스코드 블록 추출
-            if "```" in response:
-                start = response.find("```") + 3
-                end = response.find("```", start)
-                if end != -1:
-                    code = response[start:end].strip()
-                    # 코드 정리
-                    cleaned_code = self._clean_source_code(code)
-                    # 언어 감지 (기본값: python)
-                    language = self._detect_code_language(cleaned_code) or "python"
-                    return f"```{language}\n{cleaned_code}\n```"
-            # 코드 블록이 없으면 전체 응답을 코드 블록으로 감싸기
-            return f"```python\n{self._clean_source_code(response)}\n```"
-        
-        return response
-    
-    def _clean_mermaid_code(self, code: str) -> str:
-        """Mermaid 코드 정리"""
-        lines = code.split('\n')
-        cleaned_lines = []
-        
-        for line in lines:
-            line = line.strip()
-            if line and not line.startswith('#'):  # 주석 제거
-                cleaned_lines.append(line)
-        
-        return '\n'.join(cleaned_lines)
-    
-    def _clean_source_code(self, code: str) -> str:
-        """소스코드 정리"""
-        lines = code.split('\n')
-        cleaned_lines = []
-        
-        for line in lines:
-            # 불필요한 공백 제거하되 들여쓰기는 유지
-            if line.strip():  # 빈 줄이 아닌 경우만
-                cleaned_lines.append(line)
-            elif cleaned_lines and cleaned_lines[-1].strip():  # 이전 줄이 비어있지 않으면
-                cleaned_lines.append('')  # 빈 줄 유지
-        
-        return '\n'.join(cleaned_lines)
-    
-    def _detect_code_language(self, code: str) -> str:
-        """코드에서 프로그래밍 언어 감지"""
-        code_lower = code.lower().strip()
-        
-        # Python 키워드
-        if any(keyword in code_lower for keyword in ['def ', 'import ', 'from ', 'class ', 'if __name__']):
-            return 'python'
-        
-        # JavaScript/TypeScript 키워드
-        if any(keyword in code_lower for keyword in ['function', 'const ', 'let ', 'var ', '=>', 'interface ']):
-            if 'interface ' in code_lower or ': ' in code_lower:
-                return 'typescript'
-            return 'javascript'
-        
-        # Java 키워드
-        if any(keyword in code_lower for keyword in ['public class', 'private ', 'public ', 'System.out.println']):
-            return 'java'
-        
-        # C/C++ 키워드
-        if any(keyword in code_lower for keyword in ['#include', 'int main', 'std::', 'cout <<']):
-            if 'std::' in code_lower or 'cout <<' in code_lower:
-                return 'cpp'
-            return 'c'
-        
-        # HTML 키워드
-        if any(keyword in code_lower for keyword in ['<html>', '<div>', '<span>', '<!DOCTYPE']):
-            return 'html'
-        
-        # CSS 키워드
-        if any(keyword in code_lower for keyword in ['{', '}', 'margin:', 'padding:', 'color:']):
-            return 'css'
-        
-        # SQL 키워드
-        if any(keyword in code_lower for keyword in ['SELECT', 'FROM', 'WHERE', 'INSERT', 'UPDATE', 'DELETE']):
-            return 'sql'
-        
-        # 기본값
-        return 'python'
-    
-    async def _call_perplexity(self, prompt: str, api_key: Optional[str] = None) -> str:
-        """Perplexity API 호출 (OpenAI SDK 방식)"""
-        # 클라이언트에서 전달받은 API Key 우선 사용, 없으면 설정에서 가져오기
-        key = api_key or settings.perplexity_api_key
-        if not key:
-            raise ValueError("Perplexity API 키가 설정되지 않았습니다.")
-        
-        # OpenAI SDK를 사용하여 Perplexity API 호출
-        client = AsyncOpenAI(
-            api_key=key,
-            base_url="https://api.perplexity.ai"
-        )
-        
-        try:
-            # 연결 테스트인지 확인 (매우 짧은 프롬프트)
-            is_test = len(prompt.strip()) <= 10 and prompt.strip().lower() in ['hi', 'hello', 'test']
-            
-            response = await client.chat.completions.create(
-                model="sonar-pro",
-                messages=[
-                    {"role": "user", "content": prompt}
-                ],
-                max_tokens=50 if is_test else 2000,  # 연결 테스트는 50, 일반 요청은 2000
-                timeout=30.0
-            )
-            return response.choices[0].message.content
-        except Exception as e:
-            logger.error(f"Perplexity API 호출 실패: {str(e)}")
-            raise
-    
-    async def _call_openai(self, prompt: str, api_key: Optional[str] = None) -> str:
-        """OpenAI API 호출"""
-        # 클라이언트에서 전달받은 API Key 우선 사용, 없으면 설정에서 가져오기
-        key = api_key or settings.openai_api_key
-        if not key:
-            raise ValueError("OpenAI API 키가 설정되지 않았습니다.")
-        
-        headers = {
-            "Authorization": f"Bearer {key}",
-            "Content-Type": "application/json"
-        }
-        
-        data = {
-            "model": "gpt-4",
-            "messages": [
-                {"role": "user", "content": prompt}
-            ],
-            "max_tokens": 2000
-        }
-        
-        async with httpx.AsyncClient() as client:
-            response = await client.post(
-                "https://api.openai.com/v1/chat/completions",
-                headers=headers,
-                json=data,
-                timeout=30.0
-            )
-            response.raise_for_status()
-            result = response.json()
-            return result["choices"][0]["message"]["content"]
-    
-    async def _call_anthropic(self, prompt: str, api_key: Optional[str] = None) -> str:
-        """Anthropic API 호출"""
-        # 클라이언트에서 전달받은 API Key 우선 사용, 없으면 설정에서 가져오기
-        key = api_key or settings.anthropic_api_key
-        if not key:
-            raise ValueError("Anthropic API 키가 설정되지 않았습니다.")
-        
-        headers = {
-            "x-api-key": key,
-            "Content-Type": "application/json",
-            "anthropic-version": "2023-06-01"
-        }
-        
-        data = {
-            "model": "claude-3-sonnet-20240229",
-            "max_tokens": 2000,
-            "messages": [
-                {"role": "user", "content": prompt}
-            ]
-        }
-        
-        async with httpx.AsyncClient() as client:
-            response = await client.post(
-                "https://api.anthropic.com/v1/messages",
-                headers=headers,
-                json=data,
-                timeout=30.0
-            )
-            response.raise_for_status()
-            result = response.json()
-            return result["content"][0]["text"] or ""
+            return format_error_response(str(e), provider.value)
     
     async def test_connection(
         self,
@@ -374,28 +102,4 @@ class AIEngine:
         Returns:
             테스트 결과 딕셔너리
         """
-        try:
-            # 매우 간단한 테스트 프롬프트
-            test_prompt = "Hi"
-            
-            # AI API 호출
-            response = await self.providers[provider](test_prompt, api_key)
-            
-            # 응답이 비어있지 않은지 확인
-            if response and len(response.strip()) > 0:
-                return {
-                    "success": True,
-                    "message": f"{provider.value} API 연결이 성공적으로 확인되었습니다."
-                }
-            else:
-                return {
-                    "success": False,
-                    "message": f"{provider.value} API에서 빈 응답을 받았습니다."
-                }
-            
-        except Exception as e:
-            logger.error(f"API 연결 테스트 실패 ({provider.value}): {str(e)}")
-            return {
-                "success": False,
-                "message": f"{provider.value} API 연결에 실패했습니다: {str(e)}"
-            }
+        return await self.provider_manager.test_connection(provider, api_key)
