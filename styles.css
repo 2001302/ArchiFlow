@@ -7,182 +7,159 @@ If your plugin does not need CSS, delete this file.
 
 */
 
-/* documize 컨테이너 스타일 */
-.documize-container {
+/* 플러그인 루트 컨테이너 - 스코핑을 위한 기본 스타일 */
+.documize-plugin-root {
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 	transition: box-shadow 0.2s ease;
 }
 
-.documize-container:hover {
+.documize-plugin-root:hover {
 	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-/* 제목 입력 섹션 */
-.documize-title-section {
+/* 스코핑된 스타일 - .documize-plugin-root 하위 요소들만 적용 */
+.documize-plugin-root .documize-title-section {
 	transition: background-color 0.2s ease;
 }
 
-.documize-title-input {
+.documize-plugin-root .documize-title-input {
 	transition: all 0.2s ease;
 	font-family: var(--font-text);
 }
 
-.documize-title-input:focus {
+.documize-plugin-root .documize-title-input:focus {
 	transform: translateY(-1px);
 }
 
-.documize-title-input::placeholder {
+.documize-plugin-root .documize-title-input::placeholder {
 	color: var(--text-muted);
 	font-style: italic;
 }
 
 /* Mermaid 다이어그램 섹션 */
-.documize-mermaid-section {
+.documize-plugin-root .documize-mermaid-section {
 	background: var(--background-primary);
 }
 
-.documize-mermaid-section .mermaid {
+.documize-plugin-root .documize-mermaid-section .mermaid {
 	max-width: 100%;
 	overflow: auto;
 }
-.documize-result-block {
+
+.documize-plugin-root .documize-result-block {
   box-shadow: var(--shadow-l);
   background: var(--background-primary);
 }
 
-.documize-result-header .documize-btn {
+.documize-plugin-root .documize-result-header .documize-btn {
   background: transparent;
   border: none;
   padding: 4px;
   border-radius: 6px;
 }
 
-.documize-result-header .documize-btn:hover {
+.documize-plugin-root .documize-result-header .documize-btn:hover {
   background: var(--background-modifier-hover);
 }
 
-.documize-collapsed .documize-result {
+.documize-plugin-root .documize-collapsed .documize-result {
   display: none;
 }
 
-.documize-toggle-group .documize-toggle-item {
+.documize-plugin-root .documize-toggle-group .documize-toggle-item {
   transition: background 0.15s ease, color 0.15s ease;
 }
 
-/* 드랍다운 스타일 개선 */
-.documize-format-select {
+/* 스코핑된 드랍다운 스타일 */
+.documize-plugin-root .documize-format-select {
   transition: all 0.2s ease;
   cursor: pointer;
 }
 
-.documize-format-select:hover {
+.documize-plugin-root .documize-format-select:hover {
   background: rgba(var(--background-primary-rgb), 0.9) !important;
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
 }
 
-.documize-format-select:focus {
+.documize-plugin-root .documize-format-select:focus {
   outline: none;
   border-color: var(--interactive-accent);
   box-shadow: 0 0 0 2px rgba(var(--interactive-accent-rgb), 0.2) !important;
 }
 
-.documize-format-select option {
+.documize-plugin-root .documize-format-select option {
   background: var(--background-primary);
   color: var(--text-normal);
   padding: 8px;
 }
 
-/* 프롬프트 컨테이너 스타일 */
-.documize-prompt-container {
+/* 스코핑된 프롬프트 컨테이너 스타일 */
+.documize-plugin-root .documize-prompt-container {
   transition: all 0.2s ease;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.documize-prompt-container:hover {
+.documize-plugin-root .documize-prompt-container:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-.documize-prompt-container:focus-within {
+.documize-plugin-root .documize-prompt-container:focus-within {
   border-color: var(--interactive-accent);
   box-shadow: 0 0 0 2px rgba(var(--interactive-accent-rgb), 0.2);
 }
 
-/* 프롬프트 입력창 스타일 */
-.prompt-input {
+/* 스코핑된 프롬프트 입력창 스타일 */
+.documize-plugin-root .prompt-input {
   transition: all 0.2s ease;
 }
 
-.prompt-input:focus {
+.documize-plugin-root .prompt-input:focus {
   outline: none;
 }
 
-.prompt-input::placeholder {
+.documize-plugin-root .prompt-input::placeholder {
   color: var(--text-muted);
   font-style: italic;
 }
 
-/* 모드 아이콘 스타일 */
-.documize-mode-icon {
+/* 스코핑된 모드 아이콘 스타일 */
+.documize-plugin-root .documize-mode-icon {
   transition: color 0.2s ease;
 }
 
-.documize-format-container:hover .documize-mode-icon {
+.documize-plugin-root .documize-format-container:hover .documize-mode-icon {
   color: var(--text-normal);
 }
 
-/* 드랍다운 스타일 개선 */
-.documize-format-select {
+/* 스코핑된 Test 버튼 스타일 */
+.documize-plugin-root .documize-test-btn {
   transition: all 0.2s ease;
-  cursor: pointer;
 }
 
-.documize-format-select:hover {
+.documize-plugin-root .documize-test-btn:hover {
   background: var(--background-modifier-hover) !important;
   transform: translateY(-1px);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.documize-format-select:focus {
-  outline: none;
-  border-color: var(--interactive-accent);
-  box-shadow: 0 0 0 2px rgba(var(--interactive-accent-rgb), 0.2);
-}
-
-.documize-format-select option {
-  background: var(--background-primary);
-  color: var(--text-normal);
-  padding: 8px;
-}
-
-/* Test 버튼 스타일 */
-.documize-test-btn {
-  transition: all 0.2s ease;
-}
-
-.documize-test-btn:hover {
-  background: var(--background-modifier-hover) !important;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.documize-test-btn:active {
+.documize-plugin-root .documize-test-btn:active {
   transform: translateY(0);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Send 버튼 스타일 */
-.documize-send-btn {
+/* 스코핑된 Send 버튼 스타일 */
+.documize-plugin-root .documize-send-btn {
   transition: all 0.2s ease;
 }
 
-.documize-send-btn:hover {
+.documize-plugin-root .documize-send-btn:hover {
   background: var(--interactive-accent-hover) !important;
   transform: translateY(-1px);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.documize-send-btn:active {
+.documize-plugin-root .documize-send-btn:active {
   transform: translateY(0);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }

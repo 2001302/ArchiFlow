@@ -26,18 +26,35 @@ export default class SidePannelView extends ItemView {
 		const { contentEl } = this
 		contentEl.empty()
 
-		// 루트 컨테이너: 세로 플렉스, 하단 프롬프트 고정
-		const container = contentEl.createDiv({ cls: 'documize-container' })
-		container.style.display = 'flex'
-		container.style.flexDirection = 'column'
-		container.style.height = '100%'
+		// 플러그인 컨테이너 생성
+		const pluginContainer = contentEl.createDiv({ 
+			cls: 'documize-plugin-root' 
+		});
+		pluginContainer.style.display = 'flex'
+		pluginContainer.style.flexDirection = 'column'
+		pluginContainer.style.height = '100%'
+
+		// 라이브러리별 래퍼
+		const choicesWrapper = pluginContainer.createDiv({ 
+			cls: 'documize-choices-wrapper' 
+		});
+		choicesWrapper.style.flex = '1 1 auto'
+		choicesWrapper.style.overflow = 'auto'
+		choicesWrapper.style.padding = '4px'
+
+		const tailwindWrapper = pluginContainer.createDiv({ 
+			cls: 'documize-tailwind-wrapper' 
+		});
+		tailwindWrapper.style.position = 'relative'
+		tailwindWrapper.style.padding = '8px'
+		tailwindWrapper.style.width = '100%'
+		tailwindWrapper.style.boxSizing = 'border-box'
+
+		// CSS 스타일 주입
+		this.addStyles();
 
 		// 본문: 결과 리스트 (가득 채움)
-		const body = container.createDiv({ cls: 'documize-body' })
-		body.style.flex = '1 1 auto'
-		body.style.overflow = 'auto'
-		body.style.padding = '4px'
-		const resultsContainer = body.createDiv({ cls: 'documize-results' })
+		const resultsContainer = choicesWrapper.createDiv({ cls: 'documize-results' })
 		resultsContainer.style.display = 'flex'
 		resultsContainer.style.flexDirection = 'column'
 		resultsContainer.style.gap = '12px'
@@ -175,14 +192,7 @@ export default class SidePannelView extends ItemView {
 
 
 		// 하단 프롬프트 바: 항상 하단, 가로 꽉 채움
-		const footer = container.createDiv({ cls: 'documize-footer' })
-		footer.style.position = 'relative'
-		footer.style.padding = '8px'
-		footer.style.width = '100%'
-		footer.style.boxSizing = 'border-box'
-		
-		// 프롬프트 입력 컨테이너 - 세 구역으로 나누기
-		const promptContainer = footer.createDiv({ cls: 'documize-prompt-container' })
+		const promptContainer = tailwindWrapper.createDiv({ cls: 'documize-prompt-container' })
 		promptContainer.style.position = 'relative'
 		promptContainer.style.width = '100%'
 		promptContainer.style.border = '1px solid var(--background-modifier-border)'
@@ -544,6 +554,259 @@ export default class SidePannelView extends ItemView {
 	async onClose(): Promise<void> {
 		const { contentEl } = this;
 		contentEl.empty();
+	}
+
+	/**
+	 * CSS 스타일을 동적으로 주입하여 스코핑과 네임스페이싱을 적용
+	 */
+	private addStyles(): void {
+		// 기존 스타일이 있다면 제거
+		const existingStyle = document.getElementById('documize-plugin-styles');
+		if (existingStyle) {
+			existingStyle.remove();
+		}
+
+		// 스타일 요소 생성
+		const style = document.createElement('style');
+		style.id = 'documize-plugin-styles';
+		style.textContent = this.getScopedStyles();
+		
+		// head에 추가
+		document.head.appendChild(style);
+	}
+
+	/**
+	 * 스코핑된 CSS 스타일 반환
+	 */
+	private getScopedStyles(): string {
+		return `
+			/* 플러그인 루트 컨테이너 */
+			.documize-plugin-root {
+				box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+				transition: box-shadow 0.2s ease;
+			}
+
+			.documize-plugin-root:hover {
+				box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+			}
+
+			/* Choices.js 래퍼 */
+			.documize-choices-wrapper {
+				/* Choices.js 관련 스타일이 여기에 적용됩니다 */
+			}
+
+			/* Tailwind CSS 래퍼 */
+			.documize-tailwind-wrapper {
+				/* Tailwind CSS 관련 스타일이 여기에 적용됩니다 */
+			}
+
+			/* 결과 블록 스타일 */
+			.documize-plugin-root .documize-result-block {
+				box-shadow: var(--shadow-l);
+				background: var(--background-primary);
+				position: relative;
+				border: 1px solid var(--background-modifier-border);
+				border-radius: 8px;
+				overflow: hidden;
+			}
+
+			.documize-plugin-root .documize-result-header .documize-btn {
+				background: transparent;
+				border: none;
+				padding: 4px;
+				border-radius: 6px;
+			}
+
+			.documize-plugin-root .documize-result-header .documize-btn:hover {
+				background: var(--background-modifier-hover);
+			}
+
+			.documize-plugin-root .documize-collapsed .documize-result {
+				display: none;
+			}
+
+			/* 프롬프트 컨테이너 스타일 */
+			.documize-plugin-root .documize-prompt-container {
+				transition: all 0.2s ease;
+				box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+				position: relative;
+				width: 100%;
+				border: 1px solid var(--background-modifier-border);
+				border-radius: 8px;
+				background: var(--background-primary);
+				overflow: hidden;
+				display: flex;
+				flex-direction: column;
+				height: 140px;
+			}
+
+			.documize-plugin-root .documize-prompt-container:hover {
+				box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+			}
+
+			.documize-plugin-root .documize-prompt-container:focus-within {
+				border-color: var(--interactive-accent);
+				box-shadow: 0 0 0 2px rgba(var(--interactive-accent-rgb), 0.2);
+			}
+
+			/* 프롬프트 입력창 스타일 */
+			.documize-plugin-root .prompt-input {
+				transition: all 0.2s ease;
+				width: 100%;
+				flex: 1;
+				border: none;
+				background: transparent;
+				color: var(--text-normal);
+				font-size: 14px;
+				font-family: var(--font-text);
+				resize: none;
+				outline: none;
+				overflow-y: auto;
+				overflow-x: hidden;
+				line-height: 1.4;
+				word-wrap: break-word;
+			}
+
+			.documize-plugin-root .prompt-input:focus {
+				outline: none;
+			}
+
+			.documize-plugin-root .prompt-input::placeholder {
+				color: var(--text-muted);
+				font-style: italic;
+			}
+
+			/* 드롭다운 스타일 */
+			.documize-plugin-root .documize-format-select,
+			.documize-plugin-root .documize-model-select,
+			.documize-plugin-root .documize-template-select {
+				transition: all 0.2s ease;
+				cursor: pointer;
+				padding: 4px 6px;
+				border-radius: 12px;
+				border: 1px solid var(--background-modifier-border);
+				background: var(--background-primary);
+				color: var(--text-normal);
+				font-size: 8px;
+				height: 20px;
+				text-align: center;
+				text-overflow: ellipsis;
+				overflow: hidden;
+				white-space: nowrap;
+				box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+				position: relative;
+				left: 0;
+			}
+
+			.documize-plugin-root .documize-format-select:hover,
+			.documize-plugin-root .documize-model-select:hover,
+			.documize-plugin-root .documize-template-select:hover {
+				background: var(--background-modifier-hover) !important;
+				transform: translateY(-1px);
+				box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+			}
+
+			.documize-plugin-root .documize-format-select:focus,
+			.documize-plugin-root .documize-model-select:focus,
+			.documize-plugin-root .documize-template-select:focus {
+				outline: none;
+				border-color: var(--interactive-accent);
+				box-shadow: 0 0 0 2px rgba(var(--interactive-accent-rgb), 0.2);
+			}
+
+			.documize-plugin-root .documize-format-select option,
+			.documize-plugin-root .documize-model-select option,
+			.documize-plugin-root .documize-template-select option {
+				background: var(--background-primary);
+				color: var(--text-normal);
+				padding: 8px;
+			}
+
+			/* 버튼 스타일 */
+			.documize-plugin-root .documize-send-btn {
+				transition: all 0.2s ease;
+				padding: 6px 8px;
+				border-radius: 16px;
+				border: 1px solid var(--background-modifier-border);
+				background: var(--interactive-accent);
+				color: var(--text-on-accent);
+				cursor: pointer;
+				width: 30px;
+				height: 30px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+			}
+
+			.documize-plugin-root .documize-send-btn:hover {
+				background: var(--interactive-accent-hover) !important;
+				transform: translateY(-1px);
+				box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+			}
+
+			.documize-plugin-root .documize-send-btn:active {
+				transform: translateY(0);
+				box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+			}
+
+			/* 기타 버튼들 */
+			.documize-plugin-root .documize-mention-btn,
+			.documize-plugin-root .documize-attach-btn {
+				padding: 6px;
+				border-radius: 6px;
+				border: 1px solid var(--background-modifier-border);
+				background: var(--background-secondary);
+				color: var(--text-normal);
+				cursor: pointer;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				width: 24px;
+				height: 24px;
+			}
+
+			/* 섹션 스타일 */
+			.documize-plugin-root .documize-prompt-top,
+			.documize-plugin-root .documize-prompt-middle,
+			.documize-plugin-root .documize-prompt-bottom {
+				display: flex;
+				align-items: center;
+			}
+
+			.documize-plugin-root .documize-prompt-top {
+				justify-content: space-between;
+				padding: 8px;
+				border-bottom: none;
+				min-height: 20px;
+			}
+
+			.documize-plugin-root .documize-prompt-middle {
+				flex: 1;
+				padding: 8px;
+				flex-direction: column;
+			}
+
+			.documize-plugin-root .documize-prompt-bottom {
+				justify-content: space-between;
+				padding: 8px 4px;
+				border-top: none;
+				min-height: 30px;
+			}
+
+			.documize-plugin-root .documize-left-buttons,
+			.documize-plugin-root .documize-left-controls {
+				display: flex;
+				gap: 4px;
+				align-items: center;
+			}
+
+			.documize-plugin-root .documize-format-container,
+			.documize-plugin-root .documize-model-container,
+			.documize-plugin-root .documize-template-container {
+				position: relative;
+				z-index: 1000;
+			}
+		`;
 	}
 
 	/**
