@@ -45,6 +45,7 @@ class AIEngine:
         prompt: str,
         output_format: OutputFormat,
         provider: AIProvider = AIProvider.PERPLEXITY,
+        model: str = "gpt-4",
         api_key: Optional[str] = None,
         source_code: Optional[str] = None,
         diagram_context: Optional[str] = None,
@@ -78,7 +79,7 @@ class AIEngine:
             
             # AI API 호출
             response = await self.provider_manager.call_provider(
-                provider, formatted_prompt, api_key
+                provider, formatted_prompt, api_key, model
             )
             
             # 응답 후처리

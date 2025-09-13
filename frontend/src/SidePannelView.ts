@@ -260,7 +260,7 @@ export default class SidePannelView extends ItemView {
 		prompt.style.lineHeight = '1.4'
 		prompt.style.wordWrap = 'break-word'
 		
-		// 3. 하단 구역: 모드선택 드롭다운, 전송 버튼
+		// 3. 하단 구역: 모드선택 드롭다운, model select, 전송 버튼
 		const bottomSection = promptContainer.createDiv({ cls: 'archiflow-prompt-bottom' })
 		bottomSection.style.display = 'flex'
 		bottomSection.style.justifyContent = 'space-between'
@@ -269,20 +269,27 @@ export default class SidePannelView extends ItemView {
 		bottomSection.style.borderTop = 'none'
 		bottomSection.style.minHeight = '30px'
 		
+		// 왼쪽 컨테이너: mode select와 model select를 함께 배치
+		const leftControls = bottomSection.createDiv({ cls: 'archiflow-left-controls' })
+		leftControls.style.display = 'flex'
+		leftControls.style.gap = '4px'
+		leftControls.style.alignItems = 'center'
+		
 		// 모드선택 드롭다운
-		const formatContainer = bottomSection.createDiv({ cls: 'archiflow-format-container' })
+		const formatContainer = leftControls.createDiv({ cls: 'archiflow-format-container' })
 		formatContainer.style.position = 'relative'
 		
 		const formatSelect = formatContainer.createEl('select', { cls: 'archiflow-format-select' })
-		formatSelect.style.padding = '6px 8px 6px 28px'
-		formatSelect.style.borderRadius = '16px'
+		formatSelect.style.padding = '4px 6px 4px 20px'
+		formatSelect.style.borderRadius = '12px'
 		formatSelect.style.border = '1px solid var(--background-modifier-border)'
 		formatSelect.style.background = 'var(--background-secondary)'
 		formatSelect.style.color = 'var(--text-normal)'
-		formatSelect.style.fontSize = '10px'
+		formatSelect.style.fontSize = '8px'
 		formatSelect.style.cursor = 'pointer'
-		formatSelect.style.minWidth = '20px'
-		formatSelect.style.width = '20px'
+		formatSelect.style.minWidth = '16px'
+		formatSelect.style.width = '16px'
+		formatSelect.style.height = '20px'
 		formatSelect.style.transition = 'width 0.2s ease, min-width 0.2s ease'
 		
 		// 모드별 아이콘 매핑
@@ -303,11 +310,11 @@ export default class SidePannelView extends ItemView {
 		// 모드 아이콘 표시
 		const modeIcon = formatContainer.createEl('span', { cls: 'archiflow-mode-icon' })
 		modeIcon.style.position = 'absolute'
-		modeIcon.style.left = '10px'
+		modeIcon.style.left = '6px'
 		modeIcon.style.top = '55%'
 		modeIcon.style.transform = 'translateY(-50%)'
 		modeIcon.style.pointerEvents = 'none'
-		modeIcon.style.fontSize = '14px'
+		modeIcon.style.fontSize = '8px'
 		modeIcon.style.color = 'var(--text-muted)'
 		setIcon(modeIcon, modeIcons['text'])
 		
@@ -321,19 +328,92 @@ export default class SidePannelView extends ItemView {
 		})
 		
 		formatSelect.addEventListener('mousedown', () => {
-			formatSelect.style.width = '80px'
-			formatSelect.style.minWidth = '80px'
+			formatSelect.style.width = '60px'
+			formatSelect.style.minWidth = '60px'
 		})
 		
 		formatSelect.addEventListener('blur', () => {
-			formatSelect.style.width = '32px'
-			formatSelect.style.minWidth = '32px'
+			formatSelect.style.width = '16px'
+			formatSelect.style.minWidth = '16px'
 		})
 		
 		formatSelect.addEventListener('change', () => {
 			setTimeout(() => {
-				formatSelect.style.width = '32px'
-				formatSelect.style.minWidth = '32px'
+				formatSelect.style.width = '16px'
+				formatSelect.style.minWidth = '16px'
+			}, 100)
+		})
+
+		// Select model 드롭다운
+		const modelContainer = leftControls.createDiv({ cls: 'archiflow-model-container' })
+		modelContainer.style.position = 'relative'
+		
+		const modelSelect = modelContainer.createEl('select', { cls: 'archiflow-model-select' })
+		modelSelect.style.padding = '4px 6px'
+		modelSelect.style.borderRadius = '12px'
+		modelSelect.style.border = '1px solid var(--background-modifier-border)'
+		modelSelect.style.background = 'var(--background-secondary)'
+		modelSelect.style.color = 'var(--text-normal)'
+		modelSelect.style.fontSize = '8px'
+		modelSelect.style.cursor = 'pointer'
+		modelSelect.style.minWidth = '16px'
+		modelSelect.style.width = '16px'
+		modelSelect.style.height = '20px'
+		modelSelect.style.transition = 'width 0.2s ease, min-width 0.2s ease'
+		modelSelect.style.textAlign = 'center'
+		modelSelect.style.textOverflow = 'ellipsis'
+		modelSelect.style.overflow = 'hidden'
+		modelSelect.style.whiteSpace = 'nowrap'
+		
+		
+		// config.json에서 모델 목록 로드
+		this.loadModelsFromConfig(modelSelect).then(() => {
+			// 초기 로드 후 너비 설정
+			const selectedOption = modelSelect.options[modelSelect.selectedIndex]
+			if (selectedOption && selectedOption.value !== 'default' && selectedOption.textContent) {
+				const textWidth = selectedOption.textContent.length * 6 + 20
+				const maxWidth = 80 // 최대 너비 설정
+				modelSelect.style.width = `${Math.min(textWidth, maxWidth)}px`
+				modelSelect.style.minWidth = `${Math.min(textWidth, maxWidth)}px`
+			} else {
+				modelSelect.style.width = '80px'
+				modelSelect.style.minWidth = '80px'
+			}
+		})
+		
+		// 모델 선택 이벤트
+		modelSelect.addEventListener('mousedown', () => {
+			modelSelect.style.width = '120px'
+			modelSelect.style.minWidth = '120px'
+		})
+		
+		modelSelect.addEventListener('blur', () => {
+			// 선택된 모델 이름에 따라 너비 조정
+			const selectedOption = modelSelect.options[modelSelect.selectedIndex]
+			if (selectedOption && selectedOption.value !== 'default' && selectedOption.textContent) {
+				const textWidth = selectedOption.textContent.length * 6 + 20 // 대략적인 텍스트 너비 계산
+				const maxWidth = 80 // 최대 너비 설정
+				modelSelect.style.width = `${Math.min(textWidth, maxWidth)}px`
+				modelSelect.style.minWidth = `${Math.min(textWidth, maxWidth)}px`
+			} else {
+				modelSelect.style.width = '80px'
+				modelSelect.style.minWidth = '80px'
+			}
+		})
+		
+		modelSelect.addEventListener('change', () => {
+			setTimeout(() => {
+				// 선택된 모델 이름에 따라 너비 조정
+				const selectedOption = modelSelect.options[modelSelect.selectedIndex]
+				if (selectedOption && selectedOption.value !== 'default' && selectedOption.textContent) {
+					const textWidth = selectedOption.textContent.length * 6 + 20
+					const maxWidth = 80 // 최대 너비 설정
+					modelSelect.style.width = `${Math.min(textWidth, maxWidth)}px`
+					modelSelect.style.minWidth = `${Math.min(textWidth, maxWidth)}px`
+				} else {
+					modelSelect.style.width = '80px'
+					modelSelect.style.minWidth = '80px'
+				}
 			}, 100)
 		})
 		
@@ -363,10 +443,10 @@ export default class SidePannelView extends ItemView {
 			const text = (prompt as HTMLTextAreaElement).value.trim()
 			if (!text) return
 
-			// API Key 확인
-			const apiKey = this.getCurrentApiKey()
-			if (!apiKey) {
-				new Notice('API Key가 설정되지 않았습니다. 설정에서 API Key를 입력해주세요.')
+			// 선택된 모델 확인
+			const selectedModel = this.getCurrentModel()
+			if (!selectedModel) {
+				new Notice('모델이 선택되지 않았습니다. config.json에서 모델을 설정해주세요.')
 				return
 			}
 
@@ -379,7 +459,7 @@ export default class SidePannelView extends ItemView {
 
 			try {
 				// AI 요청
-				const aiResponse = await this.sendAIRequest(text, apiKey, selectedFormat)
+				const aiResponse = await this.sendAIRequest(text, selectedModel, selectedFormat)
 				
 				// 로딩 블록 제거
 				loadingBlock.remove()
@@ -408,31 +488,101 @@ export default class SidePannelView extends ItemView {
 	}
 
 	/**
-	 * 현재 선택된 AI 제공자의 API Key를 반환
+	 * config.json에서 모델 목록을 로드하여 드롭다운에 추가
 	 */
-	private getCurrentApiKey(): string | null {
-		const provider = this.plugin.settings.selectedProvider
-		switch (provider) {
-			case 'perplexity':
-				return this.plugin.settings.perplexityApiKey || null
-			case 'openai':
-				return this.plugin.settings.openaiApiKey || null
-			case 'anthropic':
-				return this.plugin.settings.anthropicApiKey || null
-			default:
-				return null
+	private async loadModelsFromConfig(modelSelect: HTMLSelectElement): Promise<void> {
+		try {
+			// 여러 경로 시도
+			const possiblePaths = [
+				'.obsidian/plugins/arch-flow/config.json',
+				'config.json',
+				'./config.json'
+			];
+			
+			let configContent = '';
+			let configPath = '';
+			
+			// 가능한 경로들을 순서대로 시도
+			for (const path of possiblePaths) {
+				console.log('시도하는 경로:', path);
+				if (await this.plugin.app.vault.adapter.exists(path)) {
+					configPath = path;
+					configContent = await this.plugin.app.vault.adapter.read(path);
+					console.log('성공적으로 읽은 경로:', path);
+					break;
+				}
+			}
+			
+			if (!configContent) {
+				console.warn('config.json 파일을 찾을 수 없습니다. 시도한 경로들:', possiblePaths);
+				// 기본 모델 추가
+				const defaultOption = modelSelect.createEl('option', { value: 'default' });
+				defaultOption.textContent = 'Select Model';
+				return;
+			}
+			
+			const config = JSON.parse(configContent);
+			console.log('로드된 config:', config);
+			
+			// 기존 옵션 제거
+			modelSelect.innerHTML = '';
+			
+			// 기본 옵션 추가
+			const defaultOption = modelSelect.createEl('option', { value: 'default' });
+			defaultOption.textContent = 'Select Model';
+			defaultOption.selected = true;
+			
+			// 모델 목록 추가
+			if (config.models && Array.isArray(config.models)) {
+				config.models.forEach((model: any) => {
+					const option = modelSelect.createEl('option', { 
+						value: JSON.stringify({
+							name: model.name,
+							provider: model.provider,
+							model: model.model,
+							api_key: model.api_key
+						})
+					});
+					option.textContent = model.name;
+				});
+				console.log('모델 로드 완료:', config.models.length, '개');
+			}
+		} catch (error) {
+			console.error('config.json 로드 실패:', error);
+			// 에러 시 기본 모델 추가
+			modelSelect.innerHTML = '';
+			const defaultOption = modelSelect.createEl('option', { value: 'default' });
+			defaultOption.textContent = 'Select Model';
+		}
+	}
+
+	/**
+	 * 현재 선택된 모델 정보를 반환
+	 */
+	private getCurrentModel(): any | null {
+		const modelSelect = document.querySelector('.archiflow-model-select') as HTMLSelectElement;
+		if (!modelSelect || modelSelect.value === 'default') {
+			return null;
+		}
+		
+		try {
+			return JSON.parse(modelSelect.value);
+		} catch (error) {
+			console.error('모델 정보 파싱 실패:', error);
+			return null;
 		}
 	}
 
 	/**
 	 * 출력 형식에 따른 요청 바디 구성
 	 */
-	private buildRequestByFormat(prompt: string, outputFormat: string, apiKey: string): any {
+	private buildRequestByFormat(prompt: string, outputFormat: string, model: any): any {
 		const baseRequest = {
 			prompt: prompt,
 			output_format: outputFormat,
-			provider: this.plugin.settings.selectedProvider,
-			api_key: apiKey
+			provider: model.provider,
+			model: model.model,
+			api_key: model.api_key
 		}
 
 		switch (outputFormat) {
@@ -557,7 +707,7 @@ export default class SidePannelView extends ItemView {
 	/**
 	 * 백그라운드 서버에 AI 요청을 전송
 	 */
-	private async sendAIRequest(prompt: string, apiKey: string, outputFormat: string = 'text'): Promise<string> {
+	private async sendAIRequest(prompt: string, model: any, outputFormat: string = 'text'): Promise<string> {
 		// 백엔드가 실행 중인지 확인하고 필요시 시작
 		const isBackendReady = await (this.plugin as any).ensureBackendRunning();
 		if (!isBackendReady) {
@@ -574,7 +724,7 @@ export default class SidePannelView extends ItemView {
 		}
 		
 		// 출력 형식에 따른 추가 파라미터 설정
-		const requestBody = this.buildRequestByFormat(prompt, outputFormat, apiKey)
+		const requestBody = this.buildRequestByFormat(prompt, outputFormat, model)
 
 		try {
 			const response = await fetch(`${serverUrl}/generate`, {

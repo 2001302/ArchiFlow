@@ -60,6 +60,7 @@ class AIRequest(BaseModel):
     prompt: str
     output_format: str  # "mermaid", "source_code", "text"
     provider: str = "perplexity"  # "perplexity", "openai", "anthropic"
+    model: str = "gpt-4"  # 모델명
     api_key: Optional[str] = None  # 클라이언트에서 전달받은 API Key
     source_code: Optional[str] = None
     diagram_context: Optional[str] = None
@@ -135,6 +136,7 @@ async def generate_ai_response(request: AIRequest):
             prompt=request.prompt,
             output_format=output_format,
             provider=provider,
+            model=request.model,
             api_key=request.api_key,
             source_code=request.source_code,
             diagram_context=request.diagram_context,

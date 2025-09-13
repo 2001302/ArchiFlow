@@ -145,7 +145,7 @@ AI 응답 생성
 
 ## 로그
 
-로그 파일은 `logs/ai_engine.log`에 저장됩니다.
+로그 파일은 플러그인 루트 디렉토리의 `logs/ai_engine.log`에 저장됩니다.
 
 ## 개발
 
@@ -158,7 +158,7 @@ backend/
 │   ├── ai_engine.py       # AI 엔진 핵심 로직
 │   ├── api_server.py      # FastAPI 서버
 │   └── prompt_templates.py # 프롬프트 템플릿
-├── logs/                  # 로그 파일
+├── logs/                  # 로그 파일 (루트 디렉토리)
 ├── main.py               # 메인 실행 파일
 ├── start.sh              # 시작 스크립트
 ├── requirements.txt      # Python 의존성

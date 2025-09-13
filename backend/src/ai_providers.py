@@ -16,12 +16,12 @@ from pathlib import Path
 # PyInstaller 환경에서의 모듈 경로 처리
 if getattr(sys, 'frozen', False):
     # PyInstaller로 빌드된 실행파일인 경우
-    current_dir = Path(sys._MEIPASS) if hasattr(sys, '_MEIPASS') else Path(os.path.dirname(sys.executable))
+    current_dir = Path(getattr(sys, '_MEIPASS', os.path.dirname(sys.executable)))
     src_path = current_dir / "src"
     sys.path.insert(0, str(src_path))
 
 # 절대 import 사용 - 모든 환경에서 동일하게 동작
-from config import settings
+from config import settings, provider_configs
 
 class AIProvider(Enum):
     """AI 제공자 열거형"""
@@ -43,7 +43,8 @@ class AIProviderManager:
         self,
         provider: AIProvider,
         prompt: str,
-        api_key: Optional[str] = None
+        api_key: Optional[str] = None,
+        model: str = "gpt-4"
     ) -> str:
         """
         AI 제공자 호출
@@ -57,20 +58,24 @@ class AIProviderManager:
             AI 응답
         """
         try:
-            return await self.providers[provider](prompt, api_key)
+            return await self.providers[provider](prompt, api_key, model)
         except Exception as e:
             logger.error(f"AI 제공자 호출 실패 ({provider.value}): {str(e)}")
             raise
     
-    async def _call_perplexity(self, prompt: str, api_key: Optional[str] = None) -> str:
+    async def _call_perplexity(self, prompt: str, api_key: Optional[str] = None, model: str = "gpt-4") -> str:
         """Perplexity API 호출"""
         key = api_key or settings.perplexity_api_key
         if not key:
             raise ValueError("Perplexity API 키가 설정되지 않았습니다.")
         
+        # config.json에서 API URL 가져오기
+        perplexity_config = provider_configs.get('perplexity', {})
+        base_url = perplexity_config.get('api_url', 'https://api.perplexity.ai')
+        
         client = AsyncOpenAI(
             api_key=key,
-            base_url="https://api.perplexity.ai"
+            base_url=base_url
         )
         
         try:
@@ -78,31 +83,38 @@ class AIProviderManager:
             is_test = len(prompt.strip()) <= 10 and prompt.strip().lower() in ['hi', 'hello', 'test']
             
             response = await client.chat.completions.create(
-                model="sonar-pro",
+                model=model,
                 messages=[
                     {"role": "user", "content": prompt}
                 ],
                 max_tokens=50 if is_test else 2000,
                 timeout=30.0
             )
-            return response.choices[0].message.content
+            content = response.choices[0].message.content
+            return content if content is not None else ""
         except Exception as e:
             logger.error(f"Perplexity API 호출 실패: {str(e)}")
             raise
     
-    async def _call_openai(self, prompt: str, api_key: Optional[str] = None) -> str:
+    async def _call_openai(self, prompt: str, api_key: Optional[str] = None, model: str = "gpt-4") -> str:
         """OpenAI API 호출"""
         key = api_key or settings.openai_api_key
         if not key:
             raise ValueError("OpenAI API 키가 설정되지 않았습니다.")
         
+        # config.json에서 API URL과 인증 방식 가져오기
+        openai_config = provider_configs.get('openai', {})
+        api_url = openai_config.get('api_url', 'https://api.openai.com/v1/chat/completions')
+        auth_header = openai_config.get('auth_header', 'Authorization')
+        auth_prefix = openai_config.get('auth_prefix', 'Bearer')
+        
         headers = {
-            "Authorization": f"Bearer {key}",
+            auth_header: f"{auth_prefix} {key}".strip(),
             "Content-Type": "application/json"
         }
         
         data = {
-            "model": "gpt-4",
+            "model": model,
             "messages": [
                 {"role": "user", "content": prompt}
             ],
@@ -111,7 +123,7 @@ class AIProviderManager:
         
         async with httpx.AsyncClient() as client:
             response = await client.post(
-                "https://api.openai.com/v1/chat/completions",
+                api_url,
                 headers=headers,
                 json=data,
                 timeout=30.0
@@ -120,20 +132,26 @@ class AIProviderManager:
             result = response.json()
             return result["choices"][0]["message"]["content"]
     
-    async def _call_anthropic(self, prompt: str, api_key: Optional[str] = None) -> str:
+    async def _call_anthropic(self, prompt: str, api_key: Optional[str] = None, model: str = "gpt-4") -> str:
         """Anthropic API 호출"""
         key = api_key or settings.anthropic_api_key
         if not key:
             raise ValueError("Anthropic API 키가 설정되지 않았습니다.")
         
+        # config.json에서 API URL과 인증 방식 가져오기
+        anthropic_config = provider_configs.get('anthropic', {})
+        api_url = anthropic_config.get('api_url', 'https://api.anthropic.com/v1/messages')
+        auth_header = anthropic_config.get('auth_header', 'x-api-key')
+        auth_prefix = anthropic_config.get('auth_prefix', '')
+        
         headers = {
-            "x-api-key": key,
+            auth_header: f"{auth_prefix}{key}".strip(),
             "Content-Type": "application/json",
             "anthropic-version": "2023-06-01"
         }
         
         data = {
-            "model": "claude-3-sonnet-20240229",
+            "model": model,
             "max_tokens": 2000,
             "messages": [
                 {"role": "user", "content": prompt}
@@ -142,7 +160,7 @@ class AIProviderManager:
         
         async with httpx.AsyncClient() as client:
             response = await client.post(
-                "https://api.anthropic.com/v1/messages",
+                api_url,
                 headers=headers,
                 json=data,
                 timeout=30.0

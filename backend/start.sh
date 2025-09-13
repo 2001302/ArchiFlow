@@ -28,8 +28,8 @@ if [ ! -f ".env" ]; then
     echo "📝 .env 파일을 편집하여 API 키를 설정해주세요."
 fi
 
-# 로그 디렉토리 생성
-mkdir -p logs
+# 로그 디렉토리 생성 (루트의 logs 폴더)
+mkdir -p ../logs
 
 # 서버 시작
 echo "🌐 서버 시작 중..."
