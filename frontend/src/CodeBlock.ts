@@ -8,9 +8,9 @@ export class CodeBlockProcessor {
 		this.app = app;
 	}
 
-	async processArchFlowCodeBlock(source: string, el: HTMLElement, ctx: MarkdownPostProcessorContext) {
+	async processDocumizeCodeBlock(source: string, el: HTMLElement, ctx: MarkdownPostProcessorContext) {
 		// Create main container with clean design
-		const container = el.createDiv({ cls: 'arch-flow-container' });
+		const container = el.createDiv({ cls: 'documize-container' });
 		container.style.border = '1px solid var(--background-modifier-border)';
 		container.style.borderRadius = '8px';
 		container.style.overflow = 'hidden';
@@ -18,7 +18,7 @@ export class CodeBlockProcessor {
 		container.style.backgroundColor = 'var(--background-primary)';
 
 		// Create title input section
-		const titleSection = container.createDiv({ cls: 'arch-flow-title-section' });
+		const titleSection = container.createDiv({ cls: 'documize-title-section' });
 		titleSection.style.padding = '12px 16px';
 		titleSection.style.borderBottom = '1px solid var(--background-modifier-border)';
 		titleSection.style.backgroundColor = 'var(--background-secondary)';
@@ -26,7 +26,7 @@ export class CodeBlockProcessor {
 		const titleInput = titleSection.createEl('input', { 
 			type: 'text', 
 			placeholder: 'enter diagram title...',
-			cls: 'arch-flow-title-input'
+			cls: 'documize-title-input'
 		});
 		titleInput.style.width = '100%';
 		titleInput.style.padding = '8px 12px';
@@ -50,12 +50,12 @@ export class CodeBlockProcessor {
 		});
 
 		// Create mermaid diagram section
-		const mermaidSection = container.createDiv({ cls: 'arch-flow-mermaid-section' });
+		const mermaidSection = container.createDiv({ cls: 'documize-mermaid-section' });
 		mermaidSection.style.padding = '20px';
 		mermaidSection.style.textAlign = 'center';
 
 		// Create a unique ID for this mermaid diagram
-		const diagramId = `arch-flow-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+		const diagramId = `documize-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 		const mermaidDiv = mermaidSection.createDiv({ cls: 'mermaid' });
 		mermaidDiv.id = diagramId;
 		mermaidDiv.textContent = source;

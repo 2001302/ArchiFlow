@@ -1,5 +1,5 @@
 import { Editor, MarkdownView, Notice, Plugin, MarkdownPostProcessorContext, setIcon } from 'obsidian';
-import { VIEW_TYPE_ARCHIFLOW } from './src/Constants';
+import { VIEW_TYPE_DOCUMIZE } from './src/Constants';
 import { MyPluginSettings, DEFAULT_SETTINGS } from './src/Settings';
 import SidePannelView from './src/SidePannelView';
 import SampleModal from './src/SampleModal';
@@ -17,7 +17,7 @@ export default class MyPlugin extends Plugin {
 		await this.loadSettings();
 
 		// Initialize backend manager
-		this.backendManager = new BackendManager((this.app.vault.adapter as any).basePath + '/.obsidian/plugins/arch-flow');
+		this.backendManager = new BackendManager((this.app.vault.adapter as any).basePath + '/.obsidian/plugins/documize');
 
 		// Initialize code block processor
 		this.codeBlockProcessor = new CodeBlockProcessor(this.app);
@@ -31,7 +31,7 @@ export default class MyPlugin extends Plugin {
 		this.startBackendHealthCheck();
 
 		// Register right panel view
-		this.registerView(VIEW_TYPE_ARCHIFLOW, (leaf) => new SidePannelView(leaf, this));
+		this.registerView(VIEW_TYPE_DOCUMIZE, (leaf) => new SidePannelView(leaf, this));
 
 		// Command to open the right panel
 		this.addCommand({
@@ -90,8 +90,8 @@ export default class MyPlugin extends Plugin {
 			}
 		});
 
-		// Register markdown code block processor for arch-flow code blocks
-		this.registerMarkdownCodeBlockProcessor('arch-flow', this.codeBlockProcessor.processArchFlowCodeBlock.bind(this.codeBlockProcessor));
+		// Register markdown code block processor for documize code blocks
+		this.registerMarkdownCodeBlockProcessor('documize', this.codeBlockProcessor.processDocumizeCodeBlock.bind(this.codeBlockProcessor));
 
 		// This adds a settings tab so the user can configure various aspects of the plugin
 		this.addSettingTab(new SampleSettingTab(this.app, this));
@@ -108,7 +108,7 @@ export default class MyPlugin extends Plugin {
 
 	async activateRightPanel() {
 		// 이미 ArchiFlow가 열려 있으면 재생성하지 않고 해당 리프를 활성화
-		const existing = this.app.workspace.getLeavesOfType(VIEW_TYPE_ARCHIFLOW)
+		const existing = this.app.workspace.getLeavesOfType(VIEW_TYPE_DOCUMIZE)
 		if (existing.length > 0) {
 			this.app.workspace.revealLeaf(existing[0])
 			return
@@ -122,7 +122,7 @@ export default class MyPlugin extends Plugin {
 			return
 		}
 
-		await rightLeaf.setViewState({ type: VIEW_TYPE_ARCHIFLOW, active: true })
+		await rightLeaf.setViewState({ type: VIEW_TYPE_DOCUMIZE, active: true })
 		this.app.workspace.revealLeaf(rightLeaf)
 	}
 
@@ -133,7 +133,7 @@ export default class MyPlugin extends Plugin {
 		// Stop backend server
 		this.stopBackendServer();
 
-		this.app.workspace.getLeavesOfType(VIEW_TYPE_ARCHIFLOW).forEach((leaf) => {
+		this.app.workspace.getLeavesOfType(VIEW_TYPE_DOCUMIZE).forEach((leaf) => {
 			leaf.detach();
 		});
 	}

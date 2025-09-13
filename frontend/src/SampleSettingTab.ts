@@ -37,7 +37,7 @@ export default class SampleSettingTab extends PluginSettingTab {
 					.setCta()
 					.onClick(() => {
 						// config.json 파일 열기
-						const configPath = (this.plugin.app.vault.adapter as any).basePath + '/.obsidian/plugins/arch-flow/config.json';
+						const configPath = (this.plugin.app.vault.adapter as any).basePath + '/.obsidian/plugins/documize/config.json';
 						// 파일이 없으면 생성
 						if (!this.plugin.app.vault.adapter.exists(configPath)) {
 							const defaultConfig = {

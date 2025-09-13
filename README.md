@@ -66,7 +66,7 @@ python build_backend.py
 ```
 
 이 명령어는 PyInstaller를 사용하여 backend를 단일 실행파일로 빌드합니다.
-빌드된 실행파일은 `dist/arch-flow-backend` (또는 Windows에서는 `dist/arch-flow-backend.exe`)에 생성됩니다.
+빌드된 실행파일은 `dist/documize-backend` (또는 Windows에서는 `dist/documize-backend.exe`)에 생성됩니다.
 
 ## 실행
 

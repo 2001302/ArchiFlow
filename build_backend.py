@@ -46,7 +46,7 @@ def main():
     pyinstaller_cmd = [
         str(venv_pyinstaller),
         "--onefile",  # 단일 실행파일로 생성
-        "--name", "arch-flow-backend",  # 실행파일 이름
+        "--name", "documize-backend",  # 실행파일 이름
         "--distpath", str(dist_dir),  # 출력 디렉토리
         "--workpath", str(build_dir),  # 임시 빌드 디렉토리
         "--specpath", str(project_root),  # spec 파일 위치
@@ -78,9 +78,9 @@ def main():
         print("✅ 빌드 성공!")
         
         # 실행파일 경로 확인
-        executable_path = dist_dir / "arch-flow-backend"
+        executable_path = dist_dir / "documize-backend"
         if sys.platform == "win32":
-            executable_path = dist_dir / "arch-flow-backend.exe"
+            executable_path = dist_dir / "documize-backend.exe"
         
         if executable_path.exists():
             print(f"📦 실행파일 생성됨: {executable_path}")

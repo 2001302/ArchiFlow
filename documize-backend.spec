@@ -2,10 +2,10 @@
 
 
 a = Analysis(
-    ['/Users/user/Source/sample vault/.obsidian/plugins/arch-flow/backend/main.py'],
+    ['/Users/user/Source/sample vault/.obsidian/plugins/documize/backend/main.py'],
     pathex=[],
     binaries=[],
-    datas=[('/Users/user/Source/sample vault/.obsidian/plugins/arch-flow/backend/src', 'src')],
+    datas=[('/Users/user/Source/sample vault/.obsidian/plugins/documize/backend/src', 'src')],
     hiddenimports=['uvicorn.loops.auto', 'uvicorn.loops.asyncio', 'uvicorn.protocols.websockets.auto', 'uvicorn.protocols.http.auto', 'uvicorn.protocols.http.h11_impl', 'uvicorn.protocols.http.httptools_impl', 'uvicorn.lifespan.on', 'fastapi', 'pydantic', 'openai', 'anthropic', 'httpx', 'loguru', 'jinja2', 'python_multipart'],
     hookspath=[],
     hooksconfig={},
@@ -22,7 +22,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='arch-flow-backend',
+    name='documize-backend',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,

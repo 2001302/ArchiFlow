@@ -1,6 +1,6 @@
 import { ItemView, WorkspaceLeaf, setIcon, MarkdownRenderer, MarkdownView, Notice } from 'obsidian';
 import MyPlugin from '../main';
-import { VIEW_TYPE_ARCHIFLOW } from './Constants';
+import { VIEW_TYPE_DOCUMIZE } from './Constants';
 
 export default class SidePannelView extends ItemView {
 	private plugin: MyPlugin;
@@ -11,11 +11,11 @@ export default class SidePannelView extends ItemView {
 	}
 
 	getViewType(): string {
-		return VIEW_TYPE_ARCHIFLOW;
+		return VIEW_TYPE_DOCUMIZE;
 	}
 
 	getDisplayText(): string {
-		return 'ArchiFlow';
+		return 'documize';
 	}
 
 	getIcon(): string {
@@ -27,59 +27,59 @@ export default class SidePannelView extends ItemView {
 		contentEl.empty()
 
 		// 루트 컨테이너: 세로 플렉스, 하단 프롬프트 고정
-		const container = contentEl.createDiv({ cls: 'archiflow-container' })
+		const container = contentEl.createDiv({ cls: 'documize-container' })
 		container.style.display = 'flex'
 		container.style.flexDirection = 'column'
 		container.style.height = '100%'
 
 		// 본문: 결과 리스트 (가득 채움)
-		const body = container.createDiv({ cls: 'archiflow-body' })
+		const body = container.createDiv({ cls: 'documize-body' })
 		body.style.flex = '1 1 auto'
 		body.style.overflow = 'auto'
 		body.style.padding = '4px'
-		const resultsContainer = body.createDiv({ cls: 'archiflow-results' })
+		const resultsContainer = body.createDiv({ cls: 'documize-results' })
 		resultsContainer.style.display = 'flex'
 		resultsContainer.style.flexDirection = 'column'
 		resultsContainer.style.gap = '12px'
 
 		// 개별 결과 블록 생성 + 렌더
 		const addResultBlock = async (markdown: string): Promise<HTMLDivElement> => {
-			const block = resultsContainer.createDiv({ cls: 'archiflow-result-block' })
+			const block = resultsContainer.createDiv({ cls: 'documize-result-block' })
 			block.style.position = 'relative'
 			block.style.border = '1px solid var(--background-modifier-border)'
 			block.style.borderRadius = '8px'
 			block.style.overflow = 'hidden'
 
-			const header = block.createDiv({ cls: 'archiflow-result-header' })
+			const header = block.createDiv({ cls: 'documize-result-header' })
 			header.style.display = 'flex'
 			header.style.justifyContent = 'flex-end'
 			header.style.alignItems = 'center'
 			header.style.padding = '4px 4px'
 
 			// 액션 버튼들
-			const collapseBtn = header.createEl('button', { cls: 'archiflow-btn clickable-icon' })
+			const collapseBtn = header.createEl('button', { cls: 'documize-btn clickable-icon' })
 			collapseBtn.setAttr('title', 'Collapse / Expand')
 			setIcon(collapseBtn, 'chevron-up')
 
-			const editBtn = header.createEl('button', { cls: 'archiflow-btn clickable-icon' })
+			const editBtn = header.createEl('button', { cls: 'documize-btn clickable-icon' })
 			editBtn.setAttr('title', 'Edit')
 			setIcon(editBtn, 'pencil')
 
-			const saveBtn = header.createEl('button', { cls: 'archiflow-btn clickable-icon' })
+			const saveBtn = header.createEl('button', { cls: 'documize-btn clickable-icon' })
 			saveBtn.setAttr('title', 'Save')
 			setIcon(saveBtn, 'check')
 			saveBtn.style.display = 'none'
 
-			const applyBtn = header.createEl('button', { cls: 'archiflow-btn clickable-icon' })
+			const applyBtn = header.createEl('button', { cls: 'documize-btn clickable-icon' })
 			applyBtn.setAttr('title', 'Apply')
 			setIcon(applyBtn, 'corner-down-right')
 			applyBtn.style.display = ''
 
-			const copyBtn = header.createEl('button', { cls: 'archiflow-btn clickable-icon' })
+			const copyBtn = header.createEl('button', { cls: 'documize-btn clickable-icon' })
 			copyBtn.setAttr('title', 'Copy markdown')
 			setIcon(copyBtn, 'copy')
 
-			const bodyEl = block.createDiv({ cls: 'archiflow-result' })
+			const bodyEl = block.createDiv({ cls: 'documize-result' })
 			// 프롬프트와 동일한 여백/가로 폭 느낌
 			bodyEl.style.padding = '8px'
 			bodyEl.style.boxSizing = 'border-box'
@@ -106,11 +106,11 @@ export default class SidePannelView extends ItemView {
 
 			// Collapse / Expand
 			collapseBtn.addEventListener('click', () => {
-				if (block.hasClass('archiflow-collapsed')) {
-					block.removeClass('archiflow-collapsed')
+				if (block.hasClass('documize-collapsed')) {
+					block.removeClass('documize-collapsed')
 					setIcon(collapseBtn, 'chevron-up')
 				} else {
-					block.addClass('archiflow-collapsed')
+					block.addClass('documize-collapsed')
 					setIcon(collapseBtn, 'chevron-down')
 				}
 			})
@@ -175,14 +175,14 @@ export default class SidePannelView extends ItemView {
 
 
 		// 하단 프롬프트 바: 항상 하단, 가로 꽉 채움
-		const footer = container.createDiv({ cls: 'archiflow-footer' })
+		const footer = container.createDiv({ cls: 'documize-footer' })
 		footer.style.position = 'relative'
 		footer.style.padding = '8px'
 		footer.style.width = '100%'
 		footer.style.boxSizing = 'border-box'
 		
 		// 프롬프트 입력 컨테이너 - 세 구역으로 나누기
-		const promptContainer = footer.createDiv({ cls: 'archiflow-prompt-container' })
+		const promptContainer = footer.createDiv({ cls: 'documize-prompt-container' })
 		promptContainer.style.position = 'relative'
 		promptContainer.style.width = '100%'
 		promptContainer.style.border = '1px solid var(--background-modifier-border)'
@@ -194,7 +194,7 @@ export default class SidePannelView extends ItemView {
 		promptContainer.style.height = '140px' // 세로 크기 증가
 		
 		// 1. 상단 구역: @아이콘 버튼, 파일 첨부 버튼, 테스트 버튼
-		const topSection = promptContainer.createDiv({ cls: 'archiflow-prompt-top' })
+		const topSection = promptContainer.createDiv({ cls: 'documize-prompt-top' })
 		topSection.style.display = 'flex'
 		topSection.style.justifyContent = 'space-between'
 		topSection.style.alignItems = 'center'
@@ -203,13 +203,13 @@ export default class SidePannelView extends ItemView {
 		topSection.style.minHeight = '20px'
 		
 		// 왼쪽 버튼들
-		const leftButtons = topSection.createDiv({ cls: 'archiflow-left-buttons' })
+		const leftButtons = topSection.createDiv({ cls: 'documize-left-buttons' })
 		leftButtons.style.display = 'flex'
 		leftButtons.style.gap = '4px'
 		leftButtons.style.alignItems = 'center'
 		
 		// @아이콘 버튼
-		const mentionBtn = leftButtons.createEl('button', { cls: 'archiflow-mention-btn' })
+		const mentionBtn = leftButtons.createEl('button', { cls: 'documize-mention-btn' })
 		mentionBtn.style.padding = '6px'
 		mentionBtn.style.borderRadius = '6px'
 		mentionBtn.style.border = '1px solid var(--background-modifier-border)'
@@ -224,7 +224,7 @@ export default class SidePannelView extends ItemView {
 		setIcon(mentionBtn, 'at-sign')
 		
 		// 파일 첨부 버튼
-		const attachBtn = leftButtons.createEl('button', { cls: 'archiflow-attach-btn' })
+		const attachBtn = leftButtons.createEl('button', { cls: 'documize-attach-btn' })
 		attachBtn.style.padding = '6px'
 		attachBtn.style.borderRadius = '6px'
 		attachBtn.style.border = '1px solid var(--background-modifier-border)'
@@ -239,7 +239,7 @@ export default class SidePannelView extends ItemView {
 		setIcon(attachBtn, 'paperclip')
 		
 		// 2. 중간 구역: 프롬프트 입력창
-		const middleSection = promptContainer.createDiv({ cls: 'archiflow-prompt-middle' })
+		const middleSection = promptContainer.createDiv({ cls: 'documize-prompt-middle' })
 		middleSection.style.flex = '1'
 		middleSection.style.padding = '8px 8px'
 		middleSection.style.display = 'flex'
@@ -261,7 +261,7 @@ export default class SidePannelView extends ItemView {
 		prompt.style.wordWrap = 'break-word'
 		
 		// 3. 하단 구역: 모드선택 드롭다운, model select, 전송 버튼
-		const bottomSection = promptContainer.createDiv({ cls: 'archiflow-prompt-bottom' })
+		const bottomSection = promptContainer.createDiv({ cls: 'documize-prompt-bottom' })
 		bottomSection.style.display = 'flex'
 		bottomSection.style.justifyContent = 'space-between'
 		bottomSection.style.alignItems = 'center'
@@ -270,17 +270,17 @@ export default class SidePannelView extends ItemView {
 		bottomSection.style.minHeight = '30px'
 		
 		// 왼쪽 컨테이너: mode select와 model select를 함께 배치
-		const leftControls = bottomSection.createDiv({ cls: 'archiflow-left-controls' })
+		const leftControls = bottomSection.createDiv({ cls: 'documize-left-controls' })
 		leftControls.style.display = 'flex'
 		leftControls.style.gap = '4px'
 		leftControls.style.alignItems = 'center'
 		
 		// 모드선택 드롭다운
-		const formatContainer = leftControls.createDiv({ cls: 'archiflow-format-container' })
+		const formatContainer = leftControls.createDiv({ cls: 'documize-format-container' })
 		formatContainer.style.position = 'relative'
 		formatContainer.style.zIndex = '1000'
 		
-		const formatSelect = formatContainer.createEl('select', { cls: 'archiflow-format-select' })
+		const formatSelect = formatContainer.createEl('select', { cls: 'documize-format-select' })
 		formatSelect.style.padding = '4px 6px'
 		formatSelect.style.borderRadius = '12px'
 		formatSelect.style.border = '1px solid var(--background-modifier-border)'
@@ -356,11 +356,11 @@ export default class SidePannelView extends ItemView {
 		})
 
 		// Select model 드롭다운
-		const modelContainer = leftControls.createDiv({ cls: 'archiflow-model-container' })
+		const modelContainer = leftControls.createDiv({ cls: 'documize-model-container' })
 		modelContainer.style.position = 'relative'
 		modelContainer.style.zIndex = '1000'
 		
-		const modelSelect = modelContainer.createEl('select', { cls: 'archiflow-model-select' })
+		const modelSelect = modelContainer.createEl('select', { cls: 'documize-model-select' })
 		modelSelect.style.padding = '4px 6px'
 		modelSelect.style.borderRadius = '12px'
 		modelSelect.style.border = '1px solid var(--background-modifier-border)'
@@ -380,12 +380,12 @@ export default class SidePannelView extends ItemView {
 		modelSelect.style.left = '0'
 
 		// Template type 드롭다운 (documentOption일 때만 표시)
-		const templateContainer = leftControls.createDiv({ cls: 'archiflow-template-container' })
+		const templateContainer = leftControls.createDiv({ cls: 'documize-template-container' })
 		templateContainer.style.position = 'relative'
 		templateContainer.style.zIndex = '1000'
 		templateContainer.style.display = 'none' // 기본적으로 숨김
 		
-		const templateSelect = templateContainer.createEl('select', { cls: 'archiflow-template-select' })
+		const templateSelect = templateContainer.createEl('select', { cls: 'documize-template-select' })
 		templateSelect.style.padding = '4px 6px'
 		templateSelect.style.borderRadius = '12px'
 		templateSelect.style.border = '1px solid var(--background-modifier-border)'
@@ -477,7 +477,7 @@ export default class SidePannelView extends ItemView {
 		})
 		
 		// 전송 버튼
-		const sendBtn = bottomSection.createEl('button', { cls: 'archiflow-send-btn clickable-icon' })
+		const sendBtn = bottomSection.createEl('button', { cls: 'documize-send-btn clickable-icon' })
 		sendBtn.style.padding = '6px 8px'
 		sendBtn.style.borderRadius = '16px'
 		sendBtn.style.border = '1px solid var(--background-modifier-border)'
@@ -553,7 +553,7 @@ export default class SidePannelView extends ItemView {
 		try {
 			// 여러 경로 시도
 			const possiblePaths = [
-				'.obsidian/plugins/arch-flow/templates.json',
+				'.obsidian/plugins/documize/templates.json',
 				'templates.json',
 				'./templates.json'
 			];
@@ -615,7 +615,7 @@ export default class SidePannelView extends ItemView {
 		try {
 			// 여러 경로 시도
 			const possiblePaths = [
-				'.obsidian/plugins/arch-flow/config.json',
+				'.obsidian/plugins/documize/config.json',
 				'config.json',
 				'./config.json'
 			];
@@ -681,7 +681,7 @@ export default class SidePannelView extends ItemView {
 	 * 현재 선택된 모델 정보를 반환
 	 */
 	private getCurrentModel(): any | null {
-		const modelSelect = document.querySelector('.archiflow-model-select') as HTMLSelectElement;
+		const modelSelect = document.querySelector('.documize-model-select') as HTMLSelectElement;
 		if (!modelSelect || modelSelect.value === 'default') {
 			return null;
 		}

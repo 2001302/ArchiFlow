@@ -7,103 +7,103 @@ If your plugin does not need CSS, delete this file.
 
 */
 
-/* Arch-Flow 컨테이너 스타일 */
-.arch-flow-container {
+/* documize 컨테이너 스타일 */
+.documize-container {
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 	transition: box-shadow 0.2s ease;
 }
 
-.arch-flow-container:hover {
+.documize-container:hover {
 	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* 제목 입력 섹션 */
-.arch-flow-title-section {
+.documize-title-section {
 	transition: background-color 0.2s ease;
 }
 
-.arch-flow-title-input {
+.documize-title-input {
 	transition: all 0.2s ease;
 	font-family: var(--font-text);
 }
 
-.arch-flow-title-input:focus {
+.documize-title-input:focus {
 	transform: translateY(-1px);
 }
 
-.arch-flow-title-input::placeholder {
+.documize-title-input::placeholder {
 	color: var(--text-muted);
 	font-style: italic;
 }
 
 /* Mermaid 다이어그램 섹션 */
-.arch-flow-mermaid-section {
+.documize-mermaid-section {
 	background: var(--background-primary);
 }
 
-.arch-flow-mermaid-section .mermaid {
+.documize-mermaid-section .mermaid {
 	max-width: 100%;
 	overflow: auto;
 }
-.archiflow-result-block {
+.documize-result-block {
   box-shadow: var(--shadow-l);
   background: var(--background-primary);
 }
 
-.archiflow-result-header .archiflow-btn {
+.documize-result-header .documize-btn {
   background: transparent;
   border: none;
   padding: 4px;
   border-radius: 6px;
 }
 
-.archiflow-result-header .archiflow-btn:hover {
+.documize-result-header .documize-btn:hover {
   background: var(--background-modifier-hover);
 }
 
-.archiflow-collapsed .archiflow-result {
+.documize-collapsed .documize-result {
   display: none;
 }
 
-.archiflow-toggle-group .archiflow-toggle-item {
+.documize-toggle-group .documize-toggle-item {
   transition: background 0.15s ease, color 0.15s ease;
 }
 
 /* 드랍다운 스타일 개선 */
-.archiflow-format-select {
+.documize-format-select {
   transition: all 0.2s ease;
   cursor: pointer;
 }
 
-.archiflow-format-select:hover {
+.documize-format-select:hover {
   background: rgba(var(--background-primary-rgb), 0.9) !important;
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
 }
 
-.archiflow-format-select:focus {
+.documize-format-select:focus {
   outline: none;
   border-color: var(--interactive-accent);
   box-shadow: 0 0 0 2px rgba(var(--interactive-accent-rgb), 0.2) !important;
 }
 
-.archiflow-format-select option {
+.documize-format-select option {
   background: var(--background-primary);
   color: var(--text-normal);
   padding: 8px;
 }
 
 /* 프롬프트 컨테이너 스타일 */
-.archiflow-prompt-container {
+.documize-prompt-container {
   transition: all 0.2s ease;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.archiflow-prompt-container:hover {
+.documize-prompt-container:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-.archiflow-prompt-container:focus-within {
+.documize-prompt-container:focus-within {
   border-color: var(--interactive-accent);
   box-shadow: 0 0 0 2px rgba(var(--interactive-accent-rgb), 0.2);
 }
@@ -123,66 +123,66 @@ If your plugin does not need CSS, delete this file.
 }
 
 /* 모드 아이콘 스타일 */
-.archiflow-mode-icon {
+.documize-mode-icon {
   transition: color 0.2s ease;
 }
 
-.archiflow-format-container:hover .archiflow-mode-icon {
+.documize-format-container:hover .documize-mode-icon {
   color: var(--text-normal);
 }
 
 /* 드랍다운 스타일 개선 */
-.archiflow-format-select {
+.documize-format-select {
   transition: all 0.2s ease;
   cursor: pointer;
 }
 
-.archiflow-format-select:hover {
+.documize-format-select:hover {
   background: var(--background-modifier-hover) !important;
   transform: translateY(-1px);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.archiflow-format-select:focus {
+.documize-format-select:focus {
   outline: none;
   border-color: var(--interactive-accent);
   box-shadow: 0 0 0 2px rgba(var(--interactive-accent-rgb), 0.2);
 }
 
-.archiflow-format-select option {
+.documize-format-select option {
   background: var(--background-primary);
   color: var(--text-normal);
   padding: 8px;
 }
 
 /* Test 버튼 스타일 */
-.archiflow-test-btn {
+.documize-test-btn {
   transition: all 0.2s ease;
 }
 
-.archiflow-test-btn:hover {
+.documize-test-btn:hover {
   background: var(--background-modifier-hover) !important;
   transform: translateY(-1px);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.archiflow-test-btn:active {
+.documize-test-btn:active {
   transform: translateY(0);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* Send 버튼 스타일 */
-.archiflow-send-btn {
+.documize-send-btn {
   transition: all 0.2s ease;
 }
 
-.archiflow-send-btn:hover {
+.documize-send-btn:hover {
   background: var(--interactive-accent-hover) !important;
   transform: translateY(-1px);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.archiflow-send-btn:active {
+.documize-send-btn:active {
   transform: translateY(0);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }

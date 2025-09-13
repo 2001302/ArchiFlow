@@ -13,7 +13,7 @@ export class BackendManager {
 
     constructor(pluginPath: string) {
         this.pluginPath = pluginPath;
-        this.executableName = process.platform === 'win32' ? 'arch-flow-backend.exe' : 'arch-flow-backend';
+        this.executableName = process.platform === 'win32' ? 'documize-backend.exe' : 'documize-backend';
         this.executablePath = path.join(pluginPath, 'dist', this.executableName);
     }
 

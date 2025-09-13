@@ -148,7 +148,7 @@ def main():
     print("✅ 프론트엔드와 백엔드가 모두 성공적으로 빌드되었습니다.")
     print(f"📦 빌드된 파일들:")
     print(f"   - 프론트엔드: {project_root / 'main.js'}")
-    print(f"   - 백엔드: {project_root / 'dist' / 'arch-flow-backend'}")
+    print(f"   - 백엔드: {project_root / 'dist' / 'documize-backend'}")
     
     return True
 

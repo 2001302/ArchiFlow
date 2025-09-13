@@ -1,1 +1,1 @@
-export const VIEW_TYPE_ARCHIFLOW = 'archiflow-right-panel';
+export const VIEW_TYPE_DOCUMIZE = 'documize-right-panel';
