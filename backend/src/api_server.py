@@ -58,13 +58,11 @@ def get_ai_engine():
 class AIRequest(BaseModel):
     """AI 요청 모델"""
     prompt: str
-    output_format: str  # "mermaid", "source_code", "text"
+    output_format: str  # "text", "document"
     provider: str = "perplexity"  # "perplexity", "openai", "anthropic"
     model: str = "gpt-4"  # 모델명
     api_key: Optional[str] = None  # 클라이언트에서 전달받은 API Key
-    source_code: Optional[str] = None
-    diagram_context: Optional[str] = None
-    language: Optional[str] = None  # 프로그래밍 언어 (source_code 모드용)
+    language: Optional[str] = None  # 프로그래밍 언어
 
 class ConnectionTestRequest(BaseModel):
     """연결 테스트 요청 모델"""
@@ -138,8 +136,6 @@ async def generate_ai_response(request: AIRequest):
             provider=provider,
             model=request.model,
             api_key=request.api_key,
-            source_code=request.source_code,
-            diagram_context=request.diagram_context,
             language=request.language
         )
         

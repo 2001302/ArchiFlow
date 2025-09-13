@@ -26,8 +26,6 @@ class PromptManager:
         self,
         prompt: str,
         output_format: OutputFormat,
-        source_code: Optional[str] = None,
-        diagram_context: Optional[str] = None,
         language: Optional[str] = None
     ) -> str:
         """
@@ -36,67 +34,35 @@ class PromptManager:
         Args:
             prompt: 사용자 프롬프트
             output_format: 출력 형식
-            source_code: 소스코드 컨텍스트
-            diagram_context: 다이어그램 컨텍스트
             language: 프로그래밍 언어
         
         Returns:
             포맷된 프롬프트
         """
         templates = {
-            OutputFormat.MERMAID: self._get_mermaid_template(),
-            OutputFormat.SOURCE_CODE: self._get_source_code_template(),
-            OutputFormat.TEXT: self._get_text_template()
+            OutputFormat.TEXT: self._get_text_template(),
+            OutputFormat.DOCUMENT: self._get_document_template()
         }
         
         template = templates[output_format]
         return template.format(
             prompt=prompt,
-            diagram_context=diagram_context or "None",
-            source_code=source_code or "None",
             language=language or "python"
         )
     
-    def _get_mermaid_template(self) -> str:
-        """Mermaid 다이어그램 템플릿"""
+    def _get_document_template(self) -> str:
+        """문서 생성 템플릿"""
         return """
-Please generate a Mermaid diagram based on the following request.
+Please create a comprehensive document based on the following request.
 
 Request: {prompt}
 
-Existing diagram context:
-{diagram_context}
-
-Related source code:
-{source_code}
-
 Instructions:
-1. Use correct Mermaid syntax
-2. Make the diagram clear and easy to understand
-3. Clearly express relationships and flows
-4. Provide your answer in a code block that starts with ```mermaid and ends with ```
-
-Answer:
-"""
-    
-    def _get_source_code_template(self) -> str:
-        """소스코드 템플릿"""
-        return """
-Please provide a {language} source code solution for the following request.
-
-Request: {prompt}
-
-Existing diagram context:
-{diagram_context}
-
-Related source code:
-{source_code}
-
-Instructions:
-1. Use correct {language} syntax
-2. The code should be executable and efficient
-3. Include appropriate comments
-4. Provide your answer in a code block that starts with ```{language} and ends with ```
+1. Create a well-structured document with clear sections
+2. Use appropriate headings and formatting
+3. Include relevant examples and explanations
+4. Make the content informative and easy to understand
+5. Respond in Korean
 
 Answer:
 """
@@ -107,12 +73,6 @@ Answer:
 Please help with the following request.
 
 Request: {prompt}
-
-Existing diagram context:
-{diagram_context}
-
-Related source code:
-{source_code}
 
 Instructions:
 1. Provide accurate and useful information
@@ -131,11 +91,11 @@ Answer:
             "json", "markdown", "bash", "powershell"
         ]
     
-    def get_diagram_types(self) -> list:
-        """지원하는 다이어그램 타입 목록"""
+    def get_document_types(self) -> list:
+        """지원하는 문서 타입 목록"""
         return [
-            "flowchart", "sequence", "class", "state", "er", "user-journey",
-            "gantt", "pie", "gitgraph", "mindmap", "timeline", "sankey-beta"
+            "technical_document", "user_manual", "api_documentation", 
+            "tutorial", "guide", "reference", "specification", "report"
         ]
     
     def validate_language(self, language: str) -> bool:

@@ -47,8 +47,6 @@ class AIEngine:
         provider: AIProvider = AIProvider.PERPLEXITY,
         model: str = "gpt-4",
         api_key: Optional[str] = None,
-        source_code: Optional[str] = None,
-        diagram_context: Optional[str] = None,
         language: Optional[str] = None
     ) -> Dict[str, Any]:
         """
@@ -56,11 +54,9 @@ class AIEngine:
         
         Args:
             prompt: 사용자 프롬프트
-            output_format: 출력 형식 (mermaid, source_code, text)
+            output_format: 출력 형식 (text, document)
             provider: AI 제공자
-            source_code: 소스코드 컨텍스트
-            diagram_context: 다이어그램 컨텍스트
-            language: 프로그래밍 언어 (source_code 모드용)
+            language: 프로그래밍 언어
         
         Returns:
             AI 응답 딕셔너리
@@ -74,7 +70,7 @@ class AIEngine:
             
             # 프롬프트 템플릿 적용
             formatted_prompt = self.prompt_manager.format_prompt(
-                prompt, output_format, source_code, diagram_context, language
+                prompt, output_format, language
             )
             
             # AI API 호출

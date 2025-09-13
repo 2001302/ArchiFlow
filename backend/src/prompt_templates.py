@@ -7,97 +7,44 @@ from enum import Enum
 
 class PromptType(Enum):
     """프롬프트 타입 열거형"""
-    DIAGRAM_CREATE = "diagram_create"
-    DIAGRAM_EDIT = "diagram_edit"
-    SOURCE_CREATE = "source_create"
-    SOURCE_EDIT = "source_edit"
+    DOCUMENT_CREATE = "document_create"
+    DOCUMENT_EDIT = "document_edit"
     CHAT = "chat"
 
 class PromptTemplates:
     """프롬프트 템플릿 클래스"""
     
-    # Mermaid 다이어그램 생성 템플릿
-    MERMAID_CREATE_TEMPLATE = """
-다음 요청에 대해 Mermaid 다이어그램을 생성해주세요.
+    # 문서 생성 템플릿
+    DOCUMENT_CREATE_TEMPLATE = """
+다음 요청에 대해 포괄적인 문서를 생성해주세요.
 
 요청: {prompt}
 
-소스코드 컨텍스트:
-{source_code}
-
-다이어그램 컨텍스트:
-{diagram_context}
-
 지침:
-1. Mermaid 문법을 정확히 사용해주세요
-2. 다이어그램은 명확하고 이해하기 쉽게 구성해주세요
-3. 관계와 흐름을 명확히 표현해주세요
-4. 답변은 반드시 ```mermaid로 시작하고 ```로 끝나는 코드 블록 형태로 제공해주세요
+1. 명확한 섹션과 구조를 가진 문서를 작성해주세요
+2. 적절한 제목과 포맷팅을 사용해주세요
+3. 관련 예시와 설명을 포함해주세요
+4. 내용을 이해하기 쉽고 유익하게 만들어주세요
+5. 한국어로 답변해주세요
 
 답변:
 """
     
-    # Mermaid 다이어그램 편집 템플릿
-    MERMAID_EDIT_TEMPLATE = """
-다음 Mermaid 다이어그램을 편집해주세요.
+    # 문서 편집 템플릿
+    DOCUMENT_EDIT_TEMPLATE = """
+다음 문서를 편집해주세요.
 
-기존 다이어그램:
-{existing_diagram}
+기존 문서:
+{existing_document}
 
 편집 요청: {prompt}
 
-소스코드 컨텍스트:
-{source_code}
-
-다이어그램 컨텍스트:
-{diagram_context}
-
 지침:
-1. 기존 다이어그램의 구조를 유지하면서 요청사항을 반영해주세요
-2. Mermaid 문법을 정확히 사용해주세요
-3. 답변은 반드시 ```mermaid로 시작하고 ```로 끝나는 코드 블록 형태로 제공해주세요
-
-답변:
-"""
-    
-    # 소스코드 생성 템플릿
-    SOURCE_CREATE_TEMPLATE = """
-다음 요청에 대해 {language} 소스코드를 생성해주세요.
-
-요청: {prompt}
-
-다이어그램 컨텍스트:
-{diagram_context}
-
-기존 소스코드:
-{existing_source}
-
-지침:
-1. {language} 문법을 정확히 사용해주세요
-2. 코드는 실행 가능하고 효율적이어야 합니다
-3. 주석을 적절히 포함해주세요
-4. 답변은 반드시 ```{language}로 시작하고 ```로 끝나는 코드 블록 형태로 제공해주세요
-
-답변:
-"""
-    
-    # 소스코드 편집 템플릿
-    SOURCE_EDIT_TEMPLATE = """
-다음 {language} 소스코드를 편집해주세요.
-
-기존 소스코드:
-{existing_source}
-
-편집 요청: {prompt}
-
-다이어그램 컨텍스트:
-{diagram_context}
-
-지침:
-1. 기존 코드의 구조를 유지하면서 요청사항을 반영해주세요
-2. {language} 문법을 정확히 사용해주세요
-3. 코드는 실행 가능하고 효율적이어야 합니다
-4. 답변은 반드시 ```{language}로 시작하고 ```로 끝나는 코드 블록 형태로 제공해주세요
+1. 기존 문서의 구조를 유지하면서 요청사항을 반영해주세요
+2. 명확한 섹션과 구조를 유지해주세요
+3. 적절한 제목과 포맷팅을 사용해주세요
+4. 내용을 이해하기 쉽고 유익하게 만들어주세요
+5. 한국어로 답변해주세요
 
 답변:
 """
@@ -107,12 +54,6 @@ class PromptTemplates:
 다음 요청에 대해 도움을 드리겠습니다.
 
 요청: {prompt}
-
-소스코드 컨텍스트:
-{source_code}
-
-다이어그램 컨텍스트:
-{diagram_context}
 
 지침:
 1. 정확하고 유용한 정보를 제공해주세요
@@ -126,10 +67,8 @@ class PromptTemplates:
     def get_template(cls, prompt_type: PromptType) -> str:
         """프롬프트 템플릿 반환"""
         templates = {
-            PromptType.DIAGRAM_CREATE: cls.MERMAID_CREATE_TEMPLATE,
-            PromptType.DIAGRAM_EDIT: cls.MERMAID_EDIT_TEMPLATE,
-            PromptType.SOURCE_CREATE: cls.SOURCE_CREATE_TEMPLATE,
-            PromptType.SOURCE_EDIT: cls.SOURCE_EDIT_TEMPLATE,
+            PromptType.DOCUMENT_CREATE: cls.DOCUMENT_CREATE_TEMPLATE,
+            PromptType.DOCUMENT_EDIT: cls.DOCUMENT_EDIT_TEMPLATE,
             PromptType.CHAT: cls.CHAT_TEMPLATE
         }
         return templates[prompt_type]
@@ -139,10 +78,7 @@ class PromptTemplates:
         cls,
         prompt_type: PromptType,
         prompt: str,
-        source_code: str = "",
-        diagram_context: str = "",
-        existing_diagram: str = "",
-        existing_source: str = "",
+        existing_document: str = "",
         language: str = "python"
     ) -> str:
         """프롬프트 포맷팅"""
@@ -150,10 +86,7 @@ class PromptTemplates:
         
         return template.format(
             prompt=prompt,
-            source_code=source_code or "없음",
-            diagram_context=diagram_context or "없음",
-            existing_diagram=existing_diagram or "없음",
-            existing_source=existing_source or "없음",
+            existing_document=existing_document or "없음",
             language=language
         )
     
@@ -168,9 +101,9 @@ class PromptTemplates:
         ]
     
     @classmethod
-    def get_diagram_types(cls) -> list:
-        """지원하는 다이어그램 타입 목록"""
+    def get_document_types(cls) -> list:
+        """지원하는 문서 타입 목록"""
         return [
-            "flowchart", "sequence", "class", "state", "er", "user-journey",
-            "gantt", "pie", "gitgraph", "mindmap", "timeline", "sankey-beta"
+            "technical_document", "user_manual", "api_documentation", 
+            "tutorial", "guide", "reference", "specification", "report"
         ]

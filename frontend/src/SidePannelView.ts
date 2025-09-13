@@ -278,142 +278,174 @@ export default class SidePannelView extends ItemView {
 		// 모드선택 드롭다운
 		const formatContainer = leftControls.createDiv({ cls: 'archiflow-format-container' })
 		formatContainer.style.position = 'relative'
+		formatContainer.style.zIndex = '1000'
 		
 		const formatSelect = formatContainer.createEl('select', { cls: 'archiflow-format-select' })
-		formatSelect.style.padding = '4px 6px 4px 20px'
+		formatSelect.style.padding = '4px 6px'
 		formatSelect.style.borderRadius = '12px'
 		formatSelect.style.border = '1px solid var(--background-modifier-border)'
-		formatSelect.style.background = 'var(--background-secondary)'
+		formatSelect.style.background = 'var(--background-primary)'
 		formatSelect.style.color = 'var(--text-normal)'
 		formatSelect.style.fontSize = '8px'
 		formatSelect.style.cursor = 'pointer'
-		formatSelect.style.minWidth = '16px'
-		formatSelect.style.width = '16px'
 		formatSelect.style.height = '20px'
-		formatSelect.style.transition = 'width 0.2s ease, min-width 0.2s ease'
+		formatSelect.style.textAlign = 'center'
+		formatSelect.style.textOverflow = 'ellipsis'
+		formatSelect.style.overflow = 'hidden'
+		formatSelect.style.whiteSpace = 'nowrap'
+		formatSelect.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)'
+		formatSelect.style.transition = 'width 0.2s ease, min-width 0.2s ease, box-shadow 0.2s ease, background 0.2s ease'
+		// 좌측 정렬을 위해 left: 0 설정
+		formatSelect.style.position = 'relative'
+		formatSelect.style.left = '0'
 		
-		// 모드별 아이콘 매핑
-		const modeIcons = {
-			'mermaid': 'git-branch',
-			'source_code': 'code',
-			'text': 'file-text'
-		}
+		// 기본 옵션 추가
+		const defaultOption = formatSelect.createEl('option', { value: 'default' })
+		defaultOption.textContent = 'Select Mode'
+		defaultOption.selected = true
 		
-		const diagramOption = formatSelect.createEl('option', { value: 'mermaid' })
-		diagramOption.textContent = 'Diagram'
-		const sourceOption = formatSelect.createEl('option', { value: 'source_code' })
-		sourceOption.textContent = 'Source'
 		const textOption = formatSelect.createEl('option', { value: 'text' })
 		textOption.textContent = 'Text'
-		textOption.selected = true
+		const documentOption = formatSelect.createEl('option', { value: 'document' })
+		documentOption.textContent = 'Document'
 		
-		// 모드 아이콘 표시
-		const modeIcon = formatContainer.createEl('span', { cls: 'archiflow-mode-icon' })
-		modeIcon.style.position = 'absolute'
-		modeIcon.style.left = '6px'
-		modeIcon.style.top = '55%'
-		modeIcon.style.transform = 'translateY(-50%)'
-		modeIcon.style.pointerEvents = 'none'
-		modeIcon.style.fontSize = '8px'
-		modeIcon.style.color = 'var(--text-muted)'
-		setIcon(modeIcon, modeIcons['text'])
+		// 텍스트 크기에 맞춰 드롭다운 너비 조정 함수
+		const adjustFormatSelectWidth = () => {
+			const selectedOption = formatSelect.options[formatSelect.selectedIndex]
+			if (selectedOption && selectedOption.textContent) {
+				const textWidth = selectedOption.textContent.length * 6 + 12 // 대략적인 텍스트 너비 계산
+				const maxWidth = 80 // 최대 너비 설정
+				formatSelect.style.width = `${Math.min(textWidth, maxWidth)}px`
+				formatSelect.style.minWidth = `${Math.min(textWidth, maxWidth)}px`
+			}
+		}
+		
+		// 초기 너비 설정
+		adjustFormatSelectWidth()
 		
 		// 드랍다운 이벤트
 		formatSelect.addEventListener('change', () => {
-			const selectedValue = formatSelect.value as keyof typeof modeIcons;
-			setIcon(modeIcon, modeIcons[selectedValue]);
+			const selectedValue = formatSelect.value;
 			
 			// 선택된 모드에 따른 프롬프트 플레이스홀더 변경
 			this.updatePromptPlaceholder(selectedValue, prompt as HTMLTextAreaElement);
+			
+			// 너비 재조정
+			setTimeout(() => {
+				adjustFormatSelectWidth()
+			}, 100)
 		})
 		
 		formatSelect.addEventListener('mousedown', () => {
-			formatSelect.style.width = '60px'
-			formatSelect.style.minWidth = '60px'
+			// 드롭다운이 열릴 때 위치 조정 - 좌측 정렬 유지
+			const rect = formatSelect.getBoundingClientRect()
+			const containerRect = promptContainer.getBoundingClientRect()
+			const spaceAbove = rect.top - containerRect.top
+			const spaceBelow = containerRect.bottom - rect.bottom
+			
+			// 좌측 정렬 유지하면서 위치만 조정
+			formatSelect.style.left = '0'
+			formatSelect.style.transform = 'none'
+			
+			// 위쪽 공간이 더 많으면 위로, 아래쪽 공간이 더 많으면 아래로
+			if (spaceAbove > spaceBelow) {
+				formatSelect.style.transform = 'translateY(-4px)'
+			} else {
+				formatSelect.style.transform = 'translateY(4px)'
+			}
+			
+			formatSelect.style.width = '80px'
+			formatSelect.style.minWidth = '80px'
+			formatSelect.style.background = 'var(--background-primary)'
+			formatSelect.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)'
 		})
 		
 		formatSelect.addEventListener('blur', () => {
-			formatSelect.style.width = '16px'
-			formatSelect.style.minWidth = '16px'
-		})
-		
-		formatSelect.addEventListener('change', () => {
-			setTimeout(() => {
-				formatSelect.style.width = '16px'
-				formatSelect.style.minWidth = '16px'
-			}, 100)
+			formatSelect.style.transform = 'translateY(0)'
+			formatSelect.style.left = '0'
+			formatSelect.style.background = 'var(--background-primary)'
+			formatSelect.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)'
+			adjustFormatSelectWidth()
 		})
 
 		// Select model 드롭다운
 		const modelContainer = leftControls.createDiv({ cls: 'archiflow-model-container' })
 		modelContainer.style.position = 'relative'
+		modelContainer.style.zIndex = '1000'
 		
 		const modelSelect = modelContainer.createEl('select', { cls: 'archiflow-model-select' })
 		modelSelect.style.padding = '4px 6px'
 		modelSelect.style.borderRadius = '12px'
 		modelSelect.style.border = '1px solid var(--background-modifier-border)'
-		modelSelect.style.background = 'var(--background-secondary)'
+		modelSelect.style.background = 'var(--background-primary)'
 		modelSelect.style.color = 'var(--text-normal)'
 		modelSelect.style.fontSize = '8px'
 		modelSelect.style.cursor = 'pointer'
-		modelSelect.style.minWidth = '16px'
-		modelSelect.style.width = '16px'
 		modelSelect.style.height = '20px'
-		modelSelect.style.transition = 'width 0.2s ease, min-width 0.2s ease'
 		modelSelect.style.textAlign = 'center'
 		modelSelect.style.textOverflow = 'ellipsis'
 		modelSelect.style.overflow = 'hidden'
 		modelSelect.style.whiteSpace = 'nowrap'
+		modelSelect.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)'
+		modelSelect.style.transition = 'width 0.2s ease, min-width 0.2s ease, box-shadow 0.2s ease, background 0.2s ease'
+		// 좌측 정렬을 위해 left: 0 설정
+		modelSelect.style.position = 'relative'
+		modelSelect.style.left = '0'
 		
+		
+		// 텍스트 크기에 맞춰 모델 드롭다운 너비 조정 함수
+		const adjustModelSelectWidth = () => {
+			const selectedOption = modelSelect.options[modelSelect.selectedIndex]
+			if (selectedOption && selectedOption.textContent) {
+				const textWidth = selectedOption.textContent.length * 6 + 12 // 대략적인 텍스트 너비 계산
+				const maxWidth = 100 // 최대 너비 설정
+				modelSelect.style.width = `${Math.min(textWidth, maxWidth)}px`
+				modelSelect.style.minWidth = `${Math.min(textWidth, maxWidth)}px`
+			}
+		}
 		
 		// config.json에서 모델 목록 로드
 		this.loadModelsFromConfig(modelSelect).then(() => {
 			// 초기 로드 후 너비 설정
-			const selectedOption = modelSelect.options[modelSelect.selectedIndex]
-			if (selectedOption && selectedOption.value !== 'default' && selectedOption.textContent) {
-				const textWidth = selectedOption.textContent.length * 6 + 20
-				const maxWidth = 80 // 최대 너비 설정
-				modelSelect.style.width = `${Math.min(textWidth, maxWidth)}px`
-				modelSelect.style.minWidth = `${Math.min(textWidth, maxWidth)}px`
-			} else {
-				modelSelect.style.width = '80px'
-				modelSelect.style.minWidth = '80px'
-			}
+			adjustModelSelectWidth()
 		})
 		
 		// 모델 선택 이벤트
 		modelSelect.addEventListener('mousedown', () => {
+			// 드롭다운이 열릴 때 위치 조정 - 좌측 정렬 유지
+			const rect = modelSelect.getBoundingClientRect()
+			const containerRect = promptContainer.getBoundingClientRect()
+			const spaceAbove = rect.top - containerRect.top
+			const spaceBelow = containerRect.bottom - rect.bottom
+			
+			// 좌측 정렬 유지하면서 위치만 조정
+			modelSelect.style.left = '0'
+			modelSelect.style.transform = 'none'
+			
+			// 위쪽 공간이 더 많으면 위로, 아래쪽 공간이 더 많으면 아래로
+			if (spaceAbove > spaceBelow) {
+				modelSelect.style.transform = 'translateY(-4px)'
+			} else {
+				modelSelect.style.transform = 'translateY(4px)'
+			}
+			
 			modelSelect.style.width = '120px'
 			modelSelect.style.minWidth = '120px'
+			modelSelect.style.background = 'var(--background-primary)'
+			modelSelect.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)'
 		})
 		
 		modelSelect.addEventListener('blur', () => {
-			// 선택된 모델 이름에 따라 너비 조정
-			const selectedOption = modelSelect.options[modelSelect.selectedIndex]
-			if (selectedOption && selectedOption.value !== 'default' && selectedOption.textContent) {
-				const textWidth = selectedOption.textContent.length * 6 + 20 // 대략적인 텍스트 너비 계산
-				const maxWidth = 80 // 최대 너비 설정
-				modelSelect.style.width = `${Math.min(textWidth, maxWidth)}px`
-				modelSelect.style.minWidth = `${Math.min(textWidth, maxWidth)}px`
-			} else {
-				modelSelect.style.width = '80px'
-				modelSelect.style.minWidth = '80px'
-			}
+			modelSelect.style.transform = 'translateY(0)'
+			modelSelect.style.left = '0'
+			modelSelect.style.background = 'var(--background-primary)'
+			modelSelect.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)'
+			adjustModelSelectWidth()
 		})
 		
 		modelSelect.addEventListener('change', () => {
 			setTimeout(() => {
-				// 선택된 모델 이름에 따라 너비 조정
-				const selectedOption = modelSelect.options[modelSelect.selectedIndex]
-				if (selectedOption && selectedOption.value !== 'default' && selectedOption.textContent) {
-					const textWidth = selectedOption.textContent.length * 6 + 20
-					const maxWidth = 80 // 최대 너비 설정
-					modelSelect.style.width = `${Math.min(textWidth, maxWidth)}px`
-					modelSelect.style.minWidth = `${Math.min(textWidth, maxWidth)}px`
-				} else {
-					modelSelect.style.width = '80px'
-					modelSelect.style.minWidth = '80px'
-				}
+				adjustModelSelectWidth()
 			}, 100)
 		})
 		
@@ -451,7 +483,7 @@ export default class SidePannelView extends ItemView {
 			}
 
 			// 선택된 출력 형식 가져오기
-			const selectedFormat = (formatSelect as HTMLSelectElement).value
+			const selectedFormat = (formatSelect as HTMLSelectElement).value === 'default' ? 'text' : (formatSelect as HTMLSelectElement).value
 
 			// 로딩 상태 표시
 			const loadingBlock = await addResultBlock('AI 응답을 생성하고 있습니다...')
@@ -585,77 +617,9 @@ export default class SidePannelView extends ItemView {
 			api_key: model.api_key
 		}
 
-		switch (outputFormat) {
-			case 'mermaid':
-				// Diagram 모드: 다이어그램 생성용 명령 포함
-				return {
-					...baseRequest,
-					diagram_context: this.getDiagramContext(),
-					source_code: this.getSourceCodeContext()
-				}
-			
-			case 'source_code':
-				// Source 모드: 코딩 결과물 생성용 명령 포함
-				return {
-					...baseRequest,
-					diagram_context: this.getDiagramContext(),
-					source_code: this.getSourceCodeContext(),
-					language: this.detectLanguage(prompt) || 'python'
-				}
-			
-			case 'text':
-			default:
-				// Text 모드: 기본 자연어 응답
-				return {
-					...baseRequest,
-					diagram_context: this.getDiagramContext(),
-					source_code: this.getSourceCodeContext()
-				}
-		}
+		return baseRequest
 	}
 
-	/**
-	 * 다이어그램 컨텍스트 가져오기
-	 */
-	private getDiagramContext(): string {
-		// 현재 활성 에디터에서 다이어그램 관련 내용 추출
-		const activeView = this.app.workspace.getActiveViewOfType(MarkdownView)
-		if (!activeView) return ''
-
-		const content = activeView.editor.getValue()
-		const mermaidBlocks = content.match(/```mermaid\n([\s\S]*?)\n```/g)
-		
-		if (mermaidBlocks && mermaidBlocks.length > 0) {
-			return mermaidBlocks.map(block => 
-				block.replace(/```mermaid\n/, '').replace(/\n```$/, '')
-			).join('\n\n')
-		}
-		
-		return ''
-	}
-
-	/**
-	 * 소스코드 컨텍스트 가져오기
-	 */
-	private getSourceCodeContext(): string {
-		// 현재 활성 에디터에서 코드 블록 추출
-		const activeView = this.app.workspace.getActiveViewOfType(MarkdownView)
-		if (!activeView) return ''
-
-		const content = activeView.editor.getValue()
-		const codeBlocks = content.match(/```[\w]*\n([\s\S]*?)\n```/g)
-		
-		if (codeBlocks && codeBlocks.length > 0) {
-			return codeBlocks.map(block => {
-				const lines = block.split('\n')
-				const language = lines[0].replace('```', '') || 'text'
-				const code = lines.slice(1, -1).join('\n')
-				return `[${language}]\n${code}`
-			}).join('\n\n')
-		}
-		
-		return ''
-	}
 
 	/**
 	 * 프롬프트에서 프로그래밍 언어 감지
@@ -696,9 +660,9 @@ export default class SidePannelView extends ItemView {
 	 */
 	private updatePromptPlaceholder(format: string, promptElement: HTMLTextAreaElement): void {
 		const placeholders: Record<string, string> = {
-			'mermaid': 'create a mermaid diagram',
-			'source_code': 'create a source code',
-			'text': 'ask a question or request'
+			'document': 'create a document',
+			'text': 'ask a question or request',
+			'default': 'ask a question or request'
 		}
 		
 		promptElement.placeholder = placeholders[format] || placeholders['text']
