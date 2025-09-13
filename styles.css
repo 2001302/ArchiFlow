@@ -163,3 +163,84 @@ If your plugin does not need CSS, delete this file.
   transform: translateY(0);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }
+
+/* 커스텀 드롭다운 스타일 */
+.documize-plugin-root .custom-dropdown-button {
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.documize-plugin-root .custom-dropdown-button:hover {
+  background: var(--background-modifier-hover) !important;
+  border-color: var(--interactive-accent) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+.documize-plugin-root .custom-dropdown-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+.documize-plugin-root .custom-dropdown-menu {
+  animation: dropdownFadeIn 0.2s ease-out;
+  border-top: none;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+/* 위쪽으로 펼쳐지는 드롭다운 스타일 */
+.documize-plugin-root .custom-dropdown-menu[style*="bottom: 100%"] {
+  border-top: 1px solid var(--background-modifier-border);
+  border-bottom: none;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.documize-plugin-root .dropdown-option {
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.documize-plugin-root .dropdown-option:last-child {
+  border-bottom: none;
+}
+
+/* 위쪽으로 펼쳐지는 드롭다운의 옵션들 */
+.documize-plugin-root .custom-dropdown-menu[style*="bottom: 100%"] .dropdown-option {
+  border-bottom: 1px solid var(--background-modifier-border);
+  border-top: none;
+}
+
+.documize-plugin-root .custom-dropdown-menu[style*="bottom: 100%"] .dropdown-option:first-child {
+  border-top: none;
+}
+
+.documize-plugin-root .dropdown-option:hover {
+  background: var(--background-modifier-hover) !important;
+}
+
+.documize-plugin-root .dropdown-arrow {
+  transition: transform 0.2s ease;
+}
+
+/* 드롭다운 애니메이션 */
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 커스텀 드롭다운 포커스 스타일 */
+.documize-plugin-root .custom-dropdown-button:focus {
+  outline: none;
+  border-color: var(--interactive-accent) !important;
+  box-shadow: 0 0 0 2px rgba(var(--interactive-accent-rgb), 0.2) !important;
+}

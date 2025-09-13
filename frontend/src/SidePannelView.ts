@@ -2,6 +2,264 @@ import { ItemView, WorkspaceLeaf, setIcon, MarkdownRenderer, MarkdownView, Notic
 import MyPlugin from '../main';
 import { VIEW_TYPE_DOCUMIZE } from './Constants';
 
+// 커스텀 드롭다운 클래스
+class CustomDropdown {
+	private container: HTMLElement;
+	private button: HTMLElement;
+	private menu: HTMLElement;
+	private options: Array<{ value: string; text: string }>;
+	private selectedValue: string;
+	private onChangeCallback?: (value: string) => void;
+	private isOpen: boolean = false;
+
+	constructor(container: HTMLElement, options: Array<{ value: string; text: string }>, placeholder: string = 'Select...') {
+		this.container = container;
+		this.options = options;
+		this.selectedValue = options[0]?.value || '';
+		this.isOpen = false;
+		this.createDropdown(placeholder);
+	}
+
+	private createDropdown(placeholder: string) {
+		// 드롭다운 컨테이너
+		this.container.style.position = 'relative';
+		this.container.style.display = 'inline-block';
+
+		// 버튼 생성
+		this.button = this.container.createDiv({ cls: 'custom-dropdown-button' });
+		this.button.style.padding = '4px 8px';
+		this.button.style.borderRadius = '8px';
+		this.button.style.border = '1px solid var(--background-modifier-border)';
+		this.button.style.background = 'var(--background-primary)';
+		this.button.style.color = 'var(--text-normal)';
+		this.button.style.fontSize = '8px';
+		this.button.style.cursor = 'pointer';
+		this.button.style.height = '20px';
+		this.button.style.display = 'flex';
+		this.button.style.alignItems = 'center';
+		this.button.style.justifyContent = 'space-between';
+		this.button.style.minWidth = '80px';
+		this.button.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
+		this.button.style.transition = 'all 0.2s ease';
+
+		// 버튼 텍스트
+		const buttonText = this.button.createSpan({ cls: 'dropdown-text' });
+		buttonText.textContent = this.options[0]?.text || placeholder;
+
+		// 화살표 아이콘
+		const arrow = this.button.createSpan({ cls: 'dropdown-arrow' });
+		arrow.innerHTML = '▲';
+		arrow.style.fontSize = '6px';
+		arrow.style.transition = 'transform 0.2s ease';
+
+		// 메뉴 생성
+		this.menu = this.container.createDiv({ cls: 'custom-dropdown-menu' });
+		this.menu.style.position = 'absolute';
+		this.menu.style.top = 'auto';
+		this.menu.style.bottom = '100%';
+		this.menu.style.left = '0';
+		this.menu.style.right = '0';
+		this.menu.style.background = 'var(--background-primary)';
+		this.menu.style.border = '1px solid var(--background-modifier-border)';
+		this.menu.style.borderRadius = '8px';
+		this.menu.style.borderTopLeftRadius = '8px';
+		this.menu.style.borderTopRightRadius = '8px';
+		this.menu.style.borderBottomLeftRadius = '0';
+		this.menu.style.borderBottomRightRadius = '0';
+		this.menu.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+		this.menu.style.zIndex = '1001';
+		this.menu.style.display = 'none';
+		this.menu.style.overflow = 'hidden';
+
+		// 옵션들 생성
+		this.options.forEach((option, index) => {
+			const optionElement = this.menu.createDiv({ cls: 'dropdown-option' });
+			optionElement.textContent = option.text;
+			optionElement.style.padding = '6px 8px';
+			optionElement.style.cursor = 'pointer';
+			optionElement.style.fontSize = '8px';
+			optionElement.style.color = 'var(--text-normal)';
+			optionElement.style.transition = 'background 0.15s ease';
+			optionElement.dataset.value = option.value;
+
+			// 호버 효과
+			optionElement.addEventListener('mouseenter', () => {
+				optionElement.style.background = 'var(--background-modifier-hover)';
+			});
+
+			optionElement.addEventListener('mouseleave', () => {
+				optionElement.style.background = 'transparent';
+			});
+
+			// 클릭 이벤트
+			optionElement.addEventListener('click', () => {
+				this.selectOption(option.value, option.text);
+			});
+		});
+
+		// 버튼 클릭 이벤트
+		this.button.addEventListener('click', (e) => {
+			e.stopPropagation();
+			this.toggle();
+		});
+
+		// 외부 클릭 시 닫기
+		document.addEventListener('click', (e) => {
+			if (!this.container.contains(e.target as Node)) {
+				this.close();
+			}
+		});
+	}
+
+	private toggle() {
+		if (this.isOpen) {
+			this.close();
+		} else {
+			this.open();
+		}
+	}
+
+	private open() {
+		this.isOpen = true;
+		this.menu.style.display = 'block';
+		this.button.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+		this.button.style.borderColor = 'var(--interactive-accent)';
+		
+		// 드롭다운 위치 자동 조정
+		this.adjustDropdownPosition();
+		
+		const arrow = this.button.querySelector('.dropdown-arrow') as HTMLElement;
+		if (arrow) {
+			arrow.style.transform = 'rotate(180deg)';
+		}
+	}
+
+	private close() {
+		this.isOpen = false;
+		this.menu.style.display = 'none';
+		this.button.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
+		this.button.style.borderColor = 'var(--background-modifier-border)';
+		
+		const arrow = this.button.querySelector('.dropdown-arrow') as HTMLElement;
+		if (arrow) {
+			arrow.style.transform = 'rotate(0deg)';
+		}
+	}
+
+	private adjustDropdownPosition() {
+		// 항상 위쪽으로만 펼쳐지도록 고정
+		if (!this.menu || !this.button) return;
+
+		this.menu.style.top = 'auto';
+		this.menu.style.bottom = '100%';
+		this.menu.style.borderTopLeftRadius = '8px';
+		this.menu.style.borderTopRightRadius = '8px';
+		this.menu.style.borderBottomLeftRadius = '0';
+		this.menu.style.borderBottomRightRadius = '0';
+	}
+
+	private selectOption(value: string, text: string) {
+		this.selectedValue = value;
+		const buttonText = this.button.querySelector('.dropdown-text') as HTMLElement;
+		if (buttonText) {
+			buttonText.textContent = text;
+		}
+		this.close();
+		
+		if (this.onChangeCallback) {
+			this.onChangeCallback(value);
+		}
+	}
+
+	public getValue(): string {
+		return this.selectedValue;
+	}
+
+	public setValue(value: string) {
+		const option = this.options.find(opt => opt.value === value);
+		if (option) {
+			this.selectOption(option.value, option.text);
+		}
+	}
+
+	public onChange(callback: (value: string) => void) {
+		this.onChangeCallback = callback;
+	}
+
+	public updateOptions(newOptions: Array<{ value: string; text: string }>) {
+		this.options = newOptions;
+		this.selectedValue = newOptions[0]?.value || '';
+		
+		// 기존 메뉴 제거
+		if (this.menu) {
+			this.menu.remove();
+		}
+		
+		// 새 메뉴 생성
+		this.menu = this.container.createDiv({ cls: 'custom-dropdown-menu' });
+		this.menu.style.position = 'absolute';
+		this.menu.style.top = 'auto';
+		this.menu.style.bottom = '100%';
+		this.menu.style.left = '0';
+		this.menu.style.right = '0';
+		this.menu.style.background = 'var(--background-primary)';
+		this.menu.style.border = '1px solid var(--background-modifier-border)';
+		this.menu.style.borderRadius = '8px';
+		this.menu.style.borderTopLeftRadius = '8px';
+		this.menu.style.borderTopRightRadius = '8px';
+		this.menu.style.borderBottomLeftRadius = '0';
+		this.menu.style.borderBottomRightRadius = '0';
+		this.menu.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+		this.menu.style.zIndex = '1001';
+		this.menu.style.display = 'none';
+		this.menu.style.overflow = 'hidden';
+
+		// 새 옵션들 생성
+		this.options.forEach((option, index) => {
+			const optionElement = this.menu.createDiv({ cls: 'dropdown-option' });
+			optionElement.textContent = option.text;
+			optionElement.style.padding = '6px 8px';
+			optionElement.style.cursor = 'pointer';
+			optionElement.style.fontSize = '8px';
+			optionElement.style.color = 'var(--text-normal)';
+			optionElement.style.transition = 'background 0.15s ease';
+			optionElement.dataset.value = option.value;
+
+			// 호버 효과
+			optionElement.addEventListener('mouseenter', () => {
+				optionElement.style.background = 'var(--background-modifier-hover)';
+			});
+
+			optionElement.addEventListener('mouseleave', () => {
+				optionElement.style.background = 'transparent';
+			});
+
+			// 클릭 이벤트
+			optionElement.addEventListener('click', () => {
+				this.selectOption(option.value, option.text);
+			});
+		});
+
+		// 버튼 텍스트 업데이트
+		const buttonText = this.button.querySelector('.dropdown-text') as HTMLElement;
+		if (buttonText) {
+			buttonText.textContent = this.options[0]?.text || 'Select...';
+		}
+
+		// 드롭다운이 열려있다면 위치 재조정 (약간의 지연을 두어 DOM 업데이트 완료 후 실행)
+		if (this.isOpen) {
+			// DOM 업데이트가 완료된 후 위치 조정
+			setTimeout(() => {
+				this.adjustDropdownPosition();
+			}, 0);
+		}
+	}
+
+	public destroy() {
+		this.container.empty();
+	}
+}
+
 export default class SidePannelView extends ItemView {
 	private plugin: MyPlugin;
 
@@ -285,58 +543,23 @@ export default class SidePannelView extends ItemView {
 		leftControls.style.gap = '4px'
 		leftControls.style.alignItems = 'center'
 		
-		// 모드선택 드롭다운
+		// 모드선택 커스텀 드롭다운
 		const formatContainer = leftControls.createDiv({ cls: 'documize-format-container' })
 		formatContainer.style.position = 'relative'
 		formatContainer.style.zIndex = '1000'
 		
-		const formatSelect = formatContainer.createEl('select', { cls: 'documize-format-select' })
-		formatSelect.style.padding = '4px 6px'
-		formatSelect.style.borderRadius = '12px'
-		formatSelect.style.border = '1px solid var(--background-modifier-border)'
-		formatSelect.style.background = 'var(--background-primary)'
-		formatSelect.style.color = 'var(--text-normal)'
-		formatSelect.style.fontSize = '8px'
-		formatSelect.style.cursor = 'pointer'
-		formatSelect.style.height = '20px'
-		formatSelect.style.textAlign = 'center'
-		formatSelect.style.textOverflow = 'ellipsis'
-		formatSelect.style.overflow = 'hidden'
-		formatSelect.style.whiteSpace = 'nowrap'
-		formatSelect.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)'
-		formatSelect.style.transition = 'width 0.2s ease, min-width 0.2s ease, box-shadow 0.2s ease, background 0.2s ease'
-		// 좌측 정렬을 위해 left: 0 설정
-		formatSelect.style.position = 'relative'
-		formatSelect.style.left = '0'
+		// 커스텀 드롭다운 옵션들
+		const formatOptions = [
+			{ value: 'default', text: 'Select Mode' },
+			{ value: 'text', text: 'Chat' },
+			{ value: 'document', text: 'Document' }
+		]
 		
-		// 기본 옵션 추가
-		const defaultOption = formatSelect.createEl('option', { value: 'default' })
-		defaultOption.textContent = 'Select Mode'
-		defaultOption.selected = true
+		// 커스텀 드롭다운 생성
+		const formatDropdown = new CustomDropdown(formatContainer, formatOptions, 'Select Mode')
 		
-		const chatOption = formatSelect.createEl('option', { value: 'text' })
-		chatOption.textContent = 'Chat'
-		const documentOption = formatSelect.createEl('option', { value: 'document' })
-		documentOption.textContent = 'Document'
-		
-		// 텍스트 크기에 맞춰 드롭다운 너비 조정 함수
-		const adjustFormatSelectWidth = () => {
-			const selectedOption = formatSelect.options[formatSelect.selectedIndex]
-			if (selectedOption && selectedOption.textContent) {
-				const textWidth = selectedOption.textContent.length * 6 + 12 // 대략적인 텍스트 너비 계산
-				const maxWidth = 80 // 최대 너비 설정
-				formatSelect.style.width = `${Math.min(textWidth, maxWidth)}px`
-				formatSelect.style.minWidth = `${Math.min(textWidth, maxWidth)}px`
-			}
-		}
-		
-		// 초기 너비 설정
-		adjustFormatSelectWidth()
-		
-		// 드랍다운 이벤트
-		formatSelect.addEventListener('change', () => {
-			const selectedValue = formatSelect.value;
-			
+		// 드롭다운 이벤트 핸들러
+		formatDropdown.onChange((selectedValue: string) => {
 			// 선택된 모드에 따른 프롬프트 플레이스홀더 변경
 			this.updatePromptPlaceholder(selectedValue, prompt as HTMLTextAreaElement);
 			
@@ -346,145 +569,40 @@ export default class SidePannelView extends ItemView {
 			} else {
 				templateContainer.style.display = 'none'
 			}
-			
-			// 너비 재조정
-			setTimeout(() => {
-				adjustFormatSelectWidth()
-			}, 100)
-		})
-		
-		formatSelect.addEventListener('mousedown', () => {
-			// 드롭다운이 열릴 때 단순한 스타일 변경만
-			formatSelect.style.background = 'var(--background-primary)'
-			formatSelect.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)'
-		})
-		
-		formatSelect.addEventListener('blur', () => {
-			formatSelect.style.background = 'var(--background-primary)'
-			formatSelect.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)'
-			adjustFormatSelectWidth()
 		})
 
-		// Select model 드롭다운
+		// Select model 커스텀 드롭다운
 		const modelContainer = leftControls.createDiv({ cls: 'documize-model-container' })
 		modelContainer.style.position = 'relative'
 		modelContainer.style.zIndex = '1000'
 		
-		const modelSelect = modelContainer.createEl('select', { cls: 'documize-model-select' })
-		modelSelect.style.padding = '4px 6px'
-		modelSelect.style.borderRadius = '12px'
-		modelSelect.style.border = '1px solid var(--background-modifier-border)'
-		modelSelect.style.background = 'var(--background-primary)'
-		modelSelect.style.color = 'var(--text-normal)'
-		modelSelect.style.fontSize = '8px'
-		modelSelect.style.cursor = 'pointer'
-		modelSelect.style.height = '20px'
-		modelSelect.style.textAlign = 'center'
-		modelSelect.style.textOverflow = 'ellipsis'
-		modelSelect.style.overflow = 'hidden'
-		modelSelect.style.whiteSpace = 'nowrap'
-		modelSelect.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)'
-		modelSelect.style.transition = 'width 0.2s ease, min-width 0.2s ease, box-shadow 0.2s ease, background 0.2s ease'
-		// 좌측 정렬을 위해 left: 0 설정
-		modelSelect.style.position = 'relative'
-		modelSelect.style.left = '0'
+		// 모델 옵션들 (동적으로 로드됨)
+		const modelOptions = [
+			{ value: 'default', text: 'Select Model' }
+		]
+		
+		// 모델 커스텀 드롭다운 생성
+		const modelDropdown = new CustomDropdown(modelContainer, modelOptions, 'Select Model')
+		
+		// config.json에서 모델 목록 로드
+		this.loadModelsFromConfig(modelDropdown)
 
-		// Template type 드롭다운 (documentOption일 때만 표시)
+		// Template type 커스텀 드롭다운 (documentOption일 때만 표시)
 		const templateContainer = leftControls.createDiv({ cls: 'documize-template-container' })
 		templateContainer.style.position = 'relative'
 		templateContainer.style.zIndex = '1000'
 		templateContainer.style.display = 'none' // 기본적으로 숨김
 		
-		const templateSelect = templateContainer.createEl('select', { cls: 'documize-template-select' })
-		templateSelect.style.padding = '4px 6px'
-		templateSelect.style.borderRadius = '12px'
-		templateSelect.style.border = '1px solid var(--background-modifier-border)'
-		templateSelect.style.background = 'var(--background-primary)'
-		templateSelect.style.color = 'var(--text-normal)'
-		templateSelect.style.fontSize = '8px'
-		templateSelect.style.cursor = 'pointer'
-		templateSelect.style.height = '20px'
-		templateSelect.style.textAlign = 'center'
-		templateSelect.style.textOverflow = 'ellipsis'
-		templateSelect.style.overflow = 'hidden'
-		templateSelect.style.whiteSpace = 'nowrap'
-		templateSelect.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)'
-		templateSelect.style.transition = 'width 0.2s ease, min-width 0.2s ease, box-shadow 0.2s ease, background 0.2s ease'
-		templateSelect.style.position = 'relative'
-		templateSelect.style.left = '0'
+		// 템플릿 옵션들 (동적으로 로드됨)
+		const templateOptions = [
+			{ value: 'default', text: 'Select Template' }
+		]
 		
+		// 템플릿 커스텀 드롭다운 생성
+		const templateDropdown = new CustomDropdown(templateContainer, templateOptions, 'Select Template')
 		
-		// 텍스트 크기에 맞춰 모델 드롭다운 너비 조정 함수
-		const adjustModelSelectWidth = () => {
-			const selectedOption = modelSelect.options[modelSelect.selectedIndex]
-			if (selectedOption && selectedOption.textContent) {
-				const textWidth = selectedOption.textContent.length * 6 + 12 // 대략적인 텍스트 너비 계산
-				const maxWidth = 100 // 최대 너비 설정
-				modelSelect.style.width = `${Math.min(textWidth, maxWidth)}px`
-				modelSelect.style.minWidth = `${Math.min(textWidth, maxWidth)}px`
-			}
-		}
-
-		// 텍스트 크기에 맞춰 템플릿 드롭다운 너비 조정 함수
-		const adjustTemplateSelectWidth = () => {
-			const selectedOption = templateSelect.options[templateSelect.selectedIndex]
-			if (selectedOption && selectedOption.textContent) {
-				const textWidth = selectedOption.textContent.length * 6 + 12 // 대략적인 텍스트 너비 계산
-				const maxWidth = 100 // 최대 너비 설정
-				templateSelect.style.width = `${Math.min(textWidth, maxWidth)}px`
-				templateSelect.style.minWidth = `${Math.min(textWidth, maxWidth)}px`
-			}
-		}
-		
-		// config.json에서 모델 목록 로드
-		this.loadModelsFromConfig(modelSelect).then(() => {
-			// 초기 로드 후 너비 설정
-			adjustModelSelectWidth()
-		})
-
 		// templates.json에서 템플릿 목록 로드
-		this.loadTemplatesFromConfig(templateSelect).then(() => {
-			// 초기 로드 후 너비 설정
-			adjustTemplateSelectWidth()
-		})
-		
-		// 모델 선택 이벤트
-		modelSelect.addEventListener('mousedown', () => {
-			// 드롭다운이 열릴 때 단순한 스타일 변경만
-			modelSelect.style.background = 'var(--background-primary)'
-			modelSelect.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)'
-		})
-		
-		modelSelect.addEventListener('blur', () => {
-			modelSelect.style.background = 'var(--background-primary)'
-			modelSelect.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)'
-			adjustModelSelectWidth()
-		})
-		
-		modelSelect.addEventListener('change', () => {
-			setTimeout(() => {
-				adjustModelSelectWidth()
-			}, 100)
-		})
-
-		// 템플릿 선택 이벤트
-		templateSelect.addEventListener('mousedown', () => {
-			// 드롭다운이 열릴 때 단순한 스타일 변경만
-			templateSelect.style.background = 'var(--background-primary)'
-			templateSelect.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)'
-		})
-		
-		templateSelect.addEventListener('blur', () => {
-			templateSelect.style.background = 'var(--background-primary)'
-			templateSelect.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)'
-			adjustTemplateSelectWidth()
-		})
-		
-		templateSelect.addEventListener('change', () => {
-			setTimeout(() => {
-				adjustTemplateSelectWidth()
-			}, 100)
-		})
+		this.loadTemplatesFromConfig(templateDropdown)
 		
 		// 전송 버튼
 		const sendBtn = bottomSection.createEl('button', { cls: 'documize-send-btn clickable-icon' })
@@ -520,7 +638,7 @@ export default class SidePannelView extends ItemView {
 			}
 
 			// 선택된 출력 형식 가져오기
-			const selectedFormat = (formatSelect as HTMLSelectElement).value === 'default' ? 'text' : (formatSelect as HTMLSelectElement).value
+			const selectedFormat = formatDropdown.getValue() === 'default' ? 'text' : formatDropdown.getValue()
 
 			// 로딩 상태 표시
 			const loadingBlock = await addResultBlock('AI 응답을 생성하고 있습니다...')
@@ -810,9 +928,9 @@ export default class SidePannelView extends ItemView {
 	}
 
 	/**
-	 * templates.json에서 템플릿 목록을 로드하여 드롭다운에 추가
+	 * templates.json에서 템플릿 목록을 로드하여 커스텀 드롭다운에 추가
 	 */
-	private async loadTemplatesFromConfig(templateSelect: HTMLSelectElement): Promise<void> {
+	private async loadTemplatesFromConfig(templateDropdown: CustomDropdown): Promise<void> {
 		try {
 			// 여러 경로 시도
 			const possiblePaths = [
@@ -837,44 +955,42 @@ export default class SidePannelView extends ItemView {
 			
 			if (!templateContent) {
 				console.warn('templates.json 파일을 찾을 수 없습니다. 시도한 경로들:', possiblePaths);
-				// 기본 템플릿 추가
-				const defaultOption = templateSelect.createEl('option', { value: 'default' });
-				defaultOption.textContent = 'Select Type';
 				return;
 			}
 			
 			const templateData = JSON.parse(templateContent);
 			console.log('로드된 템플릿:', templateData);
 			
-			// 기존 옵션 제거
-			templateSelect.innerHTML = '';
-			
-			// 기본 옵션 추가
-			const defaultOption = templateSelect.createEl('option', { value: 'default' });
-			defaultOption.textContent = 'Select Type';
-			defaultOption.selected = true;
+			// 템플릿 옵션들 생성
+			const templateOptions = [
+				{ value: 'default', text: 'Select Type' }
+			];
 			
 			// 템플릿 목록 추가
 			if (templateData.templates && typeof templateData.templates === 'object') {
 				Object.keys(templateData.templates).forEach((templateKey) => {
-					const option = templateSelect.createEl('option', { value: templateKey });
-					option.textContent = templateKey.charAt(0).toUpperCase() + templateKey.slice(1);
+					templateOptions.push({
+						value: templateKey,
+						text: templateKey.charAt(0).toUpperCase() + templateKey.slice(1)
+					});
 				});
 				console.log('템플릿 로드 완료:', Object.keys(templateData.templates).length, '개');
 			}
+			
+					// 커스텀 드롭다운에 옵션들 적용
+			templateDropdown['options'] = templateOptions;
+			templateDropdown['selectedValue'] = 'default';
+			templateDropdown['updateOptions'](templateOptions);
+			
 		} catch (error) {
 			console.error('templates.json 로드 실패:', error);
-			// 에러 시 기본 템플릿 추가
-			templateSelect.innerHTML = '';
-			const defaultOption = templateSelect.createEl('option', { value: 'default' });
-			defaultOption.textContent = 'Select Type';
 		}
 	}
 
 	/**
-	 * config.json에서 모델 목록을 로드하여 드롭다운에 추가
+	 * config.json에서 모델 목록을 로드하여 커스텀 드롭다운에 추가
 	 */
-	private async loadModelsFromConfig(modelSelect: HTMLSelectElement): Promise<void> {
+	private async loadModelsFromConfig(modelDropdown: CustomDropdown): Promise<void> {
 		try {
 			// 여러 경로 시도
 			const possiblePaths = [
@@ -899,44 +1015,47 @@ export default class SidePannelView extends ItemView {
 			
 			if (!configContent) {
 				console.warn('config.json 파일을 찾을 수 없습니다. 시도한 경로들:', possiblePaths);
-				// 기본 모델 추가
-				const defaultOption = modelSelect.createEl('option', { value: 'default' });
-				defaultOption.textContent = 'Select Model';
 				return;
 			}
 			
 			const config = JSON.parse(configContent);
 			console.log('로드된 config:', config);
 			
-			// 기존 옵션 제거
-			modelSelect.innerHTML = '';
-			
-			// 기본 옵션 추가
-			const defaultOption = modelSelect.createEl('option', { value: 'default' });
-			defaultOption.textContent = 'Select Model';
-			defaultOption.selected = true;
+			// 모델 옵션들 생성
+			const modelOptions = [
+				{ value: 'default', text: 'Select Model' }
+			];
 			
 			// 모델 목록 추가
 			if (config.models && Array.isArray(config.models)) {
 				config.models.forEach((model: any) => {
-					const option = modelSelect.createEl('option', { 
+					modelOptions.push({
 						value: JSON.stringify({
 							name: model.name,
 							provider: model.provider,
 							model: model.model,
 							api_key: model.api_key
-						})
+						}),
+						text: model.name
 					});
-					option.textContent = model.name;
 				});
 				console.log('모델 로드 완료:', config.models.length, '개');
 			}
+			
+			// 커스텀 드롭다운에 옵션들 적용
+			modelDropdown['options'] = modelOptions;
+			modelDropdown['selectedValue'] = 'default';
+			modelDropdown['updateOptions'](modelOptions);
+			
+			// 모델 드롭다운이 열려있다면 위치 재조정
+			if (modelDropdown['isOpen']) {
+				setTimeout(() => {
+					modelDropdown['adjustDropdownPosition']();
+				}, 0);
+			}
+			
 		} catch (error) {
 			console.error('config.json 로드 실패:', error);
-			// 에러 시 기본 모델 추가
-			modelSelect.innerHTML = '';
-			const defaultOption = modelSelect.createEl('option', { value: 'default' });
-			defaultOption.textContent = 'Select Model';
 		}
 	}
 
@@ -944,17 +1063,34 @@ export default class SidePannelView extends ItemView {
 	 * 현재 선택된 모델 정보를 반환
 	 */
 	private getCurrentModel(): any | null {
-		const modelSelect = document.querySelector('.documize-model-select') as HTMLSelectElement;
-		if (!modelSelect || modelSelect.value === 'default') {
+		const modelDropdown = document.querySelector('.documize-model-container .custom-dropdown-button')?.closest('.documize-model-container');
+		if (!modelDropdown) {
 			return null;
 		}
 		
-		try {
-			return JSON.parse(modelSelect.value);
-		} catch (error) {
-			console.error('모델 정보 파싱 실패:', error);
+		// 커스텀 드롭다운에서 선택된 값 찾기
+		const selectedText = modelDropdown.querySelector('.dropdown-text')?.textContent;
+		if (!selectedText || selectedText === 'Select Model') {
 			return null;
 		}
+		
+		// 선택된 옵션의 value 찾기
+		const options = Array.from(modelDropdown.querySelectorAll('.dropdown-option'));
+		for (const option of options) {
+			if (option.textContent === selectedText) {
+				const value = option.getAttribute('data-value');
+				if (value && value !== 'default') {
+					try {
+						return JSON.parse(value);
+					} catch (error) {
+						console.error('모델 정보 파싱 실패:', error);
+						return null;
+					}
+				}
+			}
+		}
+		
+		return null;
 	}
 
 	/**
