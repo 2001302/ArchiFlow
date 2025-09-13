@@ -1,0 +1,19 @@
+{
+    "version": "1.0.0",
+    "templates": {
+        "analysis": {
+            "purpose": "",
+            "technicalGoals": "",
+            "classdiagram": "",
+            "description": ""
+        },
+        "feature": {
+            "purpose": "",
+            "technicalGoals": "",
+            "classdiagram": "",
+            "activitydiagram": "",
+            "description": ""
+        }
+    },
+    "diagram": "mermaid"
+}

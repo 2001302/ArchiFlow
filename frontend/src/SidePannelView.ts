@@ -304,8 +304,8 @@ export default class SidePannelView extends ItemView {
 		defaultOption.textContent = 'Select Mode'
 		defaultOption.selected = true
 		
-		const textOption = formatSelect.createEl('option', { value: 'text' })
-		textOption.textContent = 'Text'
+		const chatOption = formatSelect.createEl('option', { value: 'text' })
+		chatOption.textContent = 'Chat'
 		const documentOption = formatSelect.createEl('option', { value: 'document' })
 		documentOption.textContent = 'Document'
 		
@@ -330,6 +330,13 @@ export default class SidePannelView extends ItemView {
 			// 선택된 모드에 따른 프롬프트 플레이스홀더 변경
 			this.updatePromptPlaceholder(selectedValue, prompt as HTMLTextAreaElement);
 			
+			// documentOption일 때만 template 드랍다운 표시
+			if (selectedValue === 'document') {
+				templateContainer.style.display = 'block'
+			} else {
+				templateContainer.style.display = 'none'
+			}
+			
 			// 너비 재조정
 			setTimeout(() => {
 				adjustFormatSelectWidth()
@@ -337,32 +344,12 @@ export default class SidePannelView extends ItemView {
 		})
 		
 		formatSelect.addEventListener('mousedown', () => {
-			// 드롭다운이 열릴 때 위치 조정 - 좌측 정렬 유지
-			const rect = formatSelect.getBoundingClientRect()
-			const containerRect = promptContainer.getBoundingClientRect()
-			const spaceAbove = rect.top - containerRect.top
-			const spaceBelow = containerRect.bottom - rect.bottom
-			
-			// 좌측 정렬 유지하면서 위치만 조정
-			formatSelect.style.left = '0'
-			formatSelect.style.transform = 'none'
-			
-			// 위쪽 공간이 더 많으면 위로, 아래쪽 공간이 더 많으면 아래로
-			if (spaceAbove > spaceBelow) {
-				formatSelect.style.transform = 'translateY(-4px)'
-			} else {
-				formatSelect.style.transform = 'translateY(4px)'
-			}
-			
-			formatSelect.style.width = '80px'
-			formatSelect.style.minWidth = '80px'
+			// 드롭다운이 열릴 때 단순한 스타일 변경만
 			formatSelect.style.background = 'var(--background-primary)'
 			formatSelect.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)'
 		})
 		
 		formatSelect.addEventListener('blur', () => {
-			formatSelect.style.transform = 'translateY(0)'
-			formatSelect.style.left = '0'
 			formatSelect.style.background = 'var(--background-primary)'
 			formatSelect.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)'
 			adjustFormatSelectWidth()
@@ -391,6 +378,30 @@ export default class SidePannelView extends ItemView {
 		// 좌측 정렬을 위해 left: 0 설정
 		modelSelect.style.position = 'relative'
 		modelSelect.style.left = '0'
+
+		// Template type 드롭다운 (documentOption일 때만 표시)
+		const templateContainer = leftControls.createDiv({ cls: 'archiflow-template-container' })
+		templateContainer.style.position = 'relative'
+		templateContainer.style.zIndex = '1000'
+		templateContainer.style.display = 'none' // 기본적으로 숨김
+		
+		const templateSelect = templateContainer.createEl('select', { cls: 'archiflow-template-select' })
+		templateSelect.style.padding = '4px 6px'
+		templateSelect.style.borderRadius = '12px'
+		templateSelect.style.border = '1px solid var(--background-modifier-border)'
+		templateSelect.style.background = 'var(--background-primary)'
+		templateSelect.style.color = 'var(--text-normal)'
+		templateSelect.style.fontSize = '8px'
+		templateSelect.style.cursor = 'pointer'
+		templateSelect.style.height = '20px'
+		templateSelect.style.textAlign = 'center'
+		templateSelect.style.textOverflow = 'ellipsis'
+		templateSelect.style.overflow = 'hidden'
+		templateSelect.style.whiteSpace = 'nowrap'
+		templateSelect.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)'
+		templateSelect.style.transition = 'width 0.2s ease, min-width 0.2s ease, box-shadow 0.2s ease, background 0.2s ease'
+		templateSelect.style.position = 'relative'
+		templateSelect.style.left = '0'
 		
 		
 		// 텍스트 크기에 맞춰 모델 드롭다운 너비 조정 함수
@@ -403,41 +414,38 @@ export default class SidePannelView extends ItemView {
 				modelSelect.style.minWidth = `${Math.min(textWidth, maxWidth)}px`
 			}
 		}
+
+		// 텍스트 크기에 맞춰 템플릿 드롭다운 너비 조정 함수
+		const adjustTemplateSelectWidth = () => {
+			const selectedOption = templateSelect.options[templateSelect.selectedIndex]
+			if (selectedOption && selectedOption.textContent) {
+				const textWidth = selectedOption.textContent.length * 6 + 12 // 대략적인 텍스트 너비 계산
+				const maxWidth = 100 // 최대 너비 설정
+				templateSelect.style.width = `${Math.min(textWidth, maxWidth)}px`
+				templateSelect.style.minWidth = `${Math.min(textWidth, maxWidth)}px`
+			}
+		}
 		
 		// config.json에서 모델 목록 로드
 		this.loadModelsFromConfig(modelSelect).then(() => {
 			// 초기 로드 후 너비 설정
 			adjustModelSelectWidth()
 		})
+
+		// templates.json에서 템플릿 목록 로드
+		this.loadTemplatesFromConfig(templateSelect).then(() => {
+			// 초기 로드 후 너비 설정
+			adjustTemplateSelectWidth()
+		})
 		
 		// 모델 선택 이벤트
 		modelSelect.addEventListener('mousedown', () => {
-			// 드롭다운이 열릴 때 위치 조정 - 좌측 정렬 유지
-			const rect = modelSelect.getBoundingClientRect()
-			const containerRect = promptContainer.getBoundingClientRect()
-			const spaceAbove = rect.top - containerRect.top
-			const spaceBelow = containerRect.bottom - rect.bottom
-			
-			// 좌측 정렬 유지하면서 위치만 조정
-			modelSelect.style.left = '0'
-			modelSelect.style.transform = 'none'
-			
-			// 위쪽 공간이 더 많으면 위로, 아래쪽 공간이 더 많으면 아래로
-			if (spaceAbove > spaceBelow) {
-				modelSelect.style.transform = 'translateY(-4px)'
-			} else {
-				modelSelect.style.transform = 'translateY(4px)'
-			}
-			
-			modelSelect.style.width = '120px'
-			modelSelect.style.minWidth = '120px'
+			// 드롭다운이 열릴 때 단순한 스타일 변경만
 			modelSelect.style.background = 'var(--background-primary)'
 			modelSelect.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)'
 		})
 		
 		modelSelect.addEventListener('blur', () => {
-			modelSelect.style.transform = 'translateY(0)'
-			modelSelect.style.left = '0'
 			modelSelect.style.background = 'var(--background-primary)'
 			modelSelect.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)'
 			adjustModelSelectWidth()
@@ -446,6 +454,25 @@ export default class SidePannelView extends ItemView {
 		modelSelect.addEventListener('change', () => {
 			setTimeout(() => {
 				adjustModelSelectWidth()
+			}, 100)
+		})
+
+		// 템플릿 선택 이벤트
+		templateSelect.addEventListener('mousedown', () => {
+			// 드롭다운이 열릴 때 단순한 스타일 변경만
+			templateSelect.style.background = 'var(--background-primary)'
+			templateSelect.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)'
+		})
+		
+		templateSelect.addEventListener('blur', () => {
+			templateSelect.style.background = 'var(--background-primary)'
+			templateSelect.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)'
+			adjustTemplateSelectWidth()
+		})
+		
+		templateSelect.addEventListener('change', () => {
+			setTimeout(() => {
+				adjustTemplateSelectWidth()
 			}, 100)
 		})
 		
@@ -517,6 +544,68 @@ export default class SidePannelView extends ItemView {
 	async onClose(): Promise<void> {
 		const { contentEl } = this;
 		contentEl.empty();
+	}
+
+	/**
+	 * templates.json에서 템플릿 목록을 로드하여 드롭다운에 추가
+	 */
+	private async loadTemplatesFromConfig(templateSelect: HTMLSelectElement): Promise<void> {
+		try {
+			// 여러 경로 시도
+			const possiblePaths = [
+				'.obsidian/plugins/arch-flow/templates.json',
+				'templates.json',
+				'./templates.json'
+			];
+			
+			let templateContent = '';
+			let templatePath = '';
+			
+			// 가능한 경로들을 순서대로 시도
+			for (const path of possiblePaths) {
+				console.log('시도하는 템플릿 경로:', path);
+				if (await this.plugin.app.vault.adapter.exists(path)) {
+					templatePath = path;
+					templateContent = await this.plugin.app.vault.adapter.read(path);
+					console.log('성공적으로 읽은 템플릿 경로:', path);
+					break;
+				}
+			}
+			
+			if (!templateContent) {
+				console.warn('templates.json 파일을 찾을 수 없습니다. 시도한 경로들:', possiblePaths);
+				// 기본 템플릿 추가
+				const defaultOption = templateSelect.createEl('option', { value: 'default' });
+				defaultOption.textContent = 'Select Type';
+				return;
+			}
+			
+			const templateData = JSON.parse(templateContent);
+			console.log('로드된 템플릿:', templateData);
+			
+			// 기존 옵션 제거
+			templateSelect.innerHTML = '';
+			
+			// 기본 옵션 추가
+			const defaultOption = templateSelect.createEl('option', { value: 'default' });
+			defaultOption.textContent = 'Select Type';
+			defaultOption.selected = true;
+			
+			// 템플릿 목록 추가
+			if (templateData.templates && typeof templateData.templates === 'object') {
+				Object.keys(templateData.templates).forEach((templateKey) => {
+					const option = templateSelect.createEl('option', { value: templateKey });
+					option.textContent = templateKey.charAt(0).toUpperCase() + templateKey.slice(1);
+				});
+				console.log('템플릿 로드 완료:', Object.keys(templateData.templates).length, '개');
+			}
+		} catch (error) {
+			console.error('templates.json 로드 실패:', error);
+			// 에러 시 기본 템플릿 추가
+			templateSelect.innerHTML = '';
+			const defaultOption = templateSelect.createEl('option', { value: 'default' });
+			defaultOption.textContent = 'Select Type';
+		}
 	}
 
 	/**
