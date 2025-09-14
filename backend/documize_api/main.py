@@ -16,7 +16,7 @@ from pathlib import Path
 # PyInstaller 환경에서의 모듈 경로 처리
 if getattr(sys, 'frozen', False):
     # PyInstaller로 빌드된 실행파일인 경우
-    current_dir = Path(sys._MEIPASS) if hasattr(sys, '_MEIPASS') else Path(os.path.dirname(sys.executable))
+    current_dir = Path(getattr(sys, '_MEIPASS', os.path.dirname(sys.executable)))
     src_path = current_dir / "src"
     sys.path.insert(0, str(src_path))
 
