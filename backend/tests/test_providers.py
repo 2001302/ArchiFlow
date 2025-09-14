@@ -7,11 +7,11 @@ import sys
 from pathlib import Path
 
 # AI Core 모듈 경로 추가
-ai_core_path = Path(__file__).parent.parent / "ai_core"
-sys.path.insert(0, str(ai_core_path))
+mcp_server_path = Path(__file__).parent.parent / "mcp_server"
+sys.path.insert(0, str(mcp_server_path))
 
-from ai_core.providers import PerplexityProvider, OpenAIProvider, AnthropicProvider
-from ai_core.models.enums import AIProvider
+from mcp_server.providers import PerplexityProvider, OpenAIProvider, AnthropicProvider
+from mcp_server.models.enums import AIProvider
 
 class TestPerplexityProvider:
     """Perplexity 제공자 테스트 클래스"""
@@ -41,7 +41,7 @@ class TestPerplexityProvider:
             )
     
     @pytest.mark.asyncio
-    @patch('ai_core.providers.perplexity_provider.AsyncOpenAI')
+    @patch('mcp_server.providers.perplexity_provider.AsyncOpenAI')
     async def test_call_api_success(self, mock_openai):
         """API 호출 성공 테스트"""
         # Mock OpenAI 클라이언트 설정
@@ -62,7 +62,7 @@ class TestPerplexityProvider:
         mock_client.chat.completions.create.assert_called_once()
     
     @pytest.mark.asyncio
-    @patch('ai_core.providers.perplexity_provider.AsyncOpenAI')
+    @patch('mcp_server.providers.perplexity_provider.AsyncOpenAI')
     async def test_call_api_error(self, mock_openai):
         """API 호출 오류 테스트"""
         # Mock OpenAI 클라이언트에서 예외 발생
@@ -95,7 +95,7 @@ class TestOpenAIProvider:
             )
     
     @pytest.mark.asyncio
-    @patch('ai_core.providers.openai_provider.httpx.AsyncClient')
+    @patch('mcp_server.providers.openai_provider.httpx.AsyncClient')
     async def test_call_api_success(self, mock_httpx):
         """API 호출 성공 테스트"""
         # Mock HTTP 클라이언트 설정
@@ -120,7 +120,7 @@ class TestOpenAIProvider:
         mock_client.post.assert_called_once()
     
     @pytest.mark.asyncio
-    @patch('ai_core.providers.openai_provider.httpx.AsyncClient')
+    @patch('mcp_server.providers.openai_provider.httpx.AsyncClient')
     async def test_call_api_error(self, mock_httpx):
         """API 호출 오류 테스트"""
         # Mock HTTP 클라이언트에서 예외 발생
@@ -155,7 +155,7 @@ class TestAnthropicProvider:
             )
     
     @pytest.mark.asyncio
-    @patch('ai_core.providers.anthropic_provider.httpx.AsyncClient')
+    @patch('mcp_server.providers.anthropic_provider.httpx.AsyncClient')
     async def test_call_api_success(self, mock_httpx):
         """API 호출 성공 테스트"""
         # Mock HTTP 클라이언트 설정
@@ -180,7 +180,7 @@ class TestAnthropicProvider:
         mock_client.post.assert_called_once()
     
     @pytest.mark.asyncio
-    @patch('ai_core.providers.anthropic_provider.httpx.AsyncClient')
+    @patch('mcp_server.providers.anthropic_provider.httpx.AsyncClient')
     async def test_call_api_error(self, mock_httpx):
         """API 호출 오류 테스트"""
         # Mock HTTP 클라이언트에서 예외 발생
@@ -202,7 +202,7 @@ class TestProviderManager:
     
     def setup_method(self):
         """테스트 설정"""
-        from ai_core.managers.provider_manager import AIProviderManager
+        from mcp_server.managers.provider_manager import AIProviderManager
         self.manager = AIProviderManager()
     
     def test_provider_initialization(self):

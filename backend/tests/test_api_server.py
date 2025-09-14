@@ -7,13 +7,13 @@ from unittest.mock import Mock, patch, AsyncMock
 import sys
 from pathlib import Path
 
-# AI Core 모듈 경로 추가
-ai_core_path = Path(__file__).parent.parent / "ai_core"
-sys.path.insert(0, str(ai_core_path))
+# MCP Server 모듈 경로 추가
+mcp_server_path = Path(__file__).parent.parent / "mcp_server"
+sys.path.insert(0, str(mcp_server_path))
 
 from fastapi.testclient import TestClient
 from documize_api.main import app
-from ai_core.models.schemas import AIRequest, AIResponse, HealthResponse
+from mcp_server.models.schemas import AIRequest, AIResponse, HealthResponse
 
 class TestAPIServer:
     """API 서버 테스트 클래스"""

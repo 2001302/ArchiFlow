@@ -7,32 +7,32 @@ from unittest.mock import Mock, patch, AsyncMock
 import sys
 from pathlib import Path
 
-# AI Core 모듈 경로 추가
-ai_core_path = Path(__file__).parent.parent / "ai_core"
-sys.path.insert(0, str(ai_core_path))
+# MCP Server 모듈 경로 추가
+mcp_server_path = Path(__file__).parent.parent / "mcp_server"
+sys.path.insert(0, str(mcp_server_path))
 
-from ai_core import AIEngine, AIProvider, OutputFormat
-from ai_core.models.schemas import AIRequest, AIResponse, HealthResponse
+from mcp_server import MCPEngine, AIProvider, OutputFormat
+from mcp_server.models.schemas import AIRequest, AIResponse, HealthResponse
 
-class TestAIEngine:
-    """AI 엔진 테스트 클래스"""
+class TestMCPEngine:
+    """MCP 엔진 테스트 클래스"""
     
     def setup_method(self):
         """테스트 설정"""
-        self.ai_engine = AIEngine()
+        self.mcp_engine = MCPEngine()
     
     @pytest.mark.asyncio
     async def test_ai_engine_initialization(self):
         """AI 엔진 초기화 테스트"""
-        assert self.ai_engine is not None
-        assert self.ai_engine.provider_manager is not None
-        assert self.ai_engine.prompt_manager is not None
-        assert self.ai_engine.response_processor is not None
+        assert self.mcp_engine is not None
+        assert self.mcp_engine.provider_manager is not None
+        assert self.mcp_engine.prompt_manager is not None
+        assert self.mcp_engine.response_processor is not None
     
     @pytest.mark.asyncio
     async def test_generate_response_invalid_api_key(self):
         """유효하지 않은 API 키로 응답 생성 테스트"""
-        result = await self.ai_engine.generate_response(
+        result = await self.mcp_engine.generate_response(
             prompt="Test prompt",
             output_format=OutputFormat.TEXT,
             provider=AIProvider.PERPLEXITY,
@@ -46,7 +46,7 @@ class TestAIEngine:
     @pytest.mark.asyncio
     async def test_generate_response_empty_api_key(self):
         """빈 API 키로 응답 생성 테스트"""
-        result = await self.ai_engine.generate_response(
+        result = await self.mcp_engine.generate_response(
             prompt="Test prompt",
             output_format=OutputFormat.TEXT,
             provider=AIProvider.PERPLEXITY,
@@ -59,10 +59,10 @@ class TestAIEngine:
     @pytest.mark.asyncio
     async def test_generate_response_valid_api_key_mock(self):
         """유효한 API 키로 응답 생성 테스트 (모킹)"""
-        with patch.object(self.ai_engine.provider_manager, 'call_provider', new_callable=AsyncMock) as mock_call:
+        with patch.object(self.mcp_engine.provider_manager, 'call_provider', new_callable=AsyncMock) as mock_call:
             mock_call.return_value = "Mocked AI response"
             
-            result = await self.ai_engine.generate_response(
+            result = await self.mcp_engine.generate_response(
                 prompt="Test prompt",
                 output_format=OutputFormat.TEXT,
                 provider=AIProvider.PERPLEXITY,
@@ -78,10 +78,10 @@ class TestAIEngine:
     @pytest.mark.asyncio
     async def test_generate_response_provider_error(self):
         """AI 제공자 오류 테스트"""
-        with patch.object(self.ai_engine.provider_manager, 'call_provider', new_callable=AsyncMock) as mock_call:
+        with patch.object(self.mcp_engine.provider_manager, 'call_provider', new_callable=AsyncMock) as mock_call:
             mock_call.side_effect = Exception("Provider error")
             
-            result = await self.ai_engine.generate_response(
+            result = await self.mcp_engine.generate_response(
                 prompt="Test prompt",
                 output_format=OutputFormat.TEXT,
                 provider=AIProvider.PERPLEXITY,
@@ -95,10 +95,10 @@ class TestAIEngine:
     @pytest.mark.asyncio
     async def test_generate_response_document_format(self):
         """문서 형식 응답 생성 테스트"""
-        with patch.object(self.ai_engine.provider_manager, 'call_provider', new_callable=AsyncMock) as mock_call:
+        with patch.object(self.mcp_engine.provider_manager, 'call_provider', new_callable=AsyncMock) as mock_call:
             mock_call.return_value = "Mocked document response"
             
-            result = await self.ai_engine.generate_response(
+            result = await self.mcp_engine.generate_response(
                 prompt="Test document prompt",
                 output_format=OutputFormat.DOCUMENT,
                 provider=AIProvider.PERPLEXITY,
@@ -113,10 +113,10 @@ class TestAIEngine:
     @pytest.mark.asyncio
     async def test_generate_response_with_language(self):
         """언어 지정 응답 생성 테스트"""
-        with patch.object(self.ai_engine.provider_manager, 'call_provider', new_callable=AsyncMock) as mock_call:
+        with patch.object(self.mcp_engine.provider_manager, 'call_provider', new_callable=AsyncMock) as mock_call:
             mock_call.return_value = "Mocked response"
             
-            result = await self.ai_engine.generate_response(
+            result = await self.mcp_engine.generate_response(
                 prompt="Test prompt",
                 output_format=OutputFormat.TEXT,
                 provider=AIProvider.PERPLEXITY,

@@ -35,7 +35,7 @@ def run_tests():
         print("\n📊 테스트 커버리지 분석 중...")
         coverage_result = subprocess.run([
             sys.executable, "-m", "pytest", "tests/", 
-            "--cov=ai_core", "--cov=documize_api", 
+            "--cov=mcp_server", "--cov=documize_api", 
             "--cov-report=term", "--cov-report=html"
         ], capture_output=True, text=True)
         

@@ -41,6 +41,9 @@ class AICoreSettings(BaseSettings):
     openai_api_key: Optional[str] = None
     anthropic_api_key: Optional[str] = None
     
+    # AI Request Mode
+    ai_request_mode: str = "mcp"  # "direct" or "mcp"
+    
     # Logging
     log_level: str = "INFO"
     log_file: str = get_log_file_path()
@@ -70,9 +73,10 @@ def load_config_json() -> Dict[str, Any]:
         print(f"config.json 로드 실패: {e}")
         return {}
 
-# config.json에서 provider 설정 로드
+# config.json에서 설정 로드
 config_data = load_config_json()
 provider_configs = config_data.get('providers', {})
+ai_request_mode = config_data.get('ai_request_mode', 'mcp')
 
 # API 키 검증
 def validate_api_keys() -> dict:
@@ -93,3 +97,7 @@ def validate_api_keys() -> dict:
 
 # 전역 설정 인스턴스
 settings = AICoreSettings()
+
+# config.json에서 AI 모드 설정 적용
+if ai_request_mode:
+    settings.ai_request_mode = ai_request_mode

@@ -154,7 +154,7 @@ python3 run_tests.py test_ai_engine.py
 ### 커버리지 포함 테스트
 
 ```bash
-python3 -m pytest tests/ --cov=ai_core --cov=documize_api --cov-report=html
+python3 -m pytest tests/ --cov=mcp_server --cov=documize_api --cov-report=html
 ```
 
 ### 테스트 구조

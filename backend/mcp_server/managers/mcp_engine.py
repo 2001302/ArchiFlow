@@ -1,6 +1,6 @@
 """
-AI 엔진 핵심 모듈
-다양한 AI API를 통합하여 사용합니다.
+MCP 엔진 핵심 모듈
+다양한 AI API를 통합하여 MCP 도구에서 사용합니다.
 """
 import asyncio
 from typing import Dict, Any, Optional
@@ -18,8 +18,8 @@ from ..utils import (
     measure_time
 )
 
-class AIEngine:
-    """AI 엔진 클래스"""
+class MCPEngine:
+    """MCP 엔진 클래스"""
     
     def __init__(self):
         self.provider_manager = AIProviderManager()

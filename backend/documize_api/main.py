@@ -5,7 +5,7 @@ FastAPI 기반 백그라운드 서버
 import sys
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from typing import Dict, Any
+from typing import Dict, Any, List
 from loguru import logger
 import uvicorn
 
@@ -20,13 +20,14 @@ if getattr(sys, 'frozen', False):
     src_path = current_dir / "src"
     sys.path.insert(0, str(src_path))
 
-# AI Core 모듈 경로 추가
-ai_core_path = Path(__file__).parent.parent / "ai_core"
-sys.path.insert(0, str(ai_core_path))
+# MCP Server 모듈 경로 추가
+mcp_server_path = Path(__file__).parent.parent / "mcp_server"
+sys.path.insert(0, str(mcp_server_path))
 
-from ai_core import AIEngine, AIProvider, OutputFormat
-from ai_core.models.schemas import AIRequest, AIResponse, HealthResponse
-from ai_core.config.settings import settings, validate_api_keys
+from mcp_server import MCPEngine, AIProvider, OutputFormat
+from mcp_server.models.schemas import AIRequest, AIResponse, HealthResponse
+from mcp_server.config.settings import settings, validate_api_keys
+# MCP 서버는 더 이상 사용하지 않음
 
 # FastAPI 앱 생성
 app = FastAPI(
@@ -44,15 +45,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# AI 엔진 인스턴스 - 지연 로딩
-ai_engine = None
+# MCP 엔진 인스턴스 - 지연 로딩
+mcp_engine = None
 
-def get_ai_engine():
-    """AI 엔진 인스턴스를 지연 로딩으로 가져오기"""
-    global ai_engine
-    if ai_engine is None:
-        ai_engine = AIEngine()
-    return ai_engine
+def get_mcp_engine():
+    """MCP 엔진 인스턴스를 지연 로딩으로 가져오기"""
+    global mcp_engine
+    if mcp_engine is None:
+        mcp_engine = MCPEngine()
+    return mcp_engine
+
+# MCP 서버는 더 이상 사용하지 않음
 
 @app.get("/", response_model=Dict[str, str])
 async def root():
@@ -81,7 +84,6 @@ async def health_check():
 async def generate_ai_response(request: AIRequest):
     """AI 응답 생성 엔드포인트"""
     try:
-        # 출력 형식 검증
         try:
             output_format = OutputFormat(request.output_format)
         except ValueError:
@@ -90,7 +92,6 @@ async def generate_ai_response(request: AIRequest):
                 detail=f"지원하지 않는 출력 형식입니다: {request.output_format}"
             )
         
-        # AI 제공자 검증
         try:
             provider = AIProvider(request.provider)
         except ValueError:
@@ -99,8 +100,7 @@ async def generate_ai_response(request: AIRequest):
                 detail=f"지원하지 않는 AI 제공자입니다: {request.provider}"
             )
         
-        # AI 응답 생성 - 지연 로딩
-        engine = get_ai_engine()
+        engine = get_mcp_engine()
         result = await engine.generate_response(
             prompt=request.prompt,
             output_format=output_format,
@@ -125,6 +125,143 @@ async def get_supported_formats():
         "formats": [format.value for format in OutputFormat],
         "providers": [provider.value for provider in AIProvider]
     }
+
+@app.get("/api/info")
+async def get_api_info():
+    """API 정보 및 사용 가능한 엔드포인트 목록"""
+    return {
+        "ai_modes": {
+            "current": settings.ai_request_mode,
+            "available": ["direct", "mcp"]
+        },
+        "endpoints": {
+            "basic_ai": {
+                "url": "/ai/basic/generate",
+                "description": "기본 AI 텍스트 생성 - 간단한 질문/답변",
+                "method": "POST",
+                "use_case": "일반적인 텍스트 생성, 질문 답변"
+            },
+            "advanced_ai": {
+                "url": "/ai/advanced/generate", 
+                "description": "고급 AI 문서 생성 - 구조화된 코드/문서",
+                "method": "POST",
+                "use_case": "코드 생성, 구조화된 문서 작성"
+            },
+            "legacy_generate": {
+                "url": "/generate",
+                "description": "레거시 AI 생성 - 설정에 따라 direct/mcp 모드",
+                "method": "POST",
+                "use_case": "기존 호환성을 위한 엔드포인트"
+            },
+            "mcp_tools": {
+                "url": "/mcp/tools/call",
+                "description": "MCP 도구 직접 호출 - 볼트 조작, 콘텐츠 관리",
+                "method": "POST",
+                "use_case": "파일 조작, 검색, 메타데이터 관리"
+            }
+        },
+        "recommendations": {
+            "frontend_usage": {
+                "basic_ai": "사용자가 간단한 질문을 할 때 사용",
+                "advanced_ai": "코드 생성이나 구조화된 문서가 필요할 때 사용",
+                "mcp_tools": "볼트 파일 조작이나 고급 기능이 필요할 때 사용"
+            }
+        }
+    }
+
+@app.get("/config/ai-mode")
+async def get_ai_mode():
+    """현재 AI 요청 모드 조회"""
+    return {
+        "ai_request_mode": settings.ai_request_mode,
+        "available_modes": ["direct", "mcp"],
+        "description": {
+            "direct": "AI 엔진을 직접 호출하는 방식",
+            "mcp": "MCP 서버를 통한 통합 처리 방식"
+        }
+    }
+
+@app.post("/config/ai-mode")
+async def set_ai_mode(mode: str):
+    """AI 요청 모드 변경"""
+    if mode not in ["direct", "mcp"]:
+        raise HTTPException(
+            status_code=400,
+            detail="지원하지 않는 AI 모드입니다. 'direct' 또는 'mcp'를 사용하세요."
+        )
+    
+    # 설정 업데이트 (런타임에서만 적용)
+    settings.ai_request_mode = mode
+    logger.info(f"AI 요청 모드가 {mode}로 변경되었습니다.")
+    
+    return {
+        "message": f"AI 요청 모드가 {mode}로 변경되었습니다.",
+        "ai_request_mode": mode
+    }
+
+# 기본 AI 요청과 고급 기능을 구분하는 엔드포인트들
+@app.post("/ai/basic/generate")
+async def basic_ai_generate(request: AIRequest):
+    """기본 AI 생성 요청 - 간단한 텍스트 생성"""
+    try:
+        # 기본 요청은 항상 텍스트 형식으로 처리
+        basic_request = AIRequest(
+            prompt=request.prompt,
+            output_format="text",
+            provider=request.provider,
+            model=request.model,
+            api_key=request.api_key,
+            language=None  # 기본 요청에서는 언어 무시
+        )
+        
+        # MCP 엔진을 통한 처리
+        engine = get_mcp_engine()
+        result = await engine.generate_response(
+            prompt=basic_request.prompt,
+            output_format=OutputFormat.TEXT,
+            provider=AIProvider(basic_request.provider),
+            model=basic_request.model,
+            api_key=basic_request.api_key
+        )
+        
+        return AIResponse(**result)
+            
+    except Exception as e:
+        logger.error(f"기본 AI 생성 중 오류: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/ai/advanced/generate")
+async def advanced_ai_generate(request: AIRequest):
+    """고급 AI 생성 요청 - 구조화된 문서 생성"""
+    try:
+        # 고급 요청은 문서 형식으로 처리
+        advanced_request = AIRequest(
+            prompt=request.prompt,
+            output_format="document",
+            provider=request.provider,
+            model=request.model,
+            api_key=request.api_key,
+            language=request.language or "python"
+        )
+        
+        # MCP 엔진을 통한 처리
+        engine = get_mcp_engine()
+        result = await engine.generate_response(
+            prompt=advanced_request.prompt,
+            output_format=OutputFormat.DOCUMENT,
+            provider=AIProvider(advanced_request.provider),
+            model=advanced_request.model,
+            api_key=advanced_request.api_key,
+            language=advanced_request.language
+        )
+        
+        return AIResponse(**result)
+            
+    except Exception as e:
+        logger.error(f"고급 AI 생성 중 오류: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# MCP 도구들과 볼트 조작 API는 별도 모듈로 분리됨
 
 def run_server():
     """서버 실행"""

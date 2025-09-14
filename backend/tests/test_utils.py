@@ -6,13 +6,13 @@ import sys
 from pathlib import Path
 
 # AI Core 모듈 경로 추가
-ai_core_path = Path(__file__).parent.parent / "ai_core"
-sys.path.insert(0, str(ai_core_path))
+mcp_server_path = Path(__file__).parent.parent / "mcp_server"
+sys.path.insert(0, str(mcp_server_path))
 
-from ai_core.utils.validation import validate_api_key
-from ai_core.utils.response_formatter import format_error_response, format_success_response
-from ai_core.utils.logging import log_api_call
-from ai_core.utils.decorators import measure_time
+from mcp_server.utils.validation import validate_api_key
+from mcp_server.utils.response_formatter import format_error_response, format_success_response
+from mcp_server.utils.logging import log_api_call
+from mcp_server.utils.decorators import measure_time
 
 class TestValidation:
     """유효성 검사 테스트 클래스"""

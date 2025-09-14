@@ -7,8 +7,8 @@ import sys
 from pathlib import Path
 
 # AI Core 모듈 경로 추가
-ai_core_path = Path(__file__).parent.parent / "ai_core"
-sys.path.insert(0, str(ai_core_path))
+mcp_server_path = Path(__file__).parent.parent / "mcp_server"
+sys.path.insert(0, str(mcp_server_path))
 
 @pytest.fixture(scope="session")
 def event_loop():

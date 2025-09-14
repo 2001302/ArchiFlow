@@ -30,20 +30,3 @@ class PerplexityProvider(BaseAIProvider):
             base_url=base_url
         )
         
-        try:
-            # 연결 테스트인지 확인
-            is_test = len(prompt.strip()) <= 10 and prompt.strip().lower() in ['hi', 'hello', 'test']
-            
-            response = await client.chat.completions.create(
-                model=model,
-                messages=[
-                    {"role": "user", "content": prompt}
-                ],
-                max_tokens=50 if is_test else 2000,
-                timeout=30.0
-            )
-            content = response.choices[0].message.content
-            return content if content is not None else ""
-        except Exception as e:
-            logger.error(f"Perplexity API 호출 실패: {str(e)}")
-            raise
