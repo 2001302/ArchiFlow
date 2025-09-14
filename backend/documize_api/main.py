@@ -5,7 +5,7 @@ FastAPI 기반 백그라운드 서버
 import sys
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from loguru import logger
 import uvicorn
 
@@ -24,9 +24,14 @@ if getattr(sys, 'frozen', False):
 mcp_server_path = Path(__file__).parent.parent / "mcp_server"
 sys.path.insert(0, str(mcp_server_path))
 
-from mcp_server import MCPEngine, AIProvider, OutputFormat
+# MCP Obsidian 모듈 경로 추가
+mcp_obsidian_path = Path(__file__).parent.parent / "mcp_obsidian"
+sys.path.insert(0, str(mcp_obsidian_path))
+
+from mcp_server import AIProvider, OutputFormat
 from mcp_server.models.schemas import AIRequest, AIResponse, HealthResponse
 from mcp_server.config.settings import settings, validate_api_keys
+from mcp_obsidian import ObsidianEngine
 # MCP 서버는 더 이상 사용하지 않음
 
 # FastAPI 앱 생성
@@ -45,15 +50,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# MCP 엔진 인스턴스 - 지연 로딩
-mcp_engine = None
+# Obsidian 엔진 인스턴스 - 지연 로딩
+obsidian_engine = None
 
-def get_mcp_engine():
-    """MCP 엔진 인스턴스를 지연 로딩으로 가져오기"""
-    global mcp_engine
-    if mcp_engine is None:
-        mcp_engine = MCPEngine()
-    return mcp_engine
+def get_obsidian_engine():
+    """Obsidian 엔진 인스턴스를 지연 로딩으로 가져오기"""
+    global obsidian_engine
+    if obsidian_engine is None:
+        obsidian_engine = ObsidianEngine()
+    return obsidian_engine
 
 # MCP 서버는 더 이상 사용하지 않음
 
@@ -100,7 +105,7 @@ async def generate_ai_response(request: AIRequest):
                 detail=f"지원하지 않는 AI 제공자입니다: {request.provider}"
             )
         
-        engine = get_mcp_engine()
+        engine = get_obsidian_engine()
         result = await engine.generate_response(
             prompt=request.prompt,
             output_format=output_format,
@@ -214,8 +219,8 @@ async def basic_ai_generate(request: AIRequest):
             language=None  # 기본 요청에서는 언어 무시
         )
         
-        # MCP 엔진을 통한 처리
-        engine = get_mcp_engine()
+        # Obsidian 엔진을 통한 처리
+        engine = get_obsidian_engine()
         result = await engine.generate_response(
             prompt=basic_request.prompt,
             output_format=OutputFormat.TEXT,
@@ -244,8 +249,8 @@ async def advanced_ai_generate(request: AIRequest):
             language=request.language or "python"
         )
         
-        # MCP 엔진을 통한 처리
-        engine = get_mcp_engine()
+        # Obsidian 엔진을 통한 처리
+        engine = get_obsidian_engine()
         result = await engine.generate_response(
             prompt=advanced_request.prompt,
             output_format=OutputFormat.DOCUMENT,
@@ -261,7 +266,137 @@ async def advanced_ai_generate(request: AIRequest):
         logger.error(f"고급 AI 생성 중 오류: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
-# MCP 도구들과 볼트 조작 API는 별도 모듈로 분리됨
+# 옵시디언 특화 API 엔드포인트들
+@app.post("/obsidian/note/process")
+async def process_note_with_ai(
+    note_path: str,
+    operation: str,
+    prompt: str,
+    provider: str = "perplexity",
+    api_key: Optional[str] = None
+):
+    """노트를 AI로 처리"""
+    try:
+        engine = get_obsidian_engine()
+        result = await engine.process_note_with_ai(
+            note_path=note_path,
+            operation=operation,
+            prompt=prompt,
+            provider=AIProvider(provider),
+            api_key=api_key
+        )
+        return result
+    except Exception as e:
+        logger.error(f"노트 AI 처리 중 오류: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/obsidian/vault/search")
+async def search_vault(
+    query: str,
+    search_type: str = "content",
+    limit: int = 10
+):
+    """볼트 검색"""
+    try:
+        engine = get_obsidian_engine()
+        result = await engine.search_vault(query, search_type, limit)
+        return result
+    except Exception as e:
+        logger.error(f"볼트 검색 중 오류: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/obsidian/vault/structure")
+async def get_vault_structure():
+    """볼트 구조 조회"""
+    try:
+        engine = get_obsidian_engine()
+        result = await engine.get_vault_structure()
+        return result
+    except Exception as e:
+        logger.error(f"볼트 구조 조회 중 오류: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/obsidian/vault/set-path")
+async def set_vault_path(vault_path: str):
+    """볼트 경로 설정"""
+    try:
+        engine = get_obsidian_engine()
+        engine.vault_manager.set_vault_path(vault_path)
+        return {"success": True, "vault_path": vault_path}
+    except Exception as e:
+        logger.error(f"볼트 경로 설정 중 오류: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/obsidian/note/list")
+async def list_notes(directory: str = "", recursive: bool = True):
+    """노트 목록 조회"""
+    try:
+        engine = get_obsidian_engine()
+        notes = await engine.vault_manager.list_notes(directory, recursive)
+        return {"success": True, "notes": notes}
+    except Exception as e:
+        logger.error(f"노트 목록 조회 중 오류: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/obsidian/note/read")
+async def read_note(note_path: str):
+    """노트 읽기"""
+    try:
+        engine = get_obsidian_engine()
+        content = await engine.vault_manager.read_note(note_path)
+        if content is None:
+            raise HTTPException(status_code=404, detail="노트를 찾을 수 없습니다.")
+        return {"success": True, "content": content}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"노트 읽기 중 오류: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/obsidian/note/write")
+async def write_note(note_path: str, content: str):
+    """노트 쓰기"""
+    try:
+        engine = get_obsidian_engine()
+        success = await engine.vault_manager.write_note(note_path, content)
+        if not success:
+            raise HTTPException(status_code=500, detail="노트 쓰기에 실패했습니다.")
+        return {"success": True, "note_path": note_path}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"노트 쓰기 중 오류: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/obsidian/note/create")
+async def create_note(note_path: str, content: str = ""):
+    """새 노트 생성"""
+    try:
+        engine = get_obsidian_engine()
+        success = await engine.vault_manager.create_note(note_path, content)
+        if not success:
+            raise HTTPException(status_code=500, detail="노트 생성에 실패했습니다.")
+        return {"success": True, "note_path": note_path}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"노트 생성 중 오류: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.delete("/obsidian/note/delete")
+async def delete_note(note_path: str):
+    """노트 삭제"""
+    try:
+        engine = get_obsidian_engine()
+        success = await engine.vault_manager.delete_note(note_path)
+        if not success:
+            raise HTTPException(status_code=500, detail="노트 삭제에 실패했습니다.")
+        return {"success": True, "note_path": note_path}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"노트 삭제 중 오류: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 def run_server():
     """서버 실행"""
