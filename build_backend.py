@@ -50,7 +50,8 @@ def main():
         "--distpath", str(dist_dir),  # 출력 디렉토리
         "--workpath", str(build_dir),  # 임시 빌드 디렉토리
         "--specpath", str(project_root),  # spec 파일 위치
-        "--add-data", f"{backend_dir / 'src'}{os.pathsep}src",  # src 디렉토리 포함
+        "--add-data", f"{backend_dir / 'ai_core'}{os.pathsep}ai_core",  # ai_core 디렉토리 포함
+        "--add-data", f"{backend_dir / 'documize_api'}{os.pathsep}documize_api",  # documize_api 디렉토리 포함
         "--hidden-import", "uvicorn.loops.auto",
         "--hidden-import", "uvicorn.loops.asyncio",
         "--hidden-import", "uvicorn.protocols.websockets.auto",
@@ -60,12 +61,22 @@ def main():
         "--hidden-import", "uvicorn.lifespan.on",
         "--hidden-import", "fastapi",
         "--hidden-import", "pydantic",
+        "--hidden-import", "pydantic_settings",
         "--hidden-import", "openai",
         "--hidden-import", "anthropic",
         "--hidden-import", "httpx",
         "--hidden-import", "loguru",
         "--hidden-import", "jinja2",
         "--hidden-import", "python_multipart",
+        "--hidden-import", "ai_core",
+        "--hidden-import", "ai_core.providers",
+        "--hidden-import", "ai_core.managers",
+        "--hidden-import", "ai_core.models",
+        "--hidden-import", "ai_core.utils",
+        "--hidden-import", "ai_core.config",
+        "--hidden-import", "ai_core.processors",
+        "--hidden-import", "documize_api",
+        "--hidden-import", "documize_api.main",
         str(main_script)
     ]
     

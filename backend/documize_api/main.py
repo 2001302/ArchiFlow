@@ -5,13 +5,11 @@ FastAPI 기반 백그라운드 서버
 import sys
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-from typing import Optional, Dict, Any
+from typing import Dict, Any
 from loguru import logger
 import uvicorn
 
 # PyInstaller 환경을 위한 import 처리
-import sys
 import os
 from pathlib import Path
 
@@ -22,11 +20,13 @@ if getattr(sys, 'frozen', False):
     src_path = current_dir / "src"
     sys.path.insert(0, str(src_path))
 
-# 절대 import 사용 - 모든 환경에서 동일하게 동작
-from ai_engine import AIEngine
-from enums import OutputFormat
-from ai_providers import AIProvider
-from config import settings, validate_api_keys
+# AI Core 모듈 경로 추가
+ai_core_path = Path(__file__).parent.parent / "ai_core"
+sys.path.insert(0, str(ai_core_path))
+
+from ai_core import AIEngine, AIProvider, OutputFormat
+from ai_core.models.schemas import AIRequest, AIResponse, HealthResponse
+from ai_core.config.settings import settings, validate_api_keys
 
 # FastAPI 앱 생성
 app = FastAPI(
@@ -53,35 +53,6 @@ def get_ai_engine():
     if ai_engine is None:
         ai_engine = AIEngine()
     return ai_engine
-
-# 요청/응답 모델
-class AIRequest(BaseModel):
-    """AI 요청 모델"""
-    prompt: str
-    output_format: str  # "text", "document"
-    provider: str = "perplexity"  # "perplexity", "openai", "anthropic"
-    model: str = "gpt-4"  # 모델명
-    api_key: Optional[str] = None  # 클라이언트에서 전달받은 API Key
-    language: Optional[str] = None  # 프로그래밍 언어
-
-class ConnectionTestRequest(BaseModel):
-    """연결 테스트 요청 모델"""
-    provider: str  # "perplexity", "openai", "anthropic"
-    api_key: str
-
-class AIResponse(BaseModel):
-    """AI 응답 모델"""
-    success: bool
-    content: Optional[str] = None
-    error: Optional[str] = None
-    format: Optional[str] = None
-    provider: Optional[str] = None
-
-class HealthResponse(BaseModel):
-    """헬스 체크 응답 모델"""
-    status: str
-    api_keys_valid: bool
-    missing_keys: list
 
 @app.get("/", response_model=Dict[str, str])
 async def root():
@@ -155,46 +126,6 @@ async def get_supported_formats():
         "providers": [provider.value for provider in AIProvider]
     }
 
-@app.post("/test-connection")
-async def test_connection(request: ConnectionTestRequest):
-    """API 연결 테스트 엔드포인트"""
-    try:
-        # AI 제공자 검증
-        try:
-            provider = AIProvider(request.provider)
-        except ValueError:
-            raise HTTPException(
-                status_code=400,
-                detail=f"지원하지 않는 AI 제공자입니다: {request.provider}"
-            )
-        
-        # API Key가 제공되었는지 확인
-        if not request.api_key:
-            raise HTTPException(
-                status_code=400,
-                detail="API Key가 제공되지 않았습니다."
-            )
-        
-        # 간단한 테스트 요청으로 연결 확인 - 지연 로딩
-        engine = get_ai_engine()
-        test_result = await engine.test_connection(
-            provider=provider,
-            api_key=request.api_key
-        )
-        
-        return {
-            "success": test_result["success"],
-            "message": test_result["message"],
-            "provider": request.provider
-        }
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"연결 테스트 중 오류 발생: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-
 def run_server():
     """서버 실행"""
     import os
@@ -217,16 +148,16 @@ def run_server():
     # PyInstaller 환경에서의 모듈 경로 처리
     if getattr(sys, 'frozen', False):
         # PyInstaller로 빌드된 실행파일인 경우
-        app_module = "api_server:app"
+        app_module = "documize_api.main:app"
     else:
         # 개발 환경인 경우
-        app_module = "src.api_server:app"
+        app_module = "documize_api.main:app"
     
     # 서버 실행 - 더 빠른 시작을 위한 설정
     uvicorn.run(
         app_module,
-        host=settings.host,
-        port=settings.port,
+        host="localhost",
+        port=8000,
         reload=False,  # PyInstaller에서는 reload를 비활성화
         log_level="warning",  # 로그 레벨을 warning으로 설정하여 시작 속도 향상
         access_log=False,  # 액세스 로그 비활성화로 시작 속도 향상

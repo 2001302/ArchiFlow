@@ -97,19 +97,3 @@ class AIEngine:
             logger.error(f"AI 응답 생성 실패: {str(e)}")
             return format_error_response(str(e), provider.value)
     
-    async def test_connection(
-        self,
-        provider: AIProvider,
-        api_key: str
-    ) -> Dict[str, Any]:
-        """
-        API 연결 테스트
-        
-        Args:
-            provider: AI 제공자
-            api_key: API 키
-        
-        Returns:
-            테스트 결과 딕셔너리
-        """
-        return await self.provider_manager.test_connection(provider, api_key)

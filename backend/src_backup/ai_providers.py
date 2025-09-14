@@ -169,39 +169,3 @@ class AIProviderManager:
             result = response.json()
             return result["content"][0]["text"] or ""
     
-    async def test_connection(
-        self,
-        provider: AIProvider,
-        api_key: str
-    ) -> Dict[str, Any]:
-        """
-        API 연결 테스트
-        
-        Args:
-            provider: AI 제공자
-            api_key: API 키
-        
-        Returns:
-            테스트 결과 딕셔너리
-        """
-        try:
-            test_prompt = "Hi"
-            response = await self.providers[provider](test_prompt, api_key)
-            
-            if response and len(response.strip()) > 0:
-                return {
-                    "success": True,
-                    "message": f"{provider.value} API 연결이 성공적으로 확인되었습니다."
-                }
-            else:
-                return {
-                    "success": False,
-                    "message": f"{provider.value} API에서 빈 응답을 받았습니다."
-                }
-            
-        except Exception as e:
-            logger.error(f"API 연결 테스트 실패 ({provider.value}): {str(e)}")
-            return {
-                "success": False,
-                "message": f"{provider.value} API 연결에 실패했습니다: {str(e)}"
-            }
